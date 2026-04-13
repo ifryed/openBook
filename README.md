@@ -20,7 +20,7 @@ OpenBook is a small **wiki-style biography app**: each *book* is about one histo
 1. **Clone and install**
 
    ```bash
-   git clone <your-repo-url> openBook
+   git clone https://github.com/ifryed/openBook.git
    cd openBook
    npm install
    ```
