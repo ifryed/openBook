@@ -1,0 +1,86 @@
+@import "tailwindcss";
+
+:root {
+  --background: #faf9f7;
+  --foreground: #1a1a1a;
+  --muted: #5c5c5c;
+  --accent: #2563eb;
+  --border: #e5e2dc;
+  --card: #ffffff;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-border: var(--border);
+  --color-card: var(--card);
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+a {
+  color: var(--accent);
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.prose-wiki {
+  line-height: 1.65;
+}
+
+.prose-wiki h1,
+.prose-wiki h2,
+.prose-wiki h3 {
+  font-weight: 600;
+  margin-top: 1.25em;
+  margin-bottom: 0.5em;
+}
+
+.prose-wiki p {
+  margin-bottom: 0.75em;
+}
+
+.prose-wiki ul {
+  list-style: disc;
+  padding-left: 1.5em;
+  margin-bottom: 0.75em;
+}
+
+.prose-wiki code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  background: #f0eeea;
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+}
+
+.prose-wiki pre {
+  background: #f0eeea;
+  padding: 1em;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin-bottom: 0.75em;
+}
+
+.prose-wiki pre code {
+  background: none;
+  padding: 0;
+}
+
+.diff-add {
+  background: #dcfce7;
+}
+
+.diff-del {
+  background: #fee2e2;
+}

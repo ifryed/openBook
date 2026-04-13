@@ -1,0 +1,50 @@
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { prisma } from "@/lib/db";
+import { EditBookForm } from "./edit-book-form";
+
+type Props = { params: Promise<{ bookSlug: string }> };
+
+export default async function BookEditPage({ params }: Props) {
+  const { bookSlug } = await params;
+
+  const book = await prisma.book.findUnique({
+    where: { slug: bookSlug },
+    include: {
+      tags: { include: { tag: true } },
+    },
+  });
+
+  if (!book) notFound();
+
+  const tagsDisplay = book.tags.map((bt) => bt.tag.name).join(", ");
+
+  return (
+    <div className="space-y-6">
+      <nav className="text-sm text-muted">
+        <Link
+          href={`/books/${book.slug}`}
+          className="text-accent no-underline hover:underline"
+        >
+          ← {book.title}
+        </Link>
+      </nav>
+      <div>
+        <h1 className="text-2xl font-semibold">Edit book details</h1>
+        <p className="mt-1 text-sm text-muted">
+          Title, figure, audience, URL slug, summary, and tags. Chapters are
+          edited from each section’s page.
+        </p>
+      </div>
+      <EditBookForm
+        bookSlug={book.slug}
+        title={book.title}
+        figureName={book.figureName}
+        intendedAges={book.intendedAges}
+        summary={book.summary}
+        slug={book.slug}
+        tagsDisplay={tagsDisplay}
+      />
+    </div>
+  );
+}

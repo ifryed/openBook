@@ -1,0 +1,23 @@
+# Local Postgres for OpenBook. If port 5432 is busy, change to "5433:5432" and
+# set DATABASE_URL host port to 5433 in .env
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: openbook-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: openbook
+    ports:
+      - "5432:5432"
+    volumes:
+      - openbook_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d openbook"]
+      interval: 3s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  openbook_pgdata:

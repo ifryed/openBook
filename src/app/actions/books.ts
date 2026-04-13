@@ -1,0 +1,602 @@
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { auth } from "@/auth";
+import { prisma } from "@/lib/db";
+import {
+  assertCanCreateBook,
+  assertCanCreateRevision,
+  assertRevisionBudget,
+} from "@/lib/rate-limit";
+import {
+  createRevision,
+  getLatestRevision,
+  revertToRevision,
+} from "@/lib/revisions";
+import { assertFigurePickInSearchResults } from "@/lib/figure-candidates";
+import { isReservedSlug, uniqueSlugFromPreferred, slugify } from "@/lib/slug";
+
+const FIGURE_PICK_ERROR =
+  'Use “Check name”, choose a matching person, then “Use selected person” — or restore the original figure name when editing.';
+
+async function requireVerifiedFigurePick(
+  figureName: string,
+  kindRaw: string | null,
+  keyRaw: string | null,
+): Promise<BookFormState | null> {
+  const kind = kindRaw?.trim() ?? "";
+  const key = keyRaw?.trim() ?? "";
+  if (kind !== "wikipedia" && kind !== "wikidata") {
+    return { error: FIGURE_PICK_ERROR };
+  }
+  const ok = await assertFigurePickInSearchResults(
+    figureName,
+    kind as "wikipedia" | "wikidata",
+    key,
+  );
+  if (!ok) {
+    return {
+      error:
+        "Figure choice no longer matches catalog search. Run Check name again and pick again.",
+    };
+  }
+  return null;
+}
+
+export type BookFormState = { error?: string };
+
+function parseTags(raw: string | null): { slug: string; name: string }[] {
+  if (!raw?.trim()) return [];
+  const parts = raw.split(",").map((s) => s.trim()).filter(Boolean);
+  const seen = new Set<string>();
+  const out: { slug: string; name: string }[] = [];
+  for (const p of parts) {
+    const slug = slugify(p);
+    if (!slug || seen.has(slug)) continue;
+    seen.add(slug);
+    out.push({ slug, name: p.slice(0, 64) });
+  }
+  return out;
+}
+
+export async function createBook(
+  _prev: BookFormState,
+  formData: FormData,
+): Promise<BookFormState> {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { error: "You must be signed in." };
+  }
+
+  const title = formData.get("title")?.toString().trim() ?? "";
+  const figureName = formData.get("figureName")?.toString().trim() ?? "";
+  const intendedAges = formData.get("intendedAges")?.toString().trim() ?? "";
+  const summary = formData.get("summary")?.toString().trim() || null;
+  const slugRaw = formData.get("slug")?.toString().trim() ?? "";
+  const tagsRaw = formData.get("tags")?.toString() ?? "";
+
+  const slug = slugRaw ? slugify(slugRaw) : slugify(figureName || title);
+  if (!slug) {
+    return { error: "Provide a figure name or URL slug." };
+  }
+  if (isReservedSlug(slug)) {
+    return { error: "That URL slug is reserved. Choose another." };
+  }
+  if (!title || !figureName) {
+    return { error: "Title and historical figure name are required." };
+  }
+  if (!intendedAges) {
+    return {
+      error:
+        "Intended ages or audience is required (who should be able to read this book?).",
+    };
+  }
+  if (intendedAges.length > 255) {
+    return { error: "Intended ages / audience must be 255 characters or fewer." };
+  }
+
+  const pickErr = await requireVerifiedFigurePick(
+    figureName,
+    formData.get("figureVerifiedKind")?.toString() ?? null,
+    formData.get("figureVerifiedKey")?.toString() ?? null,
+  );
+  if (pickErr) return pickErr;
+
+  try {
+    await assertCanCreateBook(session.user.id);
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Rate limited." };
+  }
+
+  const tags = parseTags(tagsRaw);
+
+  try {
+    await prisma.$transaction(async (tx) => {
+      const book = await tx.book.create({
+        data: {
+          slug,
+          title,
+          figureName,
+          intendedAges,
+          summary,
+          createdById: session.user!.id,
+        },
+      });
+
+      for (const t of tags) {
+        const tag = await tx.tag.upsert({
+          where: { slug: t.slug },
+          create: { slug: t.slug, name: t.name },
+          update: { name: t.name },
+        });
+        await tx.bookTag.create({
+          data: { bookId: book.id, tagId: tag.id },
+        });
+      }
+
+      const section = await tx.section.create({
+        data: {
+          bookId: book.id,
+          slug: "introduction",
+          title: "Introduction",
+          orderIndex: 0,
+        },
+      });
+
+      await tx.revision.create({
+        data: {
+          sectionId: section.id,
+          authorId: session.user!.id,
+          body:
+            "This book has just been created. **Edit this introduction** to begin the biography.",
+          summaryComment: "Initial revision",
+        },
+      });
+    });
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "Could not create book.";
+    if (msg.includes("Unique constraint")) {
+      return { error: "A book with this URL slug already exists." };
+    }
+    return { error: msg };
+  }
+
+  revalidatePath("/");
+  redirect(`/books/${slug}`);
+}
+
+/**
+ * Update book metadata and tags. `currentSlug` is the book’s slug when the form was loaded.
+ */
+export async function updateBook(
+  currentSlug: string,
+  _prev: BookFormState,
+  formData: FormData,
+): Promise<BookFormState> {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { error: "You must be signed in." };
+  }
+
+  const book = await prisma.book.findUnique({
+    where: { slug: currentSlug },
+  });
+  if (!book) {
+    return { error: "Book not found." };
+  }
+
+  const title = formData.get("title")?.toString().trim() ?? "";
+  const figureName = formData.get("figureName")?.toString().trim() ?? "";
+  const intendedAges = formData.get("intendedAges")?.toString().trim() ?? "";
+  const summary = formData.get("summary")?.toString().trim() || null;
+  const slugRaw = formData.get("slug")?.toString().trim() ?? "";
+  const tagsRaw = formData.get("tags")?.toString() ?? "";
+
+  const newSlug = slugRaw ? slugify(slugRaw) : slugify(figureName || title);
+  if (!newSlug) {
+    return { error: "Provide a figure name or URL slug." };
+  }
+  if (isReservedSlug(newSlug)) {
+    return { error: "That URL slug is reserved. Choose another." };
+  }
+  if (!title || !figureName) {
+    return { error: "Title and historical figure name are required." };
+  }
+  if (!intendedAges) {
+    return {
+      error:
+        "Intended ages or audience is required (who should be able to read this book?).",
+    };
+  }
+  if (intendedAges.length > 255) {
+    return { error: "Intended ages / audience must be 255 characters or fewer." };
+  }
+
+  if (figureName !== book.figureName.trim()) {
+    const pickErr = await requireVerifiedFigurePick(
+      figureName,
+      formData.get("figureVerifiedKind")?.toString() ?? null,
+      formData.get("figureVerifiedKey")?.toString() ?? null,
+    );
+    if (pickErr) return pickErr;
+  }
+
+  const taken = await prisma.book.findFirst({
+    where: { slug: newSlug, id: { not: book.id } },
+  });
+  if (taken) {
+    return { error: "Another book already uses this URL slug." };
+  }
+
+  try {
+    await assertCanCreateRevision(session.user.id);
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Rate limited." };
+  }
+
+  const tags = parseTags(tagsRaw);
+
+  try {
+    await prisma.$transaction(async (tx) => {
+      await tx.book.update({
+        where: { id: book.id },
+        data: {
+          slug: newSlug,
+          title,
+          figureName,
+          intendedAges,
+          summary,
+        },
+      });
+
+      await tx.bookTag.deleteMany({ where: { bookId: book.id } });
+      for (const t of tags) {
+        const tag = await tx.tag.upsert({
+          where: { slug: t.slug },
+          create: { slug: t.slug, name: t.name },
+          update: { name: t.name },
+        });
+        await tx.bookTag.create({
+          data: { bookId: book.id, tagId: tag.id },
+        });
+      }
+    });
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "Could not update book.";
+    if (msg.includes("Unique constraint")) {
+      return { error: "That URL slug is already in use." };
+    }
+    return { error: msg };
+  }
+
+  revalidatePath("/");
+  revalidatePath(`/books/${currentSlug}`, "layout");
+  revalidatePath(`/books/${newSlug}`, "layout");
+  redirect(`/books/${newSlug}`);
+}
+
+export type AddSectionState = { error?: string };
+
+export async function addSectionToBook(
+  bookSlug: string,
+  _prev: AddSectionState,
+  formData: FormData,
+): Promise<AddSectionState> {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { error: "You must be signed in." };
+  }
+
+  const title = formData.get("title")?.toString().trim() ?? "";
+  const slugRaw = formData.get("slug")?.toString().trim() ?? "";
+  const slug = slugRaw ? slugify(slugRaw) : slugify(title);
+
+  if (!title || !slug) {
+    return { error: "Section title is required." };
+  }
+  if (isReservedSlug(slug)) {
+    return { error: "That URL slug is reserved." };
+  }
+
+  const book = await prisma.book.findUnique({
+    where: { slug: bookSlug },
+    include: {
+      sections: { orderBy: { orderIndex: "desc" }, take: 1 },
+    },
+  });
+  if (!book) return { error: "Book not found." };
+
+  const nextOrder = (book.sections[0]?.orderIndex ?? -1) + 1;
+
+  try {
+    await assertCanCreateRevision(session.user.id);
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Rate limited." };
+  }
+
+  try {
+    await prisma.$transaction(async (tx) => {
+      const section = await tx.section.create({
+        data: {
+          bookId: book.id,
+          slug,
+          title,
+          orderIndex: nextOrder,
+        },
+      });
+      await tx.revision.create({
+        data: {
+          sectionId: section.id,
+          authorId: session.user!.id,
+          body: `## ${title}\n\n_Add content for this section._`,
+          summaryComment: "New section",
+        },
+      });
+    });
+  } catch (e) {
+    if (
+      e instanceof Error &&
+      e.message.includes("Unique constraint")
+    ) {
+      return { error: "A section with this URL slug already exists in this book." };
+    }
+    return { error: "Could not add section." };
+  }
+
+  revalidatePath(`/books/${bookSlug}`);
+  redirect(`/books/${bookSlug}/${slug}/edit`);
+}
+
+export type SaveRevisionState = { error?: string };
+
+export async function saveSectionRevision(
+  bookSlug: string,
+  sectionSlug: string,
+  _prev: SaveRevisionState,
+  formData: FormData,
+): Promise<SaveRevisionState> {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { error: "You must be signed in." };
+  }
+
+  const body = formData.get("body")?.toString() ?? "";
+  const summaryComment = formData.get("summaryComment")?.toString().trim() || null;
+
+  if (!body.trim()) {
+    return { error: "Content cannot be empty." };
+  }
+
+  const section = await prisma.section.findFirst({
+    where: {
+      slug: sectionSlug,
+      book: { slug: bookSlug },
+    },
+  });
+  if (!section) {
+    return { error: "Section not found." };
+  }
+
+  try {
+    await assertCanCreateRevision(session.user.id);
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Rate limited." };
+  }
+
+  const latest = await getLatestRevision(section.id);
+
+  try {
+    await createRevision({
+      sectionId: section.id,
+      authorId: session.user.id,
+      body,
+      summaryComment,
+      parentRevisionId: latest?.id ?? null,
+    });
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Save failed." };
+  }
+
+  revalidatePath(`/books/${bookSlug}/${sectionSlug}`);
+  revalidatePath(`/books/${bookSlug}/${sectionSlug}/history`);
+  revalidatePath(`/books/${bookSlug}`);
+  redirect(`/books/${bookSlug}/${sectionSlug}`);
+}
+
+export async function revertSectionRevision(
+  bookSlug: string,
+  sectionSlug: string,
+  revisionId: string,
+) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    throw new Error("Unauthorized");
+  }
+
+  const section = await prisma.section.findFirst({
+    where: {
+      slug: sectionSlug,
+      book: { slug: bookSlug },
+    },
+  });
+  if (!section) throw new Error("Section not found");
+
+  try {
+    await assertCanCreateRevision(session.user.id);
+  } catch (e) {
+    throw e instanceof Error ? e : new Error("Rate limited");
+  }
+
+  await revertToRevision({
+    sectionId: section.id,
+    authorId: session.user.id,
+    targetRevisionId: revisionId,
+  });
+
+  revalidatePath(`/books/${bookSlug}/${sectionSlug}`);
+  revalidatePath(`/books/${bookSlug}/${sectionSlug}/history`);
+  revalidatePath(`/books/${bookSlug}`);
+  redirect(`/books/${bookSlug}/${sectionSlug}`);
+}
+
+export async function revertSectionFromForm(formData: FormData) {
+  const bookSlug = formData.get("bookSlug")?.toString() ?? "";
+  const sectionSlug = formData.get("sectionSlug")?.toString() ?? "";
+  const revisionId = formData.get("revisionId")?.toString() ?? "";
+  if (!bookSlug || !sectionSlug || !revisionId) {
+    throw new Error("Missing fields");
+  }
+  await revertSectionRevision(bookSlug, sectionSlug, revisionId);
+}
+
+const MAX_LLM_TOC_SECTIONS = 15;
+
+export type AddTocFromLlmResult = {
+  error?: string;
+  added?: number;
+  skipped?: number;
+};
+
+/**
+ * Creates multiple sections from client-parsed LLM output (e.g. local WebLLM).
+ */
+export async function addTocSectionsFromLlm(
+  bookSlug: string,
+  itemsJson: string,
+): Promise<AddTocFromLlmResult> {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { error: "You must be signed in." };
+  }
+
+  let items: unknown;
+  try {
+    items = JSON.parse(itemsJson) as unknown;
+  } catch {
+    return { error: "Invalid data." };
+  }
+  if (!Array.isArray(items) || items.length === 0) {
+    return { error: "No sections to add." };
+  }
+  if (items.length > MAX_LLM_TOC_SECTIONS) {
+    return { error: `At most ${MAX_LLM_TOC_SECTIONS} sections per request.` };
+  }
+
+  const book = await prisma.book.findUnique({
+    where: { slug: bookSlug },
+    include: { sections: true },
+  });
+  if (!book) return { error: "Book not found." };
+
+  type Row = { title: string; slug: string };
+  const normalized: Row[] = [];
+  const seenNew = new Set<string>();
+
+  for (const row of items) {
+    if (!row || typeof row !== "object") continue;
+    const r = row as Record<string, unknown>;
+    const title =
+      typeof r.title === "string" ? r.title.trim().slice(0, 120) : "";
+    if (!title) continue;
+    const preferredSlug =
+      typeof r.slug === "string" ? r.slug.trim() : undefined;
+    const taken = new Set<string>([
+      ...book.sections.map((s) => s.slug),
+      ...seenNew,
+    ]);
+    const slug = uniqueSlugFromPreferred(preferredSlug, title, taken);
+    if (!slug) continue;
+    seenNew.add(slug);
+    normalized.push({ title, slug });
+  }
+
+  if (normalized.length === 0) {
+    return {
+      error:
+        "No valid new sections (duplicates, reserved slugs, or empty titles were skipped).",
+    };
+  }
+
+  try {
+    await assertRevisionBudget(session.user.id, normalized.length);
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Rate limited." };
+  }
+
+  const maxOrder = book.sections.reduce(
+    (m, s) => Math.max(m, s.orderIndex),
+    -1,
+  );
+
+  let added = 0;
+  const skipped = items.length - normalized.length;
+
+  await prisma.$transaction(async (tx) => {
+    let order = maxOrder;
+    for (const row of normalized) {
+      order += 1;
+      const section = await tx.section.create({
+        data: {
+          bookId: book.id,
+          slug: row.slug,
+          title: row.title,
+          orderIndex: order,
+        },
+      });
+      const body = `## ${row.title}\n\n_Outline from local AI — add narrative here._`;
+      await tx.revision.create({
+        data: {
+          sectionId: section.id,
+          authorId: session.user!.id,
+          body,
+          summaryComment: "Section from local LLM TOC",
+        },
+      });
+      added += 1;
+    }
+  });
+
+  revalidatePath(`/books/${bookSlug}`);
+  return { added, skipped };
+}
+
+export type DeleteSectionState = { error?: string };
+
+export async function deleteSectionFromBook(
+  bookSlug: string,
+  sectionSlug: string,
+  _prev: DeleteSectionState,
+  _formData: FormData,
+): Promise<DeleteSectionState> {
+  void _prev;
+  void _formData;
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { error: "You must be signed in." };
+  }
+
+  const book = await prisma.book.findUnique({
+    where: { slug: bookSlug },
+    include: { sections: { select: { id: true, slug: true } } },
+  });
+  if (!book) return { error: "Book not found." };
+  if (book.sections.length <= 1) {
+    return {
+      error:
+        "You cannot delete the only section. Add another section first, then delete this one.",
+    };
+  }
+
+  const target = book.sections.find((s) => s.slug === sectionSlug);
+  if (!target) return { error: "Section not found." };
+
+  await prisma.section.delete({ where: { id: target.id } });
+
+  revalidatePath(`/books/${bookSlug}`);
+  revalidatePath(`/books/${bookSlug}/${sectionSlug}`);
+  revalidatePath(`/books/${bookSlug}/${sectionSlug}/edit`);
+  revalidatePath(`/books/${bookSlug}/${sectionSlug}/history`);
+
+  redirect(`/books/${bookSlug}`);
+}
