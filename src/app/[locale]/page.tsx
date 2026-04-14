@@ -287,20 +287,21 @@ export default async function HomePage({ params, searchParams }: Props) {
                   >
                     {book.figureName}
                   </Link>
-                  {book.country.trim() ? (
-                    <>
-                      {" · "}
-                      <Link
-                        href={`/${locale}?country=${encodeURIComponent(book.country.trim())}`}
-                        className="text-accent no-underline hover:underline"
-                      >
-                        {book.country.trim()}
-                      </Link>
-                    </>
-                  ) : null}
                   {" · "}
                   {book._count.sections} {c("sections")}
                 </p>
+                {book.country.trim() ? (
+                  <p className="mt-1 text-sm text-muted">
+                    {c("countryRegion")}
+                    {": "}
+                    <Link
+                      href={`/${locale}?country=${encodeURIComponent(book.country.trim())}`}
+                      className="text-accent no-underline hover:underline"
+                    >
+                      {book.country.trim()}
+                    </Link>
+                  </p>
+                ) : null}
                 {book.intendedAges.trim() ? (
                   <p className="mt-1 text-xs text-muted">
                     {t("ageAudienceLabel")}{" "}
