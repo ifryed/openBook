@@ -11,6 +11,7 @@ import {
   notificationHref,
   notificationSummary,
 } from "@/lib/notification-copy";
+import { resolveSectionTitle } from "@/lib/section-localization";
 
 export const metadata = { title: "Notifications" };
 
@@ -26,7 +27,13 @@ export default async function NotificationsPage() {
     take: 100,
     include: {
       book: { select: { slug: true, title: true } },
-      section: { select: { slug: true, title: true } },
+      section: {
+        select: {
+          slug: true,
+          localizations: { select: { locale: true, title: true } },
+          book: { select: { defaultLocale: true } },
+        },
+      },
     },
   });
 
@@ -104,15 +111,27 @@ function NotificationRow({
     createdAt: Date;
     viaDigest: boolean;
     book: { slug: string; title: string } | null;
-    section: { slug: string; title: string } | null;
+    section: {
+      slug: string;
+      localizations: { locale: string; title: string }[];
+      book: { defaultLocale: string };
+    } | null;
   };
 }) {
   const book = n.book;
+  const sectionTitle = n.section
+    ? resolveSectionTitle(
+        n.section.slug,
+        n.section.localizations,
+        n.section.book.defaultLocale,
+        n.section.book.defaultLocale,
+      )
+    : undefined;
   const title = book
     ? notificationSummary({
         type: n.type,
         bookTitle: book.title,
-        sectionTitle: n.section?.title,
+        sectionTitle,
       })
     : "Notification";
 

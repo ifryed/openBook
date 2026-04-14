@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { resolveReport } from "@/app/actions/moderation";
 import { prisma } from "@/lib/db";
 import { canResolveReports } from "@/lib/moderation";
+import { resolveSectionTitle } from "@/lib/section-localization";
 
 export const metadata = { title: "Reports" };
 
@@ -39,7 +40,13 @@ export default async function ModerationReportsPage() {
     include: {
       user: { select: { name: true, email: true } },
       book: { select: { slug: true, title: true } },
-      section: { select: { slug: true, title: true } },
+      section: {
+        select: {
+          slug: true,
+          localizations: { select: { locale: true, title: true } },
+          book: { select: { defaultLocale: true } },
+        },
+      },
     },
   });
 
@@ -83,7 +90,12 @@ export default async function ModerationReportsPage() {
                         href={`/books/${r.book.slug}/${r.section.slug}`}
                         className="text-accent no-underline hover:underline"
                       >
-                        {r.section.title}
+                        {resolveSectionTitle(
+                          r.section.slug,
+                          r.section.localizations,
+                          r.section.book.defaultLocale,
+                          r.section.book.defaultLocale,
+                        )}
                       </Link>
                     </>
                   ) : null}

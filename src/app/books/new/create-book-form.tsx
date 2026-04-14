@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { createBook, type BookFormState } from "@/app/actions/books";
+import { BookPrimaryLanguageSelect } from "@/components/book-primary-language-select";
 import { FigureNameField } from "@/components/figure-name-field";
 import { IntendedAudienceSelect } from "@/components/intended-audience-select";
 
@@ -57,6 +58,16 @@ export function CreateBookForm() {
       <span className="mt-1 block text-xs text-muted">
         Used for browsing filters and for local AI (reading level and tone).
       </span>
+      <label
+        htmlFor="create-defaultLocale-search"
+        className="block text-sm font-medium"
+      >
+        Primary language
+      </label>
+      <BookPrimaryLanguageSelect id="create-defaultLocale" />
+      <p className="mt-1 text-xs text-muted">
+        You can add more languages after the book is created (book settings).
+      </p>
       <label className="block text-sm font-medium">
         Country / region (optional)
         <input

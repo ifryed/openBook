@@ -2,6 +2,7 @@
 
 import { reorderBookSections } from "@/app/actions/books";
 import { EditPencilLink } from "@/components/edit-pencil-link";
+import { withLangQuery } from "@/lib/book-locales";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
@@ -14,9 +15,12 @@ export type ContentsSectionRow = {
 
 export function ContentsOrderPanel({
   bookSlug,
+  linkLocale,
   sections: initialSections,
 }: {
   bookSlug: string;
+  /** Preserve `?lang=` on chapter links from this screen. */
+  linkLocale: string;
   sections: ContentsSectionRow[];
 }) {
   const router = useRouter();
@@ -77,13 +81,19 @@ export function ContentsOrderPanel({
             <div className="flex flex-wrap items-center gap-2">
               <span className="inline-flex flex-wrap items-center gap-1">
                 <Link
-                  href={`/books/${bookSlug}/${s.slug}`}
+                  href={withLangQuery(
+                    `/books/${bookSlug}/${s.slug}`,
+                    linkLocale,
+                  )}
                   className="text-accent no-underline hover:underline"
                 >
                   {s.title}
                 </Link>
                 <EditPencilLink
-                  href={`/books/${bookSlug}/${s.slug}/edit`}
+                  href={withLangQuery(
+                    `/books/${bookSlug}/${s.slug}/edit`,
+                    linkLocale,
+                  )}
                   label={`Edit chapter: ${s.title}`}
                 />
               </span>

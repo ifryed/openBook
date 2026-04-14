@@ -31,6 +31,7 @@ const deleteInitial: DeleteSectionState = {};
 export function EditSectionForm({
   bookSlug,
   sectionSlug,
+  locale,
   sectionTitle,
   initialBody,
   canDeleteChapter,
@@ -41,6 +42,7 @@ export function EditSectionForm({
 }: {
   bookSlug: string;
   sectionSlug: string;
+  locale: string;
   sectionTitle: string;
   initialBody: string;
   canDeleteChapter: boolean;
@@ -80,6 +82,7 @@ export function EditSectionForm({
     />
 
     <form action={formAction} className="mt-6 space-y-4">
+      <input type="hidden" name="locale" value={locale} />
       <label className="block text-sm font-medium">
         Edit summary (optional)
         <input

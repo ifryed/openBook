@@ -95,37 +95,72 @@ model Book {
   /** Country or region associated with the figure or setting (optional, for browsing). */
   country        String   @default("") @map("country") @db.VarChar(255)
   summary        String?  @db.Text
+  /** BCP-47-style code; fallback locale for titles and notifications. */
+  defaultLocale  String   @default("en") @map("default_locale") @db.VarChar(16)
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
   createdById    String   @map("created_by_id")
 
-  createdBy     User            @relation(fields: [createdById], references: [id])
+  createdBy     User               @relation(fields: [createdById], references: [id])
   sections      Section[]
+  languages     BookLanguage[]
+  titleLocales  BookLocalization[]
   tags          BookTag[]
   reports       Report[]
   watchers      BookWatch[]
   notifications Notification[]
 }
 
+model BookLanguage {
+  bookId String @map("book_id")
+  locale String @db.VarChar(16)
+  book   Book   @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@id([bookId, locale])
+  @@index([locale])
+}
+
+/** Per-locale book title; `Book.title` stays in sync with the default locale row for search and admin. */
+model BookLocalization {
+  bookId String @map("book_id")
+  locale String @db.VarChar(16)
+  title  String @db.Text
+  book   Book   @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@id([bookId, locale])
+  @@index([locale])
+}
+
 model Section {
   id         String @id @default(cuid())
   bookId     String @map("book_id")
   slug       String
-  title      String
   orderIndex Int    @default(0) @map("order_index")
 
-  book          Book           @relation(fields: [bookId], references: [id], onDelete: Cascade)
-  revisions     Revision[]
-  reports       Report[]
-  notifications Notification[]
+  book            Book                  @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  localizations   SectionLocalization[]
+  revisions       Revision[]
+  reports         Report[]
+  notifications   Notification[]
 
   @@unique([bookId, slug])
+}
+
+model SectionLocalization {
+  sectionId String @map("section_id")
+  locale    String @db.VarChar(16)
+  title     String @db.VarChar(255)
+  section   Section @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+
+  @@id([sectionId, locale])
+  @@index([locale])
 }
 
 model Revision {
   id               String   @id @default(cuid())
   sectionId        String   @map("section_id")
   authorId         String   @map("author_id")
+  locale           String   @default("en") @db.VarChar(16)
   body             String   @db.Text
   summaryComment   String?  @map("summary_comment")
   parentRevisionId String?  @map("parent_revision_id")
@@ -134,6 +169,8 @@ model Revision {
   section       Section        @relation(fields: [sectionId], references: [id], onDelete: Cascade)
   author        User           @relation(fields: [authorId], references: [id])
   notifications Notification[]
+
+  @@index([sectionId, locale, createdAt])
 }
 
 model Tag {

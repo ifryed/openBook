@@ -8,7 +8,14 @@ import remarkParse from "remark-parse";
 import remarkRehype from "remark-rehype";
 import rehypeStringify from "rehype-stringify";
 import { unified } from "unified";
+import { normalizeActiveLocale } from "@/lib/book-locales";
 import { prisma } from "@/lib/db";
+import { getLatestRevision } from "@/lib/revisions";
+import {
+  isSectionCompleteForLocale,
+  resolveSectionTitle,
+} from "@/lib/section-localization";
+import { resolveBookTitle } from "@/lib/book-title-localization";
 
 /** Inline styles aligned with `.prose-wiki` in globals.css (no CSS variables). */
 export const BOOK_EXPORT_INLINE_CSS = `
@@ -44,25 +51,87 @@ export function escapeHtml(text: string): string {
     .replace(/"/g, "&quot;");
 }
 
-export async function getBookForExport(bookSlug: string) {
-  return prisma.book.findUnique({
+export type BookForExport = {
+  slug: string;
+  title: string;
+  figureName: string;
+  intendedAges: string;
+  summary: string | null;
+  exportLocale: string;
+  sections: {
+    slug: string;
+    title: string;
+    revisions: { body: string }[];
+  }[];
+};
+
+export async function getBookForExport(
+  bookSlug: string,
+  requestedLang: string | null,
+): Promise<BookForExport | null> {
+  const book = await prisma.book.findUnique({
     where: { slug: bookSlug },
     include: {
+      languages: { select: { locale: true } },
+      titleLocales: { select: { locale: true, title: true } },
       sections: {
         orderBy: { orderIndex: "asc" },
         include: {
-          revisions: {
-            orderBy: { createdAt: "desc" },
-            take: 1,
-            select: { body: true },
-          },
+          localizations: { select: { locale: true, title: true } },
         },
       },
     },
   });
-}
+  if (!book) return null;
 
-export type BookForExport = NonNullable<Awaited<ReturnType<typeof getBookForExport>>>;
+  const bookLocales = book.languages.map((l) => l.locale);
+  const exportLocale = normalizeActiveLocale(
+    requestedLang,
+    bookLocales,
+    book.defaultLocale,
+  );
+
+  const sections: BookForExport["sections"] = [];
+  for (const s of book.sections) {
+    const latest = await getLatestRevision(s.id, exportLocale);
+    if (
+      !isSectionCompleteForLocale(
+        s.localizations,
+        exportLocale,
+        latest?.body,
+      )
+    ) {
+      continue;
+    }
+    sections.push({
+      slug: s.slug,
+      title: resolveSectionTitle(
+        s.slug,
+        s.localizations,
+        exportLocale,
+        book.defaultLocale,
+      ),
+      revisions: latest ? [{ body: latest.body }] : [],
+    });
+  }
+
+  const exportTitle = resolveBookTitle(
+    book.title,
+    book.titleLocales,
+    exportLocale,
+    book.defaultLocale,
+  );
+
+  return {
+    slug: book.slug,
+    title: exportTitle,
+    figureName: book.figureName,
+    intendedAges: book.intendedAges,
+    summary: book.summary,
+    exportLocale,
+    sections,
+  };
+}
 
 /** Server-safe Markdown → HTML (GFM), aligned with MarkdownBody / react-markdown. */
 async function markdownExportToHtml(markdown: string): Promise<string> {
@@ -94,6 +163,7 @@ export async function buildFullHtmlExportDocument(
   const summaryHtml = book.summary?.trim()
     ? `<p class="book-export-summary">${escapeHtml(book.summary.trim())}</p>`
     : "";
+  const htmlLang = escapeHtml(book.exportLocale);
 
   const sectionBlocks = (
     await Promise.all(
@@ -105,7 +175,7 @@ export async function buildFullHtmlExportDocument(
   ).join("\n\n");
 
   return `<!DOCTYPE html>
-<html lang="en">
+<html lang="${htmlLang}">
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -141,7 +211,7 @@ export async function buildEpubBuffer(book: BookForExport): Promise<Buffer> {
       description:
         book.summary?.trim() ?? `Biography: ${book.figureName}`,
       publisher: "OpenBook",
-      lang: "en",
+      lang: book.exportLocale,
       verbose: false,
       css: BOOK_EXPORT_INLINE_CSS,
     },

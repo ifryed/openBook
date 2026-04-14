@@ -1,17 +1,15 @@
 "use client";
 
-import { updateSectionTitle } from "@/app/actions/books";
+import { updateBookLocalizedTitle } from "@/app/actions/books";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 
-export function SectionTitleEditor({
+export function BookLocalizedTitleEditor({
   bookSlug,
-  sectionSlug,
   locale,
   initialTitle,
 }: {
   bookSlug: string;
-  sectionSlug: string;
   locale: string;
   initialTitle: string;
 }) {
@@ -47,7 +45,7 @@ export function SectionTitleEditor({
     }
     setError(null);
     startTransition(async () => {
-      const res = await updateSectionTitle(bookSlug, sectionSlug, locale, t);
+      const res = await updateBookLocalizedTitle(bookSlug, locale, t);
       if (res.error) {
         setError(res.error);
         return;
@@ -58,21 +56,25 @@ export function SectionTitleEditor({
   };
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 rounded-lg border border-border bg-card p-4">
+      <h2 className="text-sm font-medium text-muted">Book title</h2>
+      <p className="text-xs text-muted">
+        Title shown to readers when they open this book in{" "}
+        <strong>{locale}</strong>.
+      </p>
       <div
-        className="flex flex-wrap items-center gap-x-2 gap-y-2 text-2xl font-semibold tracking-tight text-foreground"
+        className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-2 text-lg font-semibold tracking-tight text-foreground"
         role="group"
-        aria-label="Chapter title"
+        aria-label="Book title for this language"
       >
-        <span className="shrink-0">Edit:</span>
         {!editing ? (
           <>
             <span className="min-w-0">{initialTitle}</span>
             <button
               type="button"
               onClick={openEdit}
-              aria-label="Edit chapter title"
-              title="Edit chapter title"
+              aria-label="Edit book title for this language"
+              title="Edit book title"
               className="inline-flex shrink-0 items-center justify-center rounded-md border border-transparent p-1.5 text-muted hover:border-border hover:bg-muted/40 hover:text-foreground"
             >
               <svg
@@ -94,7 +96,7 @@ export function SectionTitleEditor({
               onChange={(e) => setDraft(e.target.value)}
               disabled={pending}
               autoFocus
-              className="min-w-[12rem] max-w-full flex-1 rounded-md border border-border bg-card px-3 py-1.5 text-2xl font-semibold text-foreground"
+              className="min-w-[12rem] max-w-full flex-1 rounded-md border border-border bg-background px-3 py-1.5 text-lg font-semibold text-foreground"
             />
             <span className="flex w-full shrink-0 items-center gap-2 sm:w-auto">
               <button

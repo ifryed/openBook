@@ -9,8 +9,15 @@ export async function getBookCatalogFilterOptions() {
     orderBy: { country: "asc" },
   });
 
+  const langRows = await prisma.bookLanguage.findMany({
+    select: { locale: true },
+    distinct: ["locale"],
+    orderBy: { locale: "asc" },
+  });
+
   return {
     countries: countryRows.map((r) => r.country),
+    languages: langRows.map((r) => r.locale),
   };
 }
 
@@ -19,11 +26,13 @@ export function buildBookCatalogWhere(input: {
   figure: string;
   age: string;
   country: string;
+  lang: string;
 }): Prisma.BookWhereInput | undefined {
   const q = input.query.trim();
   const figureF = input.figure.trim();
   const ageF = input.age.trim();
   const countryF = input.country.trim();
+  const langF = input.lang.trim();
 
   const searchWhere: Prisma.BookWhereInput | null = q
     ? {
@@ -57,6 +66,11 @@ export function buildBookCatalogWhere(input: {
   if (countryF) {
     filters.push({ country: { equals: countryF, mode: "insensitive" } });
   }
+  if (langF) {
+    filters.push({
+      languages: { some: { locale: { equals: langF, mode: "insensitive" } } },
+    });
+  }
 
   if (filters.length === 0 && !searchWhere) return undefined;
   if (filters.length === 0 && searchWhere) return searchWhere;
@@ -66,8 +80,30 @@ export function buildBookCatalogWhere(input: {
   return { AND: [...filters, searchWhere] };
 }
 
-/** Drop figure / age / country params but keep text search `q`. */
+/** Drop figure / age / country / lang params but keep text search `q`. */
 export function catalogClearFiltersHref(query: string): string {
   const q = query.trim();
   return q ? `/?q=${encodeURIComponent(q)}` : "/";
+}
+
+/** Build home catalog URL with only defined filter parts. */
+export function buildCatalogUrl(parts: {
+  q?: string;
+  figure?: string;
+  age?: string;
+  country?: string;
+  lang?: string;
+}): string {
+  const p = new URLSearchParams();
+  const add = (key: string, v: string | undefined) => {
+    const t = v?.trim();
+    if (t) p.set(key, t);
+  };
+  add("q", parts.q);
+  add("figure", parts.figure);
+  add("age", parts.age);
+  add("country", parts.country);
+  add("lang", parts.lang);
+  const s = p.toString();
+  return s ? `/?${s}` : "/";
 }

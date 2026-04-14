@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { auth } from "@/auth";
 import { AdminDeleteBookForm } from "@/components/admin-delete-book-form";
 import { prisma } from "@/lib/db";
+import { BookLanguagesManager } from "@/components/book-languages-manager";
 import { EditBookForm } from "./edit-book-form";
 
 type Props = { params: Promise<{ bookSlug: string }> };
@@ -15,6 +16,7 @@ export default async function BookEditPage({ params }: Props) {
     where: { slug: bookSlug },
     include: {
       tags: { include: { tag: true } },
+      languages: { select: { locale: true } },
     },
   });
 
@@ -35,6 +37,11 @@ export default async function BookEditPage({ params }: Props) {
       <div>
         <h1 className="text-2xl font-semibold">Edit book details</h1>
       </div>
+      <BookLanguagesManager
+        bookSlug={book.slug}
+        locales={book.languages.map((l) => l.locale)}
+        defaultLocale={book.defaultLocale}
+      />
       <EditBookForm
         bookSlug={book.slug}
         title={book.title}
@@ -44,6 +51,8 @@ export default async function BookEditPage({ params }: Props) {
         summary={book.summary}
         slug={book.slug}
         tagsDisplay={tagsDisplay}
+        bookLanguages={book.languages.map((l) => l.locale)}
+        bookDefaultLocale={book.defaultLocale}
       />
       {session?.user?.isAdmin ? (
         <AdminDeleteBookForm bookSlug={book.slug} bookTitle={book.title} />

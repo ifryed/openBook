@@ -61,7 +61,10 @@ export async function GET(
     );
   }
 
-  const book = await getBookForExport(bookSlug);
+  const book = await getBookForExport(
+    bookSlug,
+    req.nextUrl.searchParams.get("lang"),
+  );
   if (!book) {
     return new Response("Book not found.", { status: 404, headers: NO_STORE });
   }

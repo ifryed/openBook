@@ -3,17 +3,21 @@ import { prisma } from "@/lib/db";
 
 type Db = Prisma.TransactionClient | typeof prisma;
 
-export async function getLatestRevision(sectionId: string, db: Db = prisma) {
+export async function getLatestRevision(
+  sectionId: string,
+  locale: string,
+  db: Db = prisma,
+) {
   return db.revision.findFirst({
-    where: { sectionId },
+    where: { sectionId, locale },
     orderBy: { createdAt: "desc" },
     include: { author: { select: { id: true, name: true, email: true } } },
   });
 }
 
-export async function listRevisions(sectionId: string) {
+export async function listRevisions(sectionId: string, locale: string) {
   return prisma.revision.findMany({
-    where: { sectionId },
+    where: { sectionId, locale },
     orderBy: { createdAt: "desc" },
     include: { author: { select: { id: true, name: true, email: true } } },
   });
@@ -23,6 +27,7 @@ export async function createRevision(
   input: {
     sectionId: string;
     authorId: string;
+    locale: string;
     body: string;
     summaryComment?: string | null;
     parentRevisionId?: string | null;
@@ -33,6 +38,7 @@ export async function createRevision(
     data: {
       sectionId: input.sectionId,
       authorId: input.authorId,
+      locale: input.locale,
       body: input.body,
       summaryComment: input.summaryComment ?? null,
       parentRevisionId: input.parentRevisionId ?? null,
@@ -43,6 +49,7 @@ export async function createRevision(
 export async function revertToRevision(
   input: {
     sectionId: string;
+    locale: string;
     authorId: string;
     targetRevisionId: string;
     summaryComment?: string | null;
@@ -50,11 +57,15 @@ export async function revertToRevision(
   db: Db = prisma,
 ) {
   const target = await db.revision.findFirst({
-    where: { id: input.targetRevisionId, sectionId: input.sectionId },
+    where: {
+      id: input.targetRevisionId,
+      sectionId: input.sectionId,
+      locale: input.locale,
+    },
   });
   if (!target) throw new Error("Revision not found");
 
-  const latest = await getLatestRevision(input.sectionId, db);
+  const latest = await getLatestRevision(input.sectionId, input.locale, db);
   if (latest?.id === target.id) {
     throw new Error("Already at this revision");
   }
@@ -63,6 +74,7 @@ export async function revertToRevision(
     {
       sectionId: input.sectionId,
       authorId: input.authorId,
+      locale: input.locale,
       body: target.body,
       summaryComment:
         input.summaryComment ??

@@ -1,5 +1,6 @@
 import type { ReportStatus } from "@prisma/client";
 import { prisma } from "@/lib/db";
+import { resolveSectionTitle } from "@/lib/section-localization";
 import {
   getUserPointsAndTier,
   type TrustTier,
@@ -63,7 +64,7 @@ export async function loadProfileRevisions(
   userId: string,
   limit: number,
 ): Promise<ProfileRevisionRow[]> {
-  return prisma.revision.findMany({
+  const rows = await prisma.revision.findMany({
     where: { authorId: userId },
     orderBy: { createdAt: "desc" },
     take: limit,
@@ -71,15 +72,34 @@ export async function loadProfileRevisions(
       id: true,
       createdAt: true,
       summaryComment: true,
+      locale: true,
       section: {
         select: {
           slug: true,
-          title: true,
-          book: { select: { slug: true, title: true } },
+          localizations: { select: { locale: true, title: true } },
+          book: { select: { slug: true, title: true, defaultLocale: true } },
         },
       },
     },
   });
+  return rows.map((r) => ({
+    id: r.id,
+    createdAt: r.createdAt,
+    summaryComment: r.summaryComment,
+    section: {
+      slug: r.section.slug,
+      title: resolveSectionTitle(
+        r.section.slug,
+        r.section.localizations,
+        r.locale,
+        r.section.book.defaultLocale,
+      ),
+      book: {
+        slug: r.section.book.slug,
+        title: r.section.book.title,
+      },
+    },
+  }));
 }
 
 export async function loadProfileContributionRows(
@@ -207,7 +227,13 @@ export async function loadProfileFiledReports(
     take: limit,
     include: {
       book: { select: { slug: true, title: true } },
-      section: { select: { slug: true, title: true } },
+      section: {
+        select: {
+          slug: true,
+          localizations: { select: { locale: true, title: true } },
+          book: { select: { defaultLocale: true } },
+        },
+      },
     },
   });
   return filedReports.map((r) => ({
@@ -216,7 +242,17 @@ export async function loadProfileFiledReports(
     status: r.status,
     reason: r.reason,
     book: r.book,
-    section: r.section,
+    section: r.section
+      ? {
+          slug: r.section.slug,
+          title: resolveSectionTitle(
+            r.section.slug,
+            r.section.localizations,
+            r.section.book.defaultLocale,
+            r.section.book.defaultLocale,
+          ),
+        }
+      : null,
   }));
 }
 

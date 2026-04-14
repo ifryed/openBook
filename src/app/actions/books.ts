@@ -14,6 +14,7 @@ import {
   getLatestRevision,
   revertToRevision,
 } from "@/lib/revisions";
+import { resolveSectionTitle } from "@/lib/section-localization";
 import { notifyBookActivityTx, notifyNewBookDigestTx } from "@/lib/notifications";
 import { awardReputationTx } from "@/lib/reputation";
 import { assertFigurePickInSearchResults } from "@/lib/figure-candidates";
@@ -22,6 +23,12 @@ import {
   MAX_AUTO_WIZARD_PUBLISH_SECTIONS,
   MAX_LLM_TOC_SECTIONS,
 } from "@/lib/book-limits";
+import {
+  DEFAULT_BOOK_LOCALE,
+  isKnownBookLocale,
+  normalizeActiveLocale,
+  withLangQuery,
+} from "@/lib/book-locales";
 import {
   defaultBookSlug,
   isReservedSlug,
@@ -80,6 +87,9 @@ type ValidatedCreateBook = {
   country: string;
   summary: string | null;
   tags: ReturnType<typeof parseTags>;
+  /** BCP-47 codes; always non-empty. */
+  languages: string[];
+  defaultLocale: string;
   /** When true, creates slug `introduction` with a starter revision (auto wizard replaces it with an AI draft). */
   includeIntroduction: boolean;
 };
@@ -128,6 +138,12 @@ async function validateCreateBookForm(
   if (pickErr) return pickErr;
 
   const tags = parseTags(tagsRaw);
+  const defaultLocaleRaw =
+    formData.get("defaultLocale")?.toString().trim() || DEFAULT_BOOK_LOCALE;
+  if (!isKnownBookLocale(defaultLocaleRaw)) {
+    return { error: "Choose a valid primary language." };
+  }
+  const languages = [defaultLocaleRaw];
   const includeIntroduction =
     formData.get("includeIntroduction") === "on" ||
     formData.get("includeIntroduction") === "true";
@@ -139,6 +155,8 @@ async function validateCreateBookForm(
     country,
     summary,
     tags,
+    languages,
+    defaultLocale: defaultLocaleRaw,
     includeIntroduction,
   };
 }
@@ -163,7 +181,19 @@ async function insertNewBook(
           intendedAges: v.intendedAges,
           country: v.country,
           summary: v.summary,
+          defaultLocale: v.defaultLocale,
           createdById: userId,
+          languages: {
+            create: v.languages.map((locale) => ({ locale })),
+          },
+        },
+      });
+
+      await tx.bookLocalization.create({
+        data: {
+          bookId: book.id,
+          locale: v.defaultLocale,
+          title: v.title,
         },
       });
 
@@ -185,8 +215,13 @@ async function insertNewBook(
           data: {
             bookId: book.id,
             slug: "introduction",
-            title: "Introduction",
             orderIndex: 0,
+            localizations: {
+              create: {
+                locale: v.defaultLocale,
+                title: "Introduction",
+              },
+            },
           },
         });
         refSectionId = section.id;
@@ -194,6 +229,7 @@ async function insertNewBook(
           data: {
             sectionId: section.id,
             authorId: userId,
+            locale: v.defaultLocale,
             body:
               "This book has just been created. **Edit this introduction** to begin the biography.",
             summaryComment: "Initial revision",
@@ -244,7 +280,7 @@ export async function createBook(
   if (err.error) return err;
 
   revalidatePath("/");
-  redirect(`/books/${validated.slug}`);
+  redirect(withLangQuery(`/books/${validated.slug}`, validated.defaultLocale));
 }
 
 type WizardPublishChapterRow = { slug: string; title: string; body: string };
@@ -305,7 +341,19 @@ async function insertPublishedAutoWizardBook(
           intendedAges: v.intendedAges,
           country: v.country,
           summary: v.summary,
+          defaultLocale: v.defaultLocale,
           createdById: userId,
+          languages: {
+            create: v.languages.map((locale) => ({ locale })),
+          },
+        },
+      });
+
+      await tx.bookLocalization.create({
+        data: {
+          bookId: book.id,
+          locale: v.defaultLocale,
+          title: v.title,
         },
       });
 
@@ -329,14 +377,20 @@ async function insertPublishedAutoWizardBook(
           data: {
             bookId: book.id,
             slug: ch.slug,
-            title: ch.title,
             orderIndex: i,
+            localizations: {
+              create: {
+                locale: v.defaultLocale,
+                title: ch.title,
+              },
+            },
           },
         });
         const rev = await tx.revision.create({
           data: {
             sectionId: section.id,
             authorId: userId,
+            locale: v.defaultLocale,
             body: ch.body,
             summaryComment: "Auto-wizard draft",
           },
@@ -406,7 +460,7 @@ export async function assertAutoWizardPublishPreconditions(
 }
 
 export type PublishAutoWizardResult =
-  | { ok: true; slug: string }
+  | { ok: true; slug: string; defaultLocale: string }
   | { error: string };
 
 /**
@@ -455,7 +509,11 @@ export async function publishAutoWizardBook(
 
   revalidatePath("/");
   revalidatePath(`/books/${validated.slug}`);
-  return { ok: true, slug: validated.slug };
+  return {
+    ok: true,
+    slug: validated.slug,
+    defaultLocale: validated.defaultLocale,
+  };
 }
 
 /**
@@ -473,6 +531,7 @@ export async function updateBook(
 
   const book = await prisma.book.findUnique({
     where: { slug: currentSlug },
+    include: { languages: { select: { locale: true } } },
   });
   if (!book) {
     return { error: "Book not found." };
@@ -540,6 +599,15 @@ export async function updateBook(
 
   const tags = parseTags(tagsRaw);
 
+  const defaultLocaleRaw =
+    formData.get("defaultLocale")?.toString().trim() || "";
+  const allowedLocales = new Set(book.languages.map((l) => l.locale));
+  if (!defaultLocaleRaw || !allowedLocales.has(defaultLocaleRaw)) {
+    return {
+      error: "Choose a valid primary language from this book’s languages.",
+    };
+  }
+
   try {
     await prisma.$transaction(async (tx) => {
       await tx.book.update({
@@ -551,7 +619,20 @@ export async function updateBook(
           intendedAges,
           country,
           summary,
+          defaultLocale: defaultLocaleRaw,
         },
+      });
+
+      await tx.bookLocalization.upsert({
+        where: {
+          bookId_locale: { bookId: book.id, locale: defaultLocaleRaw },
+        },
+        create: {
+          bookId: book.id,
+          locale: defaultLocaleRaw,
+          title,
+        },
+        update: { title },
       });
 
       await tx.bookTag.deleteMany({ where: { bookId: book.id } });
@@ -578,6 +659,49 @@ export async function updateBook(
   revalidatePath(`/books/${currentSlug}`, "layout");
   revalidatePath(`/books/${newSlug}`, "layout");
   redirect(`/books/${newSlug}`);
+}
+
+export type AddBookLanguageResult = { error: string } | { ok: true };
+
+/** Adds a language to the book (no section data). Editors translate on the language page. */
+export async function addBookLanguage(
+  bookSlug: string,
+  locale: string,
+): Promise<AddBookLanguageResult> {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { error: "You must be signed in." };
+  }
+
+  const loc = locale.trim();
+  if (!isKnownBookLocale(loc)) {
+    return { error: "That language is not supported." };
+  }
+
+  const book = await prisma.book.findUnique({
+    where: { slug: bookSlug },
+    include: { languages: { select: { locale: true } } },
+  });
+  if (!book) {
+    return { error: "Book not found." };
+  }
+  if (book.languages.some((l) => l.locale === loc)) {
+    return { error: "That language is already on this book." };
+  }
+
+  try {
+    await prisma.bookLanguage.create({
+      data: { bookId: book.id, locale: loc },
+    });
+  } catch {
+    return { error: "Could not add language." };
+  }
+
+  revalidatePath("/");
+  revalidatePath(`/books/${bookSlug}`);
+  revalidatePath(`/books/${bookSlug}`, "layout");
+  revalidatePath(`/books/${bookSlug}/edit`);
+  return { ok: true };
 }
 
 export type AddSectionState = { error?: string };
@@ -612,6 +736,7 @@ export async function addSectionToBook(
   if (!book) return { error: "Book not found." };
 
   const nextOrder = (book.sections[0]?.orderIndex ?? -1) + 1;
+  const loc = book.defaultLocale;
 
   try {
     await assertCanCreateRevision(session.user.id);
@@ -625,14 +750,17 @@ export async function addSectionToBook(
         data: {
           bookId: book.id,
           slug,
-          title,
           orderIndex: nextOrder,
+          localizations: {
+            create: { locale: loc, title },
+          },
         },
       });
       const rev = await tx.revision.create({
         data: {
           sectionId: section.id,
           authorId: session.user!.id,
+          locale: loc,
           body: `## ${title}\n\n_Add content for this section._`,
           summaryComment: "New section",
         },
@@ -661,7 +789,7 @@ export async function addSectionToBook(
   }
 
   revalidatePath(`/books/${bookSlug}`);
-  redirect(`/books/${bookSlug}/${slug}/edit`);
+  redirect(withLangQuery(`/books/${bookSlug}/${slug}/edit`, loc));
 }
 
 /**
@@ -709,11 +837,63 @@ export async function reorderBookSections(
   return {};
 }
 
+export async function updateBookLocalizedTitle(
+  bookSlug: string,
+  locale: string,
+  newTitle: string,
+): Promise<{ error?: string }> {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { error: "You must be signed in." };
+  }
+
+  const title = newTitle.trim();
+  if (!title) {
+    return { error: "Title is required." };
+  }
+
+  const book = await prisma.book.findUnique({
+    where: { slug: bookSlug },
+    include: { languages: { select: { locale: true } } },
+  });
+  if (!book) {
+    return { error: "Book not found." };
+  }
+  const allowed = book.languages.map((l) => l.locale);
+  if (!allowed.includes(locale)) {
+    return { error: "Invalid language for this book." };
+  }
+
+  await prisma.$transaction(async (tx) => {
+    await tx.bookLocalization.upsert({
+      where: { bookId_locale: { bookId: book.id, locale } },
+      create: { bookId: book.id, locale, title },
+      update: { title },
+    });
+    if (locale === book.defaultLocale) {
+      await tx.book.update({
+        where: { id: book.id },
+        data: { title },
+      });
+    }
+  });
+
+  revalidatePath(`/books/${bookSlug}`);
+  revalidatePath(`/books/${bookSlug}/edit`);
+  revalidatePath(
+    `/books/${bookSlug}/edit/languages/${encodeURIComponent(locale)}`,
+  );
+  revalidatePath(`/books/${bookSlug}/edit/contents`);
+  revalidatePath(`/books/${bookSlug}`, "layout");
+  return {};
+}
+
 const MAX_SECTION_TITLE_LEN = 255;
 
 export async function updateSectionTitle(
   bookSlug: string,
   sectionSlug: string,
+  locale: string,
   newTitle: string,
 ): Promise<{ error?: string }> {
   const session = await auth();
@@ -736,14 +916,24 @@ export async function updateSectionTitle(
       slug: sectionSlug,
       book: { slug: bookSlug },
     },
+    include: {
+      book: { select: { languages: { select: { locale: true } } } },
+    },
   });
   if (!section) {
     return { error: "Section not found." };
   }
+  const allowed = section.book.languages.map((l) => l.locale);
+  if (!allowed.includes(locale)) {
+    return { error: "Invalid language for this book." };
+  }
 
-  await prisma.section.update({
-    where: { id: section.id },
-    data: { title },
+  await prisma.sectionLocalization.upsert({
+    where: {
+      sectionId_locale: { sectionId: section.id, locale },
+    },
+    create: { sectionId: section.id, locale, title },
+    update: { title },
   });
 
   revalidatePath(`/books/${bookSlug}`);
@@ -769,6 +959,7 @@ export async function saveSectionRevision(
 
   const body = formData.get("body")?.toString() ?? "";
   const summaryComment = formData.get("summaryComment")?.toString().trim() || null;
+  const localeRaw = formData.get("locale")?.toString() ?? "";
 
   if (!body.trim()) {
     return { error: "Content cannot be empty." };
@@ -779,10 +970,24 @@ export async function saveSectionRevision(
       slug: sectionSlug,
       book: { slug: bookSlug },
     },
+    include: {
+      book: {
+        select: {
+          defaultLocale: true,
+          languages: { select: { locale: true } },
+        },
+      },
+    },
   });
   if (!section) {
     return { error: "Section not found." };
   }
+  const allowed = section.book.languages.map((l) => l.locale);
+  const locale = normalizeActiveLocale(
+    localeRaw,
+    allowed,
+    section.book.defaultLocale,
+  );
 
   try {
     await assertCanCreateRevision(session.user.id);
@@ -792,11 +997,12 @@ export async function saveSectionRevision(
 
   try {
     await prisma.$transaction(async (tx) => {
-      const latest = await getLatestRevision(section.id, tx);
+      const latest = await getLatestRevision(section.id, locale, tx);
       const rev = await createRevision(
         {
           sectionId: section.id,
           authorId: session.user.id,
+          locale,
           body,
           summaryComment,
           parentRevisionId: latest?.id ?? null,
@@ -823,7 +1029,7 @@ export async function saveSectionRevision(
   revalidatePath(`/books/${bookSlug}/${sectionSlug}`);
   revalidatePath(`/books/${bookSlug}/${sectionSlug}/history`);
   revalidatePath(`/books/${bookSlug}`);
-  redirect(`/books/${bookSlug}/${sectionSlug}`);
+  redirect(withLangQuery(`/books/${bookSlug}/${sectionSlug}`, locale));
 }
 
 export type SaveSectionRevisionInlineResult =
@@ -833,6 +1039,7 @@ export type SaveSectionRevisionInlineResult =
 export async function saveSectionRevisionInline(
   bookSlug: string,
   sectionSlug: string,
+  locale: string,
   body: string,
   summaryComment: string | null = null,
 ): Promise<SaveSectionRevisionInlineResult> {
@@ -850,7 +1057,15 @@ export async function saveSectionRevisionInline(
       slug: sectionSlug,
       book: { slug: bookSlug },
     },
-    include: { book: { select: { createdById: true } } },
+    include: {
+      book: {
+        select: {
+          createdById: true,
+          defaultLocale: true,
+          languages: { select: { locale: true } },
+        },
+      },
+    },
   });
   if (!section) {
     return { error: "Section not found." };
@@ -858,6 +1073,12 @@ export async function saveSectionRevisionInline(
   if (section.book.createdById !== session.user.id) {
     return { error: "Only the book creator can use the auto wizard on this book." };
   }
+  const allowed = section.book.languages.map((l) => l.locale);
+  const loc = normalizeActiveLocale(
+    locale,
+    allowed,
+    section.book.defaultLocale,
+  );
 
   try {
     await assertCanCreateRevision(session.user.id);
@@ -867,11 +1088,12 @@ export async function saveSectionRevisionInline(
 
   try {
     await prisma.$transaction(async (tx) => {
-      const latest = await getLatestRevision(section.id, tx);
+      const latest = await getLatestRevision(section.id, loc, tx);
       const rev = await createRevision(
         {
           sectionId: section.id,
           authorId: session.user.id,
+          locale: loc,
           body,
           summaryComment,
           parentRevisionId: latest?.id ?? null,
@@ -914,6 +1136,7 @@ export type GetBookSectionsLatestForWizardResult =
 
 export async function getBookSectionsLatestForWizard(
   bookSlug: string,
+  locale: string,
 ): Promise<GetBookSectionsLatestForWizardResult> {
   const session = await auth();
   if (!session?.user?.id) {
@@ -922,7 +1145,12 @@ export async function getBookSectionsLatestForWizard(
 
   const book = await prisma.book.findUnique({
     where: { slug: bookSlug },
-    select: { id: true, createdById: true },
+    select: {
+      id: true,
+      createdById: true,
+      defaultLocale: true,
+      languages: { select: { locale: true } },
+    },
   });
   if (!book) {
     return { error: "Book not found." };
@@ -930,19 +1158,32 @@ export async function getBookSectionsLatestForWizard(
   if (book.createdById !== session.user.id) {
     return { error: "Only the book creator can load wizard data for this book." };
   }
+  const allowed = book.languages.map((l) => l.locale);
+  const loc = normalizeActiveLocale(locale, allowed, book.defaultLocale);
 
   const sections = await prisma.section.findMany({
     where: { bookId: book.id },
     orderBy: { orderIndex: "asc" },
-    select: { id: true, slug: true, title: true, orderIndex: true },
+    select: {
+      id: true,
+      slug: true,
+      orderIndex: true,
+      localizations: { select: { locale: true, title: true } },
+    },
   });
 
   const sectionsWithBody: BookSectionLatestForWizard[] = [];
   for (const s of sections) {
-    const latest = await getLatestRevision(s.id);
+    const latest = await getLatestRevision(s.id, loc);
+    const title = resolveSectionTitle(
+      s.slug,
+      s.localizations,
+      loc,
+      book.defaultLocale,
+    );
     sectionsWithBody.push({
       slug: s.slug,
-      title: s.title,
+      title,
       orderIndex: s.orderIndex,
       body: latest?.body ?? "",
     });
@@ -989,6 +1230,7 @@ export async function revertSectionRevision(
   bookSlug: string,
   sectionSlug: string,
   revisionId: string,
+  locale: string,
 ) {
   const session = await auth();
   if (!session?.user?.id) {
@@ -1000,8 +1242,22 @@ export async function revertSectionRevision(
       slug: sectionSlug,
       book: { slug: bookSlug },
     },
+    include: {
+      book: {
+        select: {
+          defaultLocale: true,
+          languages: { select: { locale: true } },
+        },
+      },
+    },
   });
   if (!section) throw new Error("Section not found");
+  const allowed = section.book.languages.map((l) => l.locale);
+  const loc = normalizeActiveLocale(
+    locale,
+    allowed,
+    section.book.defaultLocale,
+  );
 
   try {
     await assertCanCreateRevision(session.user.id);
@@ -1013,6 +1269,7 @@ export async function revertSectionRevision(
     const rev = await revertToRevision(
       {
         sectionId: section.id,
+        locale: loc,
         authorId: session.user.id,
         targetRevisionId: revisionId,
       },
@@ -1035,17 +1292,18 @@ export async function revertSectionRevision(
   revalidatePath(`/books/${bookSlug}/${sectionSlug}`);
   revalidatePath(`/books/${bookSlug}/${sectionSlug}/history`);
   revalidatePath(`/books/${bookSlug}`);
-  redirect(`/books/${bookSlug}/${sectionSlug}`);
+  redirect(withLangQuery(`/books/${bookSlug}/${sectionSlug}`, loc));
 }
 
 export async function revertSectionFromForm(formData: FormData) {
   const bookSlug = formData.get("bookSlug")?.toString() ?? "";
   const sectionSlug = formData.get("sectionSlug")?.toString() ?? "";
   const revisionId = formData.get("revisionId")?.toString() ?? "";
+  const locale = formData.get("locale")?.toString() ?? "";
   if (!bookSlug || !sectionSlug || !revisionId) {
     throw new Error("Missing fields");
   }
-  await revertSectionRevision(bookSlug, sectionSlug, revisionId);
+  await revertSectionRevision(bookSlug, sectionSlug, revisionId, locale);
 }
 
 export type AddTocFromLlmResult = {
@@ -1128,6 +1386,8 @@ export async function addTocSectionsFromLlm(
   let added = 0;
   const skipped = items.length - normalized.length;
 
+  const defLoc = book.defaultLocale;
+
   await prisma.$transaction(async (tx) => {
     let order = maxOrder;
     for (const row of normalized) {
@@ -1136,8 +1396,10 @@ export async function addTocSectionsFromLlm(
         data: {
           bookId: book.id,
           slug: row.slug,
-          title: row.title,
           orderIndex: order,
+          localizations: {
+            create: { locale: defLoc, title: row.title },
+          },
         },
       });
       const body = `## ${row.title}\n\n_Outline from local AI — add narrative here._`;
@@ -1145,6 +1407,7 @@ export async function addTocSectionsFromLlm(
         data: {
           sectionId: section.id,
           authorId: session.user!.id,
+          locale: defLoc,
           body,
           summaryComment: "Section from local LLM TOC",
         },

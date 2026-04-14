@@ -4,9 +4,11 @@ import { isCalibreExportEnabled } from "@/lib/book-export";
 import { IntendedAudienceSelect } from "@/components/intended-audience-select";
 import {
   buildBookCatalogWhere,
+  buildCatalogUrl,
   catalogClearFiltersHref,
   getBookCatalogFilterOptions,
 } from "@/lib/catalog-search";
+import { bookLocaleLabel } from "@/lib/book-locales";
 import { prisma } from "@/lib/db";
 
 type Props = {
@@ -15,16 +17,18 @@ type Props = {
     figure?: string;
     age?: string;
     country?: string;
+    lang?: string;
   }>;
 };
 
 export default async function HomePage({ searchParams }: Props) {
-  const { q, figure: figureParam, age: ageParam, country: countryParam } =
+  const { q, figure: figureParam, age: ageParam, country: countryParam, lang: langParam } =
     await searchParams;
   const query = q?.trim() ?? "";
   const figureFilter = figureParam?.trim() ?? "";
   const ageFilter = ageParam?.trim() ?? "";
   const countryFilter = countryParam?.trim() ?? "";
+  const langFilter = langParam?.trim() ?? "";
 
   const showCalibreFormats = isCalibreExportEnabled();
 
@@ -36,11 +40,13 @@ export default async function HomePage({ searchParams }: Props) {
         figure: figureFilter,
         age: ageFilter,
         country: countryFilter,
+        lang: langFilter,
       }),
       orderBy: { updatedAt: "desc" },
       take: 50,
       include: {
         tags: { include: { tag: true } },
+        languages: { select: { locale: true } },
         _count: { select: { sections: true } },
       },
     }),
@@ -110,10 +116,25 @@ export default async function HomePage({ searchParams }: Props) {
                 ))}
               </select>
             </label>
+            <label className="block min-w-[12rem] text-sm">
+              <span className="font-medium text-foreground">Language</span>
+              <select
+                name="lang"
+                defaultValue={langFilter}
+                className="mt-1 block w-full rounded-md border border-border bg-card px-3 py-2 text-sm"
+              >
+                <option value="">Any</option>
+                {filterOptions.languages.map((c) => (
+                  <option key={c} value={c}>
+                    {bookLocaleLabel(c)}
+                  </option>
+                ))}
+              </select>
+            </label>
           </div>
           <p className="mt-2 text-xs text-muted">
-            Country options come from books in the library. Age / audience uses the
-            standard list on each book.
+            Country and language options come from books in the library. Age /
+            audience uses the standard list on each book.
           </p>
           <div className="mt-3">
             <button
@@ -130,7 +151,7 @@ export default async function HomePage({ searchParams }: Props) {
         ) : null}
       </form>
 
-      {figureFilter || ageFilter || countryFilter ? (
+      {figureFilter || ageFilter || countryFilter || langFilter ? (
         <p className="text-sm text-muted">
           {figureFilter ? (
             <>
@@ -138,19 +159,28 @@ export default async function HomePage({ searchParams }: Props) {
               <span className="font-medium text-foreground">{figureFilter}</span>
             </>
           ) : null}
-          {figureFilter && (ageFilter || countryFilter) ? " · " : null}
+          {figureFilter && (ageFilter || countryFilter || langFilter) ? " · " : null}
           {ageFilter ? (
             <>
               Age / audience:{" "}
               <span className="font-medium text-foreground">{ageFilter}</span>
             </>
           ) : null}
-          {(figureFilter || ageFilter) && countryFilter ? " · " : null}
+          {(figureFilter || ageFilter) && (countryFilter || langFilter) ? " · " : null}
           {countryFilter ? (
             <>
               Country:{" "}
               <span className="font-medium text-foreground">
                 {countryFilter}
+              </span>
+            </>
+          ) : null}
+          {(figureFilter || ageFilter || countryFilter) && langFilter ? " · " : null}
+          {langFilter ? (
+            <>
+              Language:{" "}
+              <span className="font-medium text-foreground">
+                {bookLocaleLabel(langFilter)}
               </span>
             </>
           ) : null}
@@ -174,7 +204,7 @@ export default async function HomePage({ searchParams }: Props) {
 
       {books.length === 0 ? (
         <p className="text-muted">
-          {figureFilter || ageFilter || countryFilter || query
+          {figureFilter || ageFilter || countryFilter || langFilter || query
             ? "No books match your search."
             : "No books yet. Sign in and create the first one."}
         </p>
@@ -195,6 +225,7 @@ export default async function HomePage({ searchParams }: Props) {
                 <BookDownloadMenu
                   bookSlug={book.slug}
                   showCalibreFormats={showCalibreFormats}
+                  exportLang={book.defaultLocale}
                 />
               </div>
               <p className="text-sm text-muted">
@@ -228,6 +259,26 @@ export default async function HomePage({ searchParams }: Props) {
                   >
                     {book.intendedAges.trim()}
                   </Link>
+                </p>
+              ) : null}
+              {book.languages.length > 0 ? (
+                <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted">
+                  <span>Languages:</span>
+                  {book.languages.map(({ locale: loc }) => (
+                    <Link
+                      key={loc}
+                      href={buildCatalogUrl({
+                        q: query,
+                        figure: figureFilter,
+                        age: ageFilter,
+                        country: countryFilter,
+                        lang: loc,
+                      })}
+                      className="text-accent no-underline hover:underline"
+                    >
+                      {bookLocaleLabel(loc)}
+                    </Link>
+                  ))}
                 </p>
               ) : null}
               {book.summary ? (

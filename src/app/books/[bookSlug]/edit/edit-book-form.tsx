@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useFormStatus } from "react-dom";
 import { updateBook, type BookFormState } from "@/app/actions/books";
 import { FigureNameField } from "@/components/figure-name-field";
+import { bookLocaleLabel } from "@/lib/book-locales";
 import { IntendedAudienceSelect } from "@/components/intended-audience-select";
 
 const initial: BookFormState = {};
@@ -31,6 +32,8 @@ export function EditBookForm({
   summary: initialSummary,
   slug: initialSlug,
   tagsDisplay,
+  bookLanguages,
+  bookDefaultLocale,
 }: {
   bookSlug: string;
   title: string;
@@ -40,6 +43,8 @@ export function EditBookForm({
   summary: string | null;
   slug: string;
   tagsDisplay: string;
+  bookLanguages: string[];
+  bookDefaultLocale: string;
 }) {
   const [state, formAction] = useActionState(
     updateBook.bind(null, bookSlug),
@@ -84,6 +89,26 @@ export function EditBookForm({
       <span className="mt-1 block text-xs text-muted">
         Used for browsing filters and for local AI (reading level and tone).
       </span>
+      <label htmlFor="edit-defaultLocale" className="block text-sm font-medium">
+        Primary language
+      </label>
+      <select
+        id="edit-defaultLocale"
+        name="defaultLocale"
+        required
+        defaultValue={bookDefaultLocale}
+        className="mt-1 w-full max-w-md rounded-md border border-border bg-card px-3 py-2 text-sm"
+      >
+        {bookLanguages.map((loc) => (
+          <option key={loc} value={loc}>
+            {bookLocaleLabel(loc)} ({loc})
+          </option>
+        ))}
+      </select>
+      <p className="mt-1 text-xs text-muted">
+        Default for fallbacks and new chapters. Add or translate other languages
+        in the list above the form.
+      </p>
       <label className="block text-sm font-medium">
         Country / region (optional)
         <input

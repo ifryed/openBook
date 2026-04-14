@@ -1,17 +1,29 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { auth } from "@/auth";
+import { BookLangSwitcher } from "@/components/book-lang-switcher";
+import {
+  normalizeActiveLocale,
+  withLangQuery,
+} from "@/lib/book-locales";
 import { prisma } from "@/lib/db";
 import { getLatestRevision } from "@/lib/revisions";
+import {
+  isSectionCompleteForLocale,
+  resolveSectionTitle,
+} from "@/lib/section-localization";
+import { resolveBookTitle } from "@/lib/book-title-localization";
 import { MarkdownBody } from "@/components/markdown-body";
 import { ReportForm } from "@/components/report-form";
 
 type Props = {
   params: Promise<{ bookSlug: string; sectionSlug: string }>;
+  searchParams: Promise<{ lang?: string }>;
 };
 
-export default async function SectionReadPage({ params }: Props) {
+export default async function SectionReadPage({ params, searchParams }: Props) {
   const { bookSlug, sectionSlug } = await params;
+  const { lang } = await searchParams;
   const session = await auth();
 
   const section = await prisma.section.findFirst({
@@ -20,12 +32,16 @@ export default async function SectionReadPage({ params }: Props) {
       book: { slug: bookSlug },
     },
     include: {
+      localizations: { select: { locale: true, title: true } },
       book: {
         select: {
           slug: true,
           title: true,
           figureName: true,
           intendedAges: true,
+          defaultLocale: true,
+          languages: { select: { locale: true } },
+          titleLocales: { select: { locale: true, title: true } },
         },
       },
     },
@@ -33,28 +49,59 @@ export default async function SectionReadPage({ params }: Props) {
 
   if (!section) notFound();
 
-  const revision = await getLatestRevision(section.id);
+  const bookLocales = section.book.languages.map((l) => l.locale);
+  const activeLocale = normalizeActiveLocale(
+    lang,
+    bookLocales,
+    section.book.defaultLocale,
+  );
+  const sectionTitle = resolveSectionTitle(
+    section.slug,
+    section.localizations,
+    activeLocale,
+    section.book.defaultLocale,
+  );
+
+  const bookTitleDisplay = resolveBookTitle(
+    section.book.title,
+    section.book.titleLocales,
+    activeLocale,
+    section.book.defaultLocale,
+  );
+
+  const revision = await getLatestRevision(section.id, activeLocale);
+  if (
+    !isSectionCompleteForLocale(
+      section.localizations,
+      activeLocale,
+      revision?.body,
+    )
+  ) {
+    notFound();
+  }
 
   return (
     <article className="space-y-6">
+      <BookLangSwitcher locales={bookLocales} activeLocale={activeLocale} />
+
       <nav className="text-sm text-muted">
         <Link href="/" className="text-accent no-underline hover:underline">
           Home
         </Link>
         {" · "}
         <Link
-          href={`/books/${section.book.slug}`}
+          href={withLangQuery(`/books/${section.book.slug}`, activeLocale)}
           className="text-accent no-underline hover:underline"
         >
-          {section.book.title}
+          {bookTitleDisplay}
         </Link>
         {" · "}
-        <span>{section.title}</span>
+        <span>{sectionTitle}</span>
       </nav>
 
       <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
-          <h1 className="text-3xl font-semibold">{section.title}</h1>
+          <h1 className="text-3xl font-semibold">{sectionTitle}</h1>
           <p className="mt-1 text-sm text-muted">
             {section.book.figureName}
           </p>
@@ -71,13 +118,16 @@ export default async function SectionReadPage({ params }: Props) {
               {revision.summaryComment ? ` · ${revision.summaryComment}` : ""}
             </p>
           ) : (
-            <p className="mt-2 text-sm text-muted">No content yet.</p>
+            <p className="mt-2 text-sm text-muted">No content in this language yet.</p>
           )}
         </div>
         <div className="shrink-0">
           {session?.user ? (
             <Link
-              href={`/books/${section.book.slug}/${section.slug}/edit`}
+              href={withLangQuery(
+                `/books/${section.book.slug}/${section.slug}/edit`,
+                activeLocale,
+              )}
               className="inline-flex items-center justify-center rounded-md bg-accent px-4 py-2 text-sm font-medium !text-white no-underline hover:opacity-90 hover:!text-white hover:!no-underline"
             >
               Edit
@@ -85,7 +135,10 @@ export default async function SectionReadPage({ params }: Props) {
           ) : (
             <Link
               href={`/login?callbackUrl=${encodeURIComponent(
-                `/books/${section.book.slug}/${section.slug}/edit`,
+                withLangQuery(
+                  `/books/${section.book.slug}/${section.slug}/edit`,
+                  activeLocale,
+                ),
               )}`}
               className="inline-flex items-center justify-center rounded-md border border-border bg-card px-4 py-2 text-sm font-medium text-foreground no-underline hover:bg-muted/40"
             >
@@ -99,7 +152,10 @@ export default async function SectionReadPage({ params }: Props) {
 
       <div className="flex flex-wrap gap-3 border-t border-border pt-6 text-sm">
         <Link
-          href={`/books/${section.book.slug}/${section.slug}/history`}
+          href={withLangQuery(
+            `/books/${section.book.slug}/${section.slug}/history`,
+            activeLocale,
+          )}
           className="text-accent no-underline hover:underline"
         >
           View history

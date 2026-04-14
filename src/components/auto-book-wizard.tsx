@@ -4,6 +4,7 @@ import {
   assertAutoWizardPublishPreconditions,
   publishAutoWizardBook,
 } from "@/app/actions/books";
+import { withLangQuery } from "@/lib/book-locales";
 import { MAX_LLM_TOC_SECTIONS } from "@/lib/book-limits";
 import { fetchDraftReferenceContext } from "@/app/actions/references";
 import {
@@ -20,6 +21,7 @@ import {
 } from "@/lib/llm-toc-prompts";
 import { WEBLLM_CHAT_OPTIONS, WEBLLM_MODEL } from "@/lib/webllm-model";
 import type { MLCEngine } from "@mlc-ai/web-llm";
+import { BookPrimaryLanguageSelect } from "@/components/book-primary-language-select";
 import { FigureNameField } from "@/components/figure-name-field";
 import { IntendedAudienceSelect } from "@/components/intended-audience-select";
 import Link from "next/link";
@@ -56,6 +58,9 @@ export function AutoBookWizard() {
   const [progress, setProgress] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [bookSlug, setBookSlug] = useState<string | null>(null);
+  const [publishedDefaultLocale, setPublishedDefaultLocale] = useState<
+    string | null
+  >(null);
   const [rawResearch, setRawResearch] = useState<string | null>(null);
   const [rawToc, setRawToc] = useState<string | null>(null);
   const [tocRows, setTocRows] = useState<TocSuggestion[]>([]);
@@ -485,6 +490,7 @@ Produce the full Markdown body for this chapter only.`,
     }
     if ("ok" in res && res.ok) {
       setBookSlug(res.slug);
+      setPublishedDefaultLocale(res.defaultLocale);
       setPublishableDraft(null);
       setPhase("done");
       setProgress("");
@@ -537,6 +543,17 @@ Produce the full Markdown body for this chapter only.`,
         />
         <span className="block text-xs text-muted">
           Used for filters and for local AI (reading level and tone).
+        </span>
+
+        <label
+          htmlFor="auto-defaultLocale-search"
+          className="block text-sm font-medium"
+        >
+          Primary language
+        </label>
+        <BookPrimaryLanguageSelect id="auto-defaultLocale" />
+        <span className="mt-1 block text-xs text-muted">
+          Add more languages from the book’s edit page after publishing.
         </span>
 
         <label className="block text-sm font-medium">
@@ -664,7 +681,13 @@ Produce the full Markdown body for this chapter only.`,
       {bookSlug ? (
         <p className="text-sm">
           Book:{" "}
-          <Link href={`/books/${bookSlug}`} className="text-accent underline">
+          <Link
+            href={withLangQuery(
+              `/books/${bookSlug}`,
+              publishedDefaultLocale ?? undefined,
+            )}
+            className="text-accent underline"
+          >
             /books/{bookSlug}
           </Link>
         </p>

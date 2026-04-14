@@ -1,17 +1,23 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { buildBookContextMarkdown } from "@/lib/book-context";
+import { normalizeActiveLocale, withLangQuery } from "@/lib/book-locales";
 import { prisma } from "@/lib/db";
 import { getLatestRevision } from "@/lib/revisions";
+import { resolveSectionTitle } from "@/lib/section-localization";
+import { resolveBookTitle } from "@/lib/book-title-localization";
 import { EditSectionForm } from "./edit-section-form";
 import { SectionTitleEditor } from "./section-title-editor";
+import { BookLangSwitcher } from "@/components/book-lang-switcher";
 
 type Props = {
   params: Promise<{ bookSlug: string; sectionSlug: string }>;
+  searchParams: Promise<{ lang?: string }>;
 };
 
-export default async function SectionEditPage({ params }: Props) {
+export default async function SectionEditPage({ params, searchParams }: Props) {
   const { bookSlug, sectionSlug } = await params;
+  const { lang } = await searchParams;
 
   const section = await prisma.section.findFirst({
     where: {
@@ -19,11 +25,33 @@ export default async function SectionEditPage({ params }: Props) {
       book: { slug: bookSlug },
     },
     include: {
-      book: { select: { slug: true, title: true } },
+      localizations: { select: { locale: true, title: true } },
+      book: {
+        select: {
+          slug: true,
+          title: true,
+          defaultLocale: true,
+          languages: { select: { locale: true } },
+          titleLocales: { select: { locale: true, title: true } },
+        },
+      },
     },
   });
 
   if (!section) notFound();
+
+  const bookLocales = section.book.languages.map((l) => l.locale);
+  const activeLocale = normalizeActiveLocale(
+    lang,
+    bookLocales,
+    section.book.defaultLocale,
+  );
+  const sectionTitle = resolveSectionTitle(
+    section.slug,
+    section.localizations,
+    activeLocale,
+    section.book.defaultLocale,
+  );
 
   const sectionCount = await prisma.section.count({
     where: { bookId: section.bookId },
@@ -32,13 +60,22 @@ export default async function SectionEditPage({ params }: Props) {
   const [bookMeta, allSections] = await Promise.all([
     prisma.book.findUnique({
       where: { id: section.bookId },
-      select: { title: true, figureName: true, intendedAges: true },
+      select: {
+        title: true,
+        figureName: true,
+        intendedAges: true,
+        defaultLocale: true,
+        languages: { select: { locale: true } },
+        titleLocales: { select: { locale: true, title: true } },
+      },
     }),
     prisma.section.findMany({
       where: { bookId: section.bookId },
       orderBy: { orderIndex: "asc" },
       include: {
+        localizations: { select: { locale: true, title: true } },
         revisions: {
+          where: { locale: activeLocale },
           orderBy: { createdAt: "desc" },
           take: 1,
           select: { body: true },
@@ -47,46 +84,69 @@ export default async function SectionEditPage({ params }: Props) {
     }),
   ]);
 
+  const def = bookMeta?.defaultLocale ?? section.book.defaultLocale;
   const bookContextMarkdown = buildBookContextMarkdown(
     allSections.map((s) => ({
       slug: s.slug,
-      title: s.title,
+      title: resolveSectionTitle(s.slug, s.localizations, activeLocale, def),
       body: s.revisions[0]?.body ?? "",
     })),
     section.slug,
   );
 
-  const latest = await getLatestRevision(section.id);
+  const latest = await getLatestRevision(section.id, activeLocale);
   const initialBody = latest?.body ?? "";
+
+  const bookTitleResolved =
+    bookMeta != null
+      ? resolveBookTitle(
+          bookMeta.title,
+          bookMeta.titleLocales,
+          activeLocale,
+          bookMeta.defaultLocale,
+        )
+      : resolveBookTitle(
+          section.book.title,
+          section.book.titleLocales,
+          activeLocale,
+          section.book.defaultLocale,
+        );
 
   return (
     <div className="space-y-6">
+      <BookLangSwitcher locales={bookLocales} activeLocale={activeLocale} />
+
       <nav className="text-sm text-muted">
         <Link
-          href={`/books/${section.book.slug}/${section.slug}`}
+          href={withLangQuery(
+            `/books/${section.book.slug}/${section.slug}`,
+            activeLocale,
+          )}
           className="text-accent no-underline hover:underline"
         >
-          ← {section.title}
+          ← {sectionTitle}
         </Link>
       </nav>
       <div>
         <SectionTitleEditor
           bookSlug={section.book.slug}
           sectionSlug={section.slug}
-          initialTitle={section.title}
+          locale={activeLocale}
+          initialTitle={sectionTitle}
         />
         <p className="mt-1 text-sm text-muted">
-          Markdown supported. Each save creates a new revision; nothing is
-          overwritten.
+          Editing chapter title for <strong>{activeLocale}</strong>. Markdown
+          supported. Each save creates a new revision; nothing is overwritten.
         </p>
       </div>
       <EditSectionForm
         bookSlug={section.book.slug}
         sectionSlug={section.slug}
-        sectionTitle={section.title}
+        locale={activeLocale}
+        sectionTitle={sectionTitle}
         initialBody={initialBody}
         canDeleteChapter={sectionCount > 1}
-        bookTitle={bookMeta?.title ?? section.book.title}
+        bookTitle={bookTitleResolved}
         figureName={bookMeta?.figureName ?? ""}
         intendedAges={bookMeta?.intendedAges ?? ""}
         bookContextMarkdown={bookContextMarkdown}
