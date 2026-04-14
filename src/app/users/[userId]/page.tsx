@@ -1,0 +1,66 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { auth } from "@/auth";
+import { UserProfileContent } from "@/components/user-profile-content";
+import { prisma } from "@/lib/db";
+import {
+  loadUserProfileCore,
+  publicProfileDisplayName,
+} from "@/lib/user-profile-data";
+
+type Props = { params: Promise<{ userId: string }> };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { userId } = await params;
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { name: true },
+  });
+  if (!user) return { title: "Profile" };
+  return { title: publicProfileDisplayName(user.name) };
+}
+
+export default async function PublicUserProfilePage({ params }: Props) {
+  const { userId } = await params;
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { id: true, name: true },
+  });
+  if (!user) notFound();
+
+  const session = await auth();
+  const isOwner = session?.user?.id === userId;
+
+  const core = await loadUserProfileCore(userId);
+  const displayName = publicProfileDisplayName(user.name);
+
+  return (
+    <div className="space-y-8">
+      {isOwner ? (
+        <div className="rounded-lg border border-border bg-card px-4 py-3 text-sm text-muted">
+          You are viewing your public profile.{" "}
+          <Link
+            href="/profile"
+            className="text-accent no-underline hover:underline"
+          >
+            Private dashboard
+          </Link>
+        </div>
+      ) : null}
+      <div>
+        <h1 className="text-2xl font-semibold">{displayName}</h1>
+        <p className="mt-1 text-sm text-muted">Public contributor profile</p>
+      </div>
+      <UserProfileContent
+        variant="public"
+        displayName={displayName}
+        profile={core.profile}
+        books={core.books}
+        revisions={core.revisions}
+        contributionRows={core.contributionRows}
+        reputationEventAtLimit={core.reputationEventAtLimit}
+      />
+    </div>
+  );
+}

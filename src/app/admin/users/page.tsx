@@ -125,7 +125,12 @@ export default async function AdminUsersPage({ searchParams }: Props) {
                   className="border-b border-border last:border-b-0"
                 >
                   <td className="px-3 py-2 text-foreground">
-                    {u.name ?? "—"}
+                    <Link
+                      href={`/users/${u.id}`}
+                      className="text-accent no-underline hover:underline"
+                    >
+                      {u.name?.trim() ? u.name : "Profile"}
+                    </Link>
                   </td>
                   <td className="px-3 py-2 text-muted">{u.email}</td>
                   <td className="px-3 py-2 text-right tabular-nums text-foreground">
