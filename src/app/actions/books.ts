@@ -18,6 +18,7 @@ import { notifyBookActivityTx, notifyNewBookDigestTx } from "@/lib/notifications
 import { awardReputationTx } from "@/lib/reputation";
 import { assertFigurePickInSearchResults } from "@/lib/figure-candidates";
 import { isKnownIntendedAudience } from "@/lib/intended-audience";
+import { MAX_LLM_TOC_SECTIONS } from "@/lib/book-limits";
 import { isReservedSlug, uniqueSlugFromPreferred, slugify } from "@/lib/slug";
 
 const FIGURE_PICK_ERROR =
@@ -63,15 +64,19 @@ function parseTags(raw: string | null): { slug: string; name: string }[] {
   return out;
 }
 
-export async function createBook(
-  _prev: BookFormState,
-  formData: FormData,
-): Promise<BookFormState> {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return { error: "You must be signed in." };
-  }
+type ValidatedCreateBook = {
+  slug: string;
+  title: string;
+  figureName: string;
+  intendedAges: string;
+  country: string;
+  summary: string | null;
+  tags: ReturnType<typeof parseTags>;
+};
 
+async function validateCreateBookForm(
+  formData: FormData,
+): Promise<BookFormState | ValidatedCreateBook> {
   const title = formData.get("title")?.toString().trim() ?? "";
   const figureName = formData.get("figureName")?.toString().trim() ?? "";
   const intendedAges = formData.get("intendedAges")?.toString().trim() ?? "";
@@ -111,29 +116,43 @@ export async function createBook(
   );
   if (pickErr) return pickErr;
 
-  try {
-    await assertCanCreateBook(session.user.id);
-  } catch (e) {
-    return { error: e instanceof Error ? e.message : "Rate limited." };
-  }
-
   const tags = parseTags(tagsRaw);
+  return {
+    slug,
+    title,
+    figureName,
+    intendedAges,
+    country,
+    summary,
+    tags,
+  };
+}
 
+function isValidatedCreateBook(
+  v: BookFormState | ValidatedCreateBook,
+): v is ValidatedCreateBook {
+  return "slug" in v && typeof (v as ValidatedCreateBook).slug === "string";
+}
+
+async function insertNewBook(
+  userId: string,
+  v: ValidatedCreateBook,
+): Promise<BookFormState> {
   try {
     await prisma.$transaction(async (tx) => {
       const book = await tx.book.create({
         data: {
-          slug,
-          title,
-          figureName,
-          intendedAges,
-          country,
-          summary,
-          createdById: session.user!.id,
+          slug: v.slug,
+          title: v.title,
+          figureName: v.figureName,
+          intendedAges: v.intendedAges,
+          country: v.country,
+          summary: v.summary,
+          createdById: userId,
         },
       });
 
-      for (const t of tags) {
+      for (const t of v.tags) {
         const tag = await tx.tag.upsert({
           where: { slug: t.slug },
           create: { slug: t.slug, name: t.name },
@@ -156,19 +175,19 @@ export async function createBook(
       const introRevision = await tx.revision.create({
         data: {
           sectionId: section.id,
-          authorId: session.user!.id,
+          authorId: userId,
           body:
             "This book has just been created. **Edit this introduction** to begin the biography.",
           summaryComment: "Initial revision",
         },
       });
 
-      await awardReputationTx(tx, session.user!.id, "BOOK_CREATED", {
+      await awardReputationTx(tx, userId, "BOOK_CREATED", {
         refBookId: book.id,
         refSectionId: section.id,
         refRevisionId: introRevision.id,
       });
-      await notifyNewBookDigestTx(tx, book.id, session.user!.id);
+      await notifyNewBookDigestTx(tx, book.id, userId);
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : "Could not create book.";
@@ -178,8 +197,70 @@ export async function createBook(
     return { error: msg };
   }
 
+  return {};
+}
+
+export async function createBook(
+  _prev: BookFormState,
+  formData: FormData,
+): Promise<BookFormState> {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { error: "You must be signed in." };
+  }
+
+  const validated = await validateCreateBookForm(formData);
+  if (!isValidatedCreateBook(validated)) {
+    return validated;
+  }
+
+  try {
+    await assertCanCreateBook(session.user.id);
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Rate limited." };
+  }
+
+  const err = await insertNewBook(session.user.id, validated);
+  if (err.error) return err;
+
   revalidatePath("/");
-  redirect(`/books/${slug}`);
+  redirect(`/books/${validated.slug}`);
+}
+
+export type CreateBookForWizardResult =
+  | { ok: true; slug: string }
+  | { error: string };
+
+/**
+ * Same as createBook but returns the slug for client-driven flows (no redirect).
+ */
+export async function createBookForWizard(
+  formData: FormData,
+): Promise<CreateBookForWizardResult> {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { error: "You must be signed in." };
+  }
+
+  const validated = await validateCreateBookForm(formData);
+  if (!isValidatedCreateBook(validated)) {
+    return { error: validated.error ?? "Invalid form." };
+  }
+
+  try {
+    await assertCanCreateBook(session.user.id);
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Rate limited." };
+  }
+
+  const err = await insertNewBook(session.user.id, validated);
+  if (err.error) {
+    return { error: err.error };
+  }
+
+  revalidatePath("/");
+  revalidatePath(`/books/${validated.slug}`);
+  return { ok: true, slug: validated.slug };
 }
 
 /**
@@ -547,6 +628,165 @@ export async function saveSectionRevision(
   redirect(`/books/${bookSlug}/${sectionSlug}`);
 }
 
+export type SaveSectionRevisionInlineResult =
+  | { ok: true }
+  | { error: string };
+
+export async function saveSectionRevisionInline(
+  bookSlug: string,
+  sectionSlug: string,
+  body: string,
+  summaryComment: string | null = null,
+): Promise<SaveSectionRevisionInlineResult> {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { error: "You must be signed in." };
+  }
+
+  if (!body.trim()) {
+    return { error: "Content cannot be empty." };
+  }
+
+  const section = await prisma.section.findFirst({
+    where: {
+      slug: sectionSlug,
+      book: { slug: bookSlug },
+    },
+    include: { book: { select: { createdById: true } } },
+  });
+  if (!section) {
+    return { error: "Section not found." };
+  }
+  if (section.book.createdById !== session.user.id) {
+    return { error: "Only the book creator can use the auto wizard on this book." };
+  }
+
+  try {
+    await assertCanCreateRevision(session.user.id);
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Rate limited." };
+  }
+
+  try {
+    await prisma.$transaction(async (tx) => {
+      const latest = await getLatestRevision(section.id, tx);
+      const rev = await createRevision(
+        {
+          sectionId: section.id,
+          authorId: session.user.id,
+          body,
+          summaryComment,
+          parentRevisionId: latest?.id ?? null,
+        },
+        tx,
+      );
+      await awardReputationTx(tx, session.user.id, "REVISION_SAVED", {
+        refBookId: section.bookId,
+        refSectionId: section.id,
+        refRevisionId: rev.id,
+      });
+      await notifyBookActivityTx(tx, {
+        bookId: section.bookId,
+        actorId: session.user.id,
+        type: "NEW_REVISION",
+        sectionId: section.id,
+        revisionId: rev.id,
+      });
+    });
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Save failed." };
+  }
+
+  revalidatePath(`/books/${bookSlug}/${sectionSlug}`);
+  revalidatePath(`/books/${bookSlug}/${sectionSlug}/history`);
+  revalidatePath(`/books/${bookSlug}`);
+  return { ok: true };
+}
+
+export type BookSectionLatestForWizard = {
+  slug: string;
+  title: string;
+  orderIndex: number;
+  body: string;
+};
+
+export type GetBookSectionsLatestForWizardResult =
+  | { error: string }
+  | { sections: BookSectionLatestForWizard[] };
+
+export async function getBookSectionsLatestForWizard(
+  bookSlug: string,
+): Promise<GetBookSectionsLatestForWizardResult> {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { error: "You must be signed in." };
+  }
+
+  const book = await prisma.book.findUnique({
+    where: { slug: bookSlug },
+    select: { id: true, createdById: true },
+  });
+  if (!book) {
+    return { error: "Book not found." };
+  }
+  if (book.createdById !== session.user.id) {
+    return { error: "Only the book creator can load wizard data for this book." };
+  }
+
+  const sections = await prisma.section.findMany({
+    where: { bookId: book.id },
+    orderBy: { orderIndex: "asc" },
+    select: { id: true, slug: true, title: true, orderIndex: true },
+  });
+
+  const sectionsWithBody: BookSectionLatestForWizard[] = [];
+  for (const s of sections) {
+    const latest = await getLatestRevision(s.id);
+    sectionsWithBody.push({
+      slug: s.slug,
+      title: s.title,
+      orderIndex: s.orderIndex,
+      body: latest?.body ?? "",
+    });
+  }
+
+  return { sections: sectionsWithBody };
+}
+
+export type WizardChapterBudgetResult = { ok: true } | { error: string };
+
+/**
+ * Ensures saving one new revision per section would not exceed the hourly revision cap.
+ */
+export async function assertWizardChapterRevisionBudget(
+  bookSlug: string,
+): Promise<WizardChapterBudgetResult> {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { error: "You must be signed in." };
+  }
+
+  const book = await prisma.book.findUnique({
+    where: { slug: bookSlug },
+    select: { id: true, createdById: true },
+  });
+  if (!book) {
+    return { error: "Book not found." };
+  }
+  if (book.createdById !== session.user.id) {
+    return { error: "Only the book creator can run the wizard on this book." };
+  }
+
+  const n = await prisma.section.count({ where: { bookId: book.id } });
+  try {
+    await assertRevisionBudget(session.user.id, n);
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Rate limited." };
+  }
+
+  return { ok: true };
+}
+
 export async function revertSectionRevision(
   bookSlug: string,
   sectionSlug: string,
@@ -609,8 +849,6 @@ export async function revertSectionFromForm(formData: FormData) {
   }
   await revertSectionRevision(bookSlug, sectionSlug, revisionId);
 }
-
-const MAX_LLM_TOC_SECTIONS = 15;
 
 export type AddTocFromLlmResult = {
   error?: string;

@@ -7,6 +7,13 @@ export default function NewBookPage() {
       <div>
         <h1 className="text-2xl font-semibold">New book</h1>
         <p className="mt-1 text-sm text-muted">
+          <Link href="/books/new/auto" className="text-accent underline">
+            Auto-Gen Book
+          </Link>
+          {" — "}
+          full TOC and chapter drafts in one guided flow (WebGPU).
+        </p>
+        <p className="mt-1 text-sm text-muted">
           One book focuses on one historical figure. You get an Introduction
           section to start; add more sections later (coming in a follow-up) or
           split content with Markdown headings for now.
