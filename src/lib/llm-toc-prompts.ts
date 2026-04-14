@@ -27,7 +27,7 @@ export function tocStep1ChapterBudgetNarrative(
   const n = clampTargetNewChapters(targetNewChapters);
   const existing =
     options?.existingSectionNote ??
-    "The book may already have an Introduction and other sections; these bullets only need to support the new chapters you are about to plan.";
+    "The book may already have sections; these bullets only need to support the new chapters you are about to plan.";
 
   return `Chapter budget: Step 2 will ask for exactly ${n} NEW chapter entries (title + slug each). ${existing}
 

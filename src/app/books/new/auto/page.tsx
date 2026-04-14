@@ -7,10 +7,9 @@ export default function NewAutoBookPage() {
       <div>
         <h1 className="text-2xl font-semibold">Auto book (local AI)</h1>
         <p className="mt-1 text-sm text-muted">
-          Create a book, generate a table of contents with WebLLM in your browser,
-          then draft each chapter in order. You can watch each step below. The
-          model runs locally via WebGPU; the first run may download a large model
-          to your browser cache.
+          Run WebLLM in your browser to build a TOC and draft chapters (optional
+          AI introduction first). Nothing is saved until you publish. WebGPU
+          required; the first run may download a large model to your browser cache.
         </p>
       </div>
       <AutoBookWizard />

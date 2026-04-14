@@ -14,9 +14,8 @@ export default function NewBookPage() {
           full TOC and chapter drafts in one guided flow (WebGPU).
         </p>
         <p className="mt-1 text-sm text-muted">
-          One book focuses on one historical figure. You get an Introduction
-          section to start; add more sections later (coming in a follow-up) or
-          split content with Markdown headings for now.
+          One book focuses on one historical figure. Add sections from the book
+          page or split content with Markdown headings for now.
         </p>
       </div>
       <CreateBookForm />

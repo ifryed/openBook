@@ -1,11 +1,8 @@
 "use client";
 
 import {
-  addTocSectionsFromLlm,
-  assertWizardChapterRevisionBudget,
-  createBookForWizard,
-  getBookSectionsLatestForWizard,
-  saveSectionRevisionInline,
+  assertAutoWizardPublishPreconditions,
+  publishAutoWizardBook,
 } from "@/app/actions/books";
 import { MAX_LLM_TOC_SECTIONS } from "@/lib/book-limits";
 import { fetchDraftReferenceContext } from "@/app/actions/references";
@@ -40,14 +37,15 @@ type ChapterLogEntry = {
 
 type Phase =
   | "idle"
-  | "creating"
   | "loading_model"
   | "toc_research"
   | "toc_json"
-  | "adding_toc"
   | "chapters"
+  | "publishing"
   | "done"
   | "error";
+
+type DraftOrderRow = { slug: string; title: string; body: string };
 
 export function AutoBookWizard() {
   const formRef = useRef<HTMLFormElement>(null);
@@ -60,11 +58,10 @@ export function AutoBookWizard() {
   const [rawResearch, setRawResearch] = useState<string | null>(null);
   const [rawToc, setRawToc] = useState<string | null>(null);
   const [tocRows, setTocRows] = useState<TocSuggestion[]>([]);
-  const [tocAddResult, setTocAddResult] = useState<{
-    added?: number;
-    skipped?: number;
-  } | null>(null);
   const [chapterLog, setChapterLog] = useState<ChapterLogEntry[]>([]);
+  const [publishableDraft, setPublishableDraft] = useState<
+    DraftOrderRow[] | null
+  >(null);
   const [useReferenceLookup, setUseReferenceLookup] = useState(true);
 
   useEffect(() => {
@@ -94,6 +91,8 @@ export function AutoBookWizard() {
     }
 
     const fd = new FormData(form);
+    /** Creates the Introduction section; wizard drafts it like other chapters. */
+    const draftIntroductionWithAi = fd.get("includeIntroduction") === "on";
     const targetChaptersRaw = Number(
       fd.get("targetChapters")?.toString() ?? String(MIN_TOC_CHAPTERS),
     );
@@ -119,29 +118,9 @@ export function AutoBookWizard() {
     setRawResearch(null);
     setRawToc(null);
     setTocRows([]);
-    setTocAddResult(null);
     setChapterLog([]);
     setBookSlug(null);
-
-    setPhase("creating");
-    setProgress("Creating book…");
-
-    const createRes = await createBookForWizard(fd);
-    if ("error" in createRes && createRes.error) {
-      setError(createRes.error);
-      setPhase("error");
-      setProgress("");
-      return;
-    }
-    if (!("ok" in createRes) || !createRes.ok) {
-      setError("Could not create book.");
-      setPhase("error");
-      setProgress("");
-      return;
-    }
-
-    const slug = createRes.slug;
-    setBookSlug(slug);
+    setPublishableDraft(null);
 
     const bookTitle = fd.get("title")?.toString().trim() ?? "";
     const figureName = fd.get("figureName")?.toString().trim() ?? "";
@@ -151,8 +130,9 @@ export function AutoBookWizard() {
     const { lo: bulletLo, hi: bulletHi } =
       lifeEventsBulletRange(targetChapters);
     const chapterBudgetBlock = tocStep1ChapterBudgetNarrative(targetChapters, {
-      existingSectionNote:
-        "This book already has an Introduction section; these bullets support only the new chapters in the next step.",
+      existingSectionNote: draftIntroductionWithAi
+        ? "The final book will include an AI-written Introduction plus the biography chapters from the next step; these bullets support only those biography chapters (not the introduction)."
+        : "These bullets support only the new biography chapters in the next step.",
     });
 
     try {
@@ -263,11 +243,10 @@ Example:
       setRawToc(tocText);
 
       const parsed = parseTocFromLlmText(tocText);
-      const existing = new Set<string>(["introduction"]);
-      let filtered = parsed.filter(
-        (p) =>
-          !existing.has(p.slug.toLowerCase()) && p.slug !== "introduction",
-      );
+      const reservedSlugs = draftIntroductionWithAi
+        ? new Set<string>(["introduction"])
+        : new Set<string>();
+      let filtered = parsed.filter((p) => !reservedSlugs.has(p.slug.toLowerCase()));
       filtered = filtered.slice(0, targetChapters);
 
       if (filtered.length === 0) {
@@ -281,35 +260,32 @@ Example:
 
       setTocRows(filtered);
 
-      setPhase("adding_toc");
-      setProgress("Saving new sections to the book…");
-      const addRes = await addTocSectionsFromLlm(slug, JSON.stringify(filtered));
-      if (addRes.error) {
-        setError(addRes.error);
-        setPhase("error");
-        setProgress("");
-        return;
+      const ordered: DraftOrderRow[] = [];
+      if (draftIntroductionWithAi) {
+        ordered.push({
+          slug: "introduction",
+          title: "Introduction",
+          body: "",
+        });
       }
-      setTocAddResult({ added: addRes.added, skipped: addRes.skipped });
-
-      const budgetRes = await assertWizardChapterRevisionBudget(slug);
-      if ("error" in budgetRes) {
-        setError(budgetRes.error);
-        setPhase("error");
-        setProgress("");
-        return;
+      for (const row of filtered) {
+        ordered.push({
+          slug: row.slug,
+          title: row.title,
+          body: "",
+        });
       }
 
-      const ctxRes = await getBookSectionsLatestForWizard(slug);
-      if ("error" in ctxRes) {
-        setError(ctxRes.error);
-        setPhase("error");
-        setProgress("");
-        return;
-      }
-      const ordered = [...ctxRes.sections].sort(
-        (a, b) => a.orderIndex - b.orderIndex,
+      const preflight = await assertAutoWizardPublishPreconditions(
+        ordered.length,
       );
+      if ("error" in preflight) {
+        setError(preflight.error);
+        setPhase("error");
+        setProgress("");
+        return;
+      }
+
       const totalSections = ordered.length;
       const wordsPerChapter =
         targetPages !== null && totalSections > 0
@@ -336,6 +312,10 @@ Example:
 
       for (let i = 0; i < ordered.length; i++) {
         const sec = ordered[i]!;
+        const introDraftNote =
+          sec.slug === "introduction"
+            ? `\nThis section is the book introduction (not a biography chapter). Orient the reader: who the subject is, why they matter, and how later chapters are organized—stay concise and avoid duplicating detailed life narrative that belongs in the following chapters.\n`
+            : "";
         setProgress(`Writing chapter ${i + 1} of ${ordered.length}: ${sec.title}…`);
         setChapterLog((prev) =>
           prev.map((row) =>
@@ -343,23 +323,7 @@ Example:
           ),
         );
 
-        const fresh = await getBookSectionsLatestForWizard(slug);
-        if ("error" in fresh) {
-          const errMsg = fresh.error;
-          setChapterLog((prev) =>
-            prev.map((row) =>
-              row.slug === sec.slug
-                ? { ...row, status: "error", error: errMsg }
-                : row,
-            ),
-          );
-          setError(errMsg);
-          setPhase("error");
-          setProgress("");
-          return;
-        }
-
-        const sectionsForContext = fresh.sections.map((s) => ({
+        const sectionsForContext = ordered.map((s) => ({
           slug: s.slug,
           title: s.title,
           body: s.body,
@@ -431,8 +395,7 @@ Chapter you are writing: "${sec.title}" (URL slug: ${sec.slug})
 Length: ${lengthLine}
 
 Editor guidance — follow closely:
-${guideBlock}
-
+${guideBlock}${introDraftNote}
 Produce the full Markdown body for this chapter only.`,
             },
           ],
@@ -462,26 +425,8 @@ Produce the full Markdown body for this chapter only.`,
         }
         text = text.trim();
 
-        const saveRes = await saveSectionRevisionInline(
-          slug,
-          sec.slug,
-          text,
-          "Auto-wizard draft",
-        );
-        if ("error" in saveRes) {
-          const errMsg = saveRes.error;
-          setChapterLog((prev) =>
-            prev.map((row) =>
-              row.slug === sec.slug
-                ? { ...row, status: "error", error: errMsg, body: text }
-                : row,
-            ),
-          );
-          setError(errMsg);
-          setPhase("error");
-          setProgress("");
-          return;
-        }
+        const draftRow = ordered.find((r) => r.slug === sec.slug);
+        if (draftRow) draftRow.body = text;
 
         setChapterLog((prev) =>
           prev.map((row) =>
@@ -492,6 +437,13 @@ Produce the full Markdown body for this chapter only.`,
         );
       }
 
+      setPublishableDraft(
+        ordered.map((r) => ({
+          slug: r.slug,
+          title: r.title,
+          body: r.body,
+        })),
+      );
       setPhase("done");
       setProgress("");
     } catch (e) {
@@ -504,8 +456,41 @@ Produce the full Markdown body for this chapter only.`,
     }
   }, [figureOk, useReferenceLookup]);
 
+  const publishDraft = useCallback(async () => {
+    const form = formRef.current;
+    if (!form || !publishableDraft?.length) return;
+    if (!figureOk) {
+      setError(
+        "Confirm the historical figure with Check name → pick → Use selected person.",
+      );
+      return;
+    }
+    setError(null);
+    setPhase("publishing");
+    setProgress("Publishing book…");
+    const fd = new FormData(form);
+    const res = await publishAutoWizardBook(
+      fd,
+      JSON.stringify(publishableDraft),
+    );
+    if ("error" in res && res.error) {
+      setError(res.error);
+      setPhase("error");
+      setProgress("");
+      return;
+    }
+    if ("ok" in res && res.ok) {
+      setBookSlug(res.slug);
+      setPublishableDraft(null);
+      setPhase("done");
+      setProgress("");
+    }
+  }, [publishableDraft, figureOk]);
+
   const busy =
-    phase !== "idle" && phase !== "done" && phase !== "error";
+    phase !== "idle" &&
+    phase !== "done" &&
+    phase !== "error";
 
   return (
     <div className="space-y-6">
@@ -560,9 +545,14 @@ Produce the full Markdown body for this chapter only.`,
           />
         </label>
 
+        <label className="flex items-center gap-2 text-sm">
+          <input type="checkbox" name="includeIntroduction" />
+          <span>AI-drafted Introduction before the generated chapters.</span>
+        </label>
+
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="block text-sm font-medium">
-            New chapters (not counting Introduction)
+            Biography chapters (TOC + drafting)
             <input
               name="targetChapters"
               type="number"
@@ -572,7 +562,8 @@ Produce the full Markdown body for this chapter only.`,
               className="mt-1 w-full rounded-md border border-border bg-card px-3 py-2 text-sm"
             />
             <span className="mt-1 block text-xs font-normal text-muted">
-              Between {MIN_TOC_CHAPTERS} and {MAX_LLM_TOC_SECTIONS} (app limit).
+              Between {MIN_TOC_CHAPTERS} and {MAX_LLM_TOC_SECTIONS} (app limit). The
+              optional AI Introduction above is separate from this count.
             </span>
           </label>
           <label className="block text-sm font-medium">
@@ -653,7 +644,11 @@ Produce the full Markdown body for this chapter only.`,
           disabled={busy || !figureOk}
           className="rounded-md bg-accent px-4 py-2 text-sm text-white hover:opacity-90 disabled:opacity-50"
         >
-          {busy ? "Running wizard…" : "Create book & run AI wizard"}
+          {phase === "publishing"
+            ? "Publishing…"
+            : busy
+              ? "Working…"
+              : "Generate draft"}
         </button>
       </form>
 
@@ -707,15 +702,9 @@ Produce the full Markdown body for this chapter only.`,
               </li>
             ))}
           </ul>
-          {tocAddResult ? (
-            <p className="mt-2 text-xs text-muted">
-              Saved: {tocAddResult.added} added
-              {tocAddResult.skipped != null && tocAddResult.skipped > 0
-                ? `, ${tocAddResult.skipped} skipped`
-                : ""}
-              .
-            </p>
-          ) : null}
+          <p className="mt-2 text-xs text-muted">
+            Not saved until you publish the book below.
+          </p>
         </div>
       ) : null}
 
@@ -742,7 +731,7 @@ Produce the full Markdown body for this chapter only.`,
                   >
                     {c.status}
                   </span>
-                  {c.status === "ok" && bookSlug && phase === "done" ? (
+                  {c.status === "ok" && bookSlug ? (
                     <Link
                       href={`/books/${bookSlug}/${c.slug}`}
                       className="text-xs text-accent underline"
@@ -770,9 +759,29 @@ Produce the full Markdown body for this chapter only.`,
         </div>
       ) : null}
 
+      {publishableDraft &&
+      !bookSlug &&
+      (phase === "done" ||
+        phase === "error" ||
+        phase === "publishing") ? (
+        <div className="space-y-3">
+          <p className="text-sm text-muted">
+            Draft is only in your browser. Publish to create the book on the server.
+          </p>
+          <button
+            type="button"
+            onClick={() => void publishDraft()}
+            disabled={!figureOk || phase === "publishing"}
+            className="rounded-md bg-accent px-4 py-2 text-sm text-white hover:opacity-90 disabled:opacity-50"
+          >
+            {phase === "publishing" ? "Publishing…" : "Publish book"}
+          </button>
+        </div>
+      ) : null}
+
       {phase === "done" && bookSlug ? (
         <p className="text-sm">
-          Done.{" "}
+          Published.{" "}
           <Link href={`/books/${bookSlug}`} className="text-accent underline">
             Open book
           </Link>

@@ -203,7 +203,7 @@ Example:
       const parsed = parseTocFromLlmText(text);
       const existing = new Set(existingSlugs.map((s) => s.toLowerCase()));
       const filtered = parsed.filter(
-        (p) => !existing.has(p.slug.toLowerCase()) && p.slug !== "introduction",
+        (p) => !existing.has(p.slug.toLowerCase()),
       );
 
       if (filtered.length === 0) {

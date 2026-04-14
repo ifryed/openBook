@@ -18,7 +18,10 @@ import { notifyBookActivityTx, notifyNewBookDigestTx } from "@/lib/notifications
 import { awardReputationTx } from "@/lib/reputation";
 import { assertFigurePickInSearchResults } from "@/lib/figure-candidates";
 import { isKnownIntendedAudience } from "@/lib/intended-audience";
-import { MAX_LLM_TOC_SECTIONS } from "@/lib/book-limits";
+import {
+  MAX_AUTO_WIZARD_PUBLISH_SECTIONS,
+  MAX_LLM_TOC_SECTIONS,
+} from "@/lib/book-limits";
 import { isReservedSlug, uniqueSlugFromPreferred, slugify } from "@/lib/slug";
 
 const FIGURE_PICK_ERROR =
@@ -72,6 +75,8 @@ type ValidatedCreateBook = {
   country: string;
   summary: string | null;
   tags: ReturnType<typeof parseTags>;
+  /** When true, creates slug `introduction` with a starter revision (auto wizard replaces it with an AI draft). */
+  includeIntroduction: boolean;
 };
 
 async function validateCreateBookForm(
@@ -117,6 +122,9 @@ async function validateCreateBookForm(
   if (pickErr) return pickErr;
 
   const tags = parseTags(tagsRaw);
+  const includeIntroduction =
+    formData.get("includeIntroduction") === "on" ||
+    formData.get("includeIntroduction") === "true";
   return {
     slug,
     title,
@@ -125,6 +133,7 @@ async function validateCreateBookForm(
     country,
     summary,
     tags,
+    includeIntroduction,
   };
 }
 
@@ -163,29 +172,34 @@ async function insertNewBook(
         });
       }
 
-      const section = await tx.section.create({
-        data: {
-          bookId: book.id,
-          slug: "introduction",
-          title: "Introduction",
-          orderIndex: 0,
-        },
-      });
-
-      const introRevision = await tx.revision.create({
-        data: {
-          sectionId: section.id,
-          authorId: userId,
-          body:
-            "This book has just been created. **Edit this introduction** to begin the biography.",
-          summaryComment: "Initial revision",
-        },
-      });
+      let refSectionId: string | null = null;
+      let refRevisionId: string | null = null;
+      if (v.includeIntroduction) {
+        const section = await tx.section.create({
+          data: {
+            bookId: book.id,
+            slug: "introduction",
+            title: "Introduction",
+            orderIndex: 0,
+          },
+        });
+        refSectionId = section.id;
+        const introRevision = await tx.revision.create({
+          data: {
+            sectionId: section.id,
+            authorId: userId,
+            body:
+              "This book has just been created. **Edit this introduction** to begin the biography.",
+            summaryComment: "Initial revision",
+          },
+        });
+        refRevisionId = introRevision.id;
+      }
 
       await awardReputationTx(tx, userId, "BOOK_CREATED", {
         refBookId: book.id,
-        refSectionId: section.id,
-        refRevisionId: introRevision.id,
+        refSectionId,
+        refRevisionId,
       });
       await notifyNewBookDigestTx(tx, book.id, userId);
     });
@@ -227,33 +241,208 @@ export async function createBook(
   redirect(`/books/${validated.slug}`);
 }
 
-export type CreateBookForWizardResult =
-  | { ok: true; slug: string }
-  | { error: string };
+type WizardPublishChapterRow = { slug: string; title: string; body: string };
 
-/**
- * Same as createBook but returns the slug for client-driven flows (no redirect).
- */
-export async function createBookForWizard(
-  formData: FormData,
-): Promise<CreateBookForWizardResult> {
+function normalizeWizardPublishChapters(items: unknown):
+  | { ok: true; chapters: WizardPublishChapterRow[] }
+  | { error: string } {
+  if (!Array.isArray(items) || items.length === 0) {
+    return { error: "No chapters to publish." };
+  }
+  if (items.length > MAX_AUTO_WIZARD_PUBLISH_SECTIONS) {
+    return {
+      error: `At most ${MAX_AUTO_WIZARD_PUBLISH_SECTIONS} sections per book.`,
+    };
+  }
+  const out: WizardPublishChapterRow[] = [];
+  const seen = new Set<string>();
+  for (const row of items) {
+    if (!row || typeof row !== "object") {
+      return { error: "Invalid chapter data." };
+    }
+    const r = row as Record<string, unknown>;
+    const title =
+      typeof r.title === "string" ? r.title.trim().slice(0, 120) : "";
+    const body = typeof r.body === "string" ? r.body.trim() : "";
+    const slugRaw = typeof r.slug === "string" ? r.slug.trim() : "";
+    const slug = slugify(slugRaw || title);
+    if (!title || !body || !slug) {
+      return {
+        error: "Each chapter needs a title, slug, and non-empty body.",
+      };
+    }
+    if (isReservedSlug(slug)) {
+      return { error: `Reserved slug: ${slug}` };
+    }
+    const lower = slug.toLowerCase();
+    if (seen.has(lower)) {
+      return { error: `Duplicate slug: ${slug}` };
+    }
+    seen.add(lower);
+    out.push({ slug, title, body });
+  }
+  return { ok: true, chapters: out };
+}
+
+async function insertPublishedAutoWizardBook(
+  userId: string,
+  v: ValidatedCreateBook,
+  chapters: WizardPublishChapterRow[],
+): Promise<BookFormState> {
+  try {
+    await prisma.$transaction(async (tx) => {
+      const book = await tx.book.create({
+        data: {
+          slug: v.slug,
+          title: v.title,
+          figureName: v.figureName,
+          intendedAges: v.intendedAges,
+          country: v.country,
+          summary: v.summary,
+          createdById: userId,
+        },
+      });
+
+      for (const t of v.tags) {
+        const tag = await tx.tag.upsert({
+          where: { slug: t.slug },
+          create: { slug: t.slug, name: t.name },
+          update: { name: t.name },
+        });
+        await tx.bookTag.create({
+          data: { bookId: book.id, tagId: tag.id },
+        });
+      }
+
+      let firstSectionId: string | null = null;
+      let firstRevisionId: string | null = null;
+
+      for (let i = 0; i < chapters.length; i++) {
+        const ch = chapters[i]!;
+        const section = await tx.section.create({
+          data: {
+            bookId: book.id,
+            slug: ch.slug,
+            title: ch.title,
+            orderIndex: i,
+          },
+        });
+        const rev = await tx.revision.create({
+          data: {
+            sectionId: section.id,
+            authorId: userId,
+            body: ch.body,
+            summaryComment: "Auto-wizard draft",
+          },
+        });
+        if (i === 0) {
+          firstSectionId = section.id;
+          firstRevisionId = rev.id;
+        }
+        await awardReputationTx(tx, userId, "REVISION_SAVED", {
+          refBookId: book.id,
+          refSectionId: section.id,
+          refRevisionId: rev.id,
+        });
+        await notifyBookActivityTx(tx, {
+          bookId: book.id,
+          actorId: userId,
+          type: "NEW_REVISION",
+          sectionId: section.id,
+          revisionId: rev.id,
+        });
+      }
+
+      await awardReputationTx(tx, userId, "BOOK_CREATED", {
+        refBookId: book.id,
+        refSectionId: firstSectionId,
+        refRevisionId: firstRevisionId,
+      });
+      await notifyNewBookDigestTx(tx, book.id, userId);
+    });
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "Could not publish book.";
+    if (msg.includes("Unique constraint")) {
+      return { error: "A book with this URL slug already exists." };
+    }
+    return { error: msg };
+  }
+
+  return {};
+}
+
+export async function assertAutoWizardPublishPreconditions(
+  sectionCount: number,
+): Promise<{ ok: true } | { error: string }> {
   const session = await auth();
   if (!session?.user?.id) {
     return { error: "You must be signed in." };
   }
+  if (
+    sectionCount < 1 ||
+    sectionCount > MAX_AUTO_WIZARD_PUBLISH_SECTIONS
+  ) {
+    return {
+      error: `This draft needs between 1 and ${MAX_AUTO_WIZARD_PUBLISH_SECTIONS} sections.`,
+    };
+  }
+  try {
+    await assertCanCreateBook(session.user.id);
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Rate limited." };
+  }
+  try {
+    await assertRevisionBudget(session.user.id, sectionCount);
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Rate limited." };
+  }
+  return { ok: true };
+}
+
+export type PublishAutoWizardResult =
+  | { ok: true; slug: string }
+  | { error: string };
+
+/**
+ * Creates the book and all section revisions in one transaction (after client-side AI drafting).
+ */
+export async function publishAutoWizardBook(
+  formData: FormData,
+  chaptersJson: string,
+): Promise<PublishAutoWizardResult> {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { error: "You must be signed in." };
+  }
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(chaptersJson) as unknown;
+  } catch {
+    return { error: "Invalid chapter data." };
+  }
+
+  const normalized = normalizeWizardPublishChapters(parsed);
+  if ("error" in normalized) {
+    return { error: normalized.error };
+  }
+  const chapters = normalized.chapters;
 
   const validated = await validateCreateBookForm(formData);
   if (!isValidatedCreateBook(validated)) {
     return { error: validated.error ?? "Invalid form." };
   }
 
-  try {
-    await assertCanCreateBook(session.user.id);
-  } catch (e) {
-    return { error: e instanceof Error ? e.message : "Rate limited." };
+  const pre = await assertAutoWizardPublishPreconditions(chapters.length);
+  if ("error" in pre) {
+    return { error: pre.error };
   }
 
-  const err = await insertNewBook(session.user.id, validated);
+  const err = await insertPublishedAutoWizardBook(
+    session.user.id,
+    validated,
+    chapters,
+  );
   if (err.error) {
     return { error: err.error };
   }
