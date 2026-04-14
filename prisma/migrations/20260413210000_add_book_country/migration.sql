@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Book" ADD COLUMN "country" VARCHAR(255) NOT NULL DEFAULT '';

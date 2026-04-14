@@ -4,6 +4,7 @@ import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { createBook, type BookFormState } from "@/app/actions/books";
 import { FigureNameField } from "@/components/figure-name-field";
+import { IntendedAudienceSelect } from "@/components/intended-audience-select";
 
 const initial: BookFormState = {};
 
@@ -45,18 +46,27 @@ export function CreateBookForm() {
         placeholder="e.g. Hypatia of Alexandria"
         onValidityChange={setFigureOk}
       />
-      <label className="block text-sm font-medium">
+      <label htmlFor="create-intendedAges" className="block text-sm font-medium">
         Intended ages / audience
+      </label>
+      <IntendedAudienceSelect
+        id="create-intendedAges"
+        required
+        className="mt-1 w-full rounded-md border border-border bg-card px-3 py-2 text-sm"
+      />
+      <span className="mt-1 block text-xs text-muted">
+        Used for browsing filters and for local AI (reading level and tone).
+      </span>
+      <label className="block text-sm font-medium">
+        Country / region (optional)
         <input
-          name="intendedAges"
-          required
+          name="country"
           maxLength={255}
-          placeholder='e.g. "Ages 10–14", "Young adult (13+)", "Adult general reader"'
+          placeholder="e.g. India, France, United States"
           className="mt-1 w-full rounded-md border border-border bg-card px-3 py-2 text-sm"
         />
         <span className="mt-1 block text-xs font-normal text-muted">
-          Used for local AI (table of contents, chapter drafts): reading level and
-          how themes are framed. Be specific.
+          Used for browsing filters on the home page.
         </span>
       </label>
       <label className="block text-sm font-medium">

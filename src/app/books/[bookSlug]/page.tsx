@@ -43,7 +43,12 @@ export default async function BookPage({ params }: Props) {
         <p className="mt-1 text-lg text-muted">{book.figureName}</p>
         {book.intendedAges.trim() ? (
           <p className="mt-1 text-sm text-muted">
-            Intended for: {book.intendedAges.trim()}
+            Age / audience: {book.intendedAges.trim()}
+          </p>
+        ) : null}
+        {book.country.trim() ? (
+          <p className="mt-1 text-sm text-muted">
+            Country / region: {book.country.trim()}
           </p>
         ) : null}
         {book.summary ? (

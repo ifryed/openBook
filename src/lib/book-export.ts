@@ -116,7 +116,7 @@ export async function buildFullHtmlExportDocument(
 <header class="book-export-header">
 <h1>${title}</h1>
 <p class="book-export-meta">${figure}</p>
-${ages ? `<p class="book-export-meta">Intended for: ${escapeHtml(ages)}</p>` : ""}
+${ages ? `<p class="book-export-meta">Age / audience: ${escapeHtml(ages)}</p>` : ""}
 ${summaryHtml}
 </header>
 <main>

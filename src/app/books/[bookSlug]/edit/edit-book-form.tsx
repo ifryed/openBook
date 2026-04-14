@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useFormStatus } from "react-dom";
 import { updateBook, type BookFormState } from "@/app/actions/books";
 import { FigureNameField } from "@/components/figure-name-field";
+import { IntendedAudienceSelect } from "@/components/intended-audience-select";
 
 const initial: BookFormState = {};
 
@@ -26,6 +27,7 @@ export function EditBookForm({
   title: initialTitle,
   figureName: initialFigureName,
   intendedAges: initialIntendedAges,
+  country: initialCountry,
   summary: initialSummary,
   slug: initialSlug,
   tagsDisplay,
@@ -34,6 +36,7 @@ export function EditBookForm({
   title: string;
   figureName: string;
   intendedAges: string;
+  country: string;
   summary: string | null;
   slug: string;
   tagsDisplay: string;
@@ -68,17 +71,30 @@ export function EditBookForm({
         exemptMatch={initialFigureName}
         onValidityChange={setFigureOk}
       />
-      <label className="block text-sm font-medium">
+      <label htmlFor="edit-intendedAges" className="block text-sm font-medium">
         Intended ages / audience
+      </label>
+      <IntendedAudienceSelect
+        id="edit-intendedAges"
+        required
+        defaultValue={initialIntendedAges}
+        legacyValue={initialIntendedAges}
+        className="mt-1 w-full rounded-md border border-border bg-card px-3 py-2 text-sm"
+      />
+      <span className="mt-1 block text-xs text-muted">
+        Used for browsing filters and for local AI (reading level and tone).
+      </span>
+      <label className="block text-sm font-medium">
+        Country / region (optional)
         <input
-          name="intendedAges"
-          required
+          name="country"
           maxLength={255}
-          defaultValue={initialIntendedAges}
+          defaultValue={initialCountry}
+          placeholder="e.g. India, France, United States"
           className="mt-1 w-full rounded-md border border-border bg-card px-3 py-2 text-sm"
         />
         <span className="mt-1 block text-xs font-normal text-muted">
-          Used for local AI (table of contents, chapter drafts). Be specific.
+          Shown on the book page and used for filters on the home screen.
         </span>
       </label>
       <label className="block text-sm font-medium">

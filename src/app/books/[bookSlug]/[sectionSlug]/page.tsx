@@ -60,7 +60,7 @@ export default async function SectionReadPage({ params }: Props) {
           </p>
           {section.book.intendedAges.trim() ? (
             <p className="mt-0.5 text-xs text-muted">
-              Intended for: {section.book.intendedAges.trim()}
+              Age / audience: {section.book.intendedAges.trim()}
             </p>
           ) : null}
           {revision ? (

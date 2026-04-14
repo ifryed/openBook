@@ -17,6 +17,7 @@ import {
 import { notifyBookActivityTx, notifyNewBookDigestTx } from "@/lib/notifications";
 import { awardReputationTx } from "@/lib/reputation";
 import { assertFigurePickInSearchResults } from "@/lib/figure-candidates";
+import { isKnownIntendedAudience } from "@/lib/intended-audience";
 import { isReservedSlug, uniqueSlugFromPreferred, slugify } from "@/lib/slug";
 
 const FIGURE_PICK_ERROR =
@@ -74,9 +75,14 @@ export async function createBook(
   const title = formData.get("title")?.toString().trim() ?? "";
   const figureName = formData.get("figureName")?.toString().trim() ?? "";
   const intendedAges = formData.get("intendedAges")?.toString().trim() ?? "";
+  const country = formData.get("country")?.toString().trim() ?? "";
   const summary = formData.get("summary")?.toString().trim() || null;
   const slugRaw = formData.get("slug")?.toString().trim() ?? "";
   const tagsRaw = formData.get("tags")?.toString() ?? "";
+
+  if (country.length > 255) {
+    return { error: "Country / region must be 255 characters or fewer." };
+  }
 
   const slug = slugRaw ? slugify(slugRaw) : slugify(figureName || title);
   if (!slug) {
@@ -94,8 +100,8 @@ export async function createBook(
         "Intended ages or audience is required (who should be able to read this book?).",
     };
   }
-  if (intendedAges.length > 255) {
-    return { error: "Intended ages / audience must be 255 characters or fewer." };
+  if (!isKnownIntendedAudience(intendedAges)) {
+    return { error: "Choose a valid age / audience from the list." };
   }
 
   const pickErr = await requireVerifiedFigurePick(
@@ -121,6 +127,7 @@ export async function createBook(
           title,
           figureName,
           intendedAges,
+          country,
           summary,
           createdById: session.user!.id,
         },
@@ -198,9 +205,14 @@ export async function updateBook(
   const title = formData.get("title")?.toString().trim() ?? "";
   const figureName = formData.get("figureName")?.toString().trim() ?? "";
   const intendedAges = formData.get("intendedAges")?.toString().trim() ?? "";
+  const country = formData.get("country")?.toString().trim() ?? "";
   const summary = formData.get("summary")?.toString().trim() || null;
   const slugRaw = formData.get("slug")?.toString().trim() ?? "";
   const tagsRaw = formData.get("tags")?.toString() ?? "";
+
+  if (country.length > 255) {
+    return { error: "Country / region must be 255 characters or fewer." };
+  }
 
   const newSlug = slugRaw ? slugify(slugRaw) : slugify(figureName || title);
   if (!newSlug) {
@@ -218,8 +230,11 @@ export async function updateBook(
         "Intended ages or audience is required (who should be able to read this book?).",
     };
   }
-  if (intendedAges.length > 255) {
-    return { error: "Intended ages / audience must be 255 characters or fewer." };
+  if (
+    !isKnownIntendedAudience(intendedAges) &&
+    intendedAges !== book.intendedAges.trim()
+  ) {
+    return { error: "Choose a valid age / audience from the list." };
   }
 
   if (figureName !== book.figureName.trim()) {
@@ -255,6 +270,7 @@ export async function updateBook(
           title,
           figureName,
           intendedAges,
+          country,
           summary,
         },
       });

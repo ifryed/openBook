@@ -37,6 +37,7 @@ export default async function BookEditPage({ params }: Props) {
         title={book.title}
         figureName={book.figureName}
         intendedAges={book.intendedAges}
+        country={book.country}
         summary={book.summary}
         slug={book.slug}
         tagsDisplay={tagsDisplay}

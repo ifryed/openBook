@@ -88,8 +88,10 @@ model Book {
   slug           String   @unique
   title          String
   figureName     String   @map("figure_name")
-  /** Age range or audience label (e.g. "8–12", "Young adult", "General adult"). */
+  /** Fixed audience band from app list (e.g. "8-10", "teens", "adults"). */
   intendedAges   String   @default("") @map("intended_ages") @db.VarChar(255)
+  /** Country or region associated with the figure or setting (optional, for browsing). */
+  country        String   @default("") @map("country") @db.VarChar(255)
   summary        String?  @db.Text
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
