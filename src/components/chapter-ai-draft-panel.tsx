@@ -1,7 +1,10 @@
 "use client";
 
 import { fetchDraftReferenceContext } from "@/app/actions/references";
-import { intendedAudiencePromptSnippet } from "@/lib/book-context";
+import {
+  bookContextPromptInstruction,
+  intendedAudiencePromptSnippet,
+} from "@/lib/book-context";
 import { WEBLLM_CHAT_OPTIONS, WEBLLM_MODEL } from "@/lib/webllm-model";
 import type { MLCEngine } from "@mlc-ai/web-llm";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -147,7 +150,7 @@ export function ChapterAiDraftPanel({
 ${audienceLine}
 Historical figure (subject): ${figureName}
 
-Below is context from ALL chapters of this book (Markdown). Sections are separated by ---. The section marked as the one to generate is your ONLY output target — stay consistent with names, dates, and tone used elsewhere, but do not copy other chapters verbatim.
+${bookContextPromptInstruction()}
 
 --- BEGIN BOOK CONTEXT ---
 ${bookContextMarkdown}
@@ -209,7 +212,9 @@ Produce the full Markdown body for this chapter only.`,
         onClick={() => setOpen((o) => !o)}
         className="flex w-full items-center justify-between text-left text-sm font-medium text-foreground"
       >
-        <span>Draft with local AI (WebLLM, uses whole-book context)</span>
+        <span>
+          Draft with local AI (WebLLM; full book or TOC + last chapter if long)
+        </span>
         <span className="text-muted">{open ? "▼" : "▶"}</span>
       </button>
       {open ? (

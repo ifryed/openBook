@@ -10,6 +10,7 @@ import {
 import { MAX_LLM_TOC_SECTIONS } from "@/lib/book-limits";
 import { fetchDraftReferenceContext } from "@/app/actions/references";
 import {
+  bookContextPromptInstruction,
   buildBookContextMarkdown,
   intendedAudiencePromptSnippet,
 } from "@/lib/book-context";
@@ -419,7 +420,7 @@ Example:
 ${audienceLine}
 Historical figure (subject): ${figureName}
 
-Below is context from ALL chapters of this book (Markdown). Sections are separated by ---. The section marked as the one to generate is your ONLY output target — stay consistent with names, dates, and tone used elsewhere, but do not copy other chapters verbatim.
+${bookContextPromptInstruction()}
 
 --- BEGIN BOOK CONTEXT ---
 ${bookContextMarkdown}
