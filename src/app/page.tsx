@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { BookDownloadMenu } from "@/components/book-download-menu";
+import { isCalibreExportEnabled } from "@/lib/book-export";
 import { prisma } from "@/lib/db";
 
 type Props = { searchParams: Promise<{ q?: string }> };
@@ -6,6 +8,8 @@ type Props = { searchParams: Promise<{ q?: string }> };
 export default async function HomePage({ searchParams }: Props) {
   const { q } = await searchParams;
   const query = q?.trim() ?? "";
+
+  const showCalibreFormats = isCalibreExportEnabled();
 
   const books = await prisma.book.findMany({
     where: query
@@ -71,12 +75,18 @@ export default async function HomePage({ searchParams }: Props) {
               key={book.id}
               className="rounded-lg border border-border bg-card p-4 shadow-sm"
             >
-              <Link
-                href={`/books/${book.slug}`}
-                className="text-lg font-medium text-foreground no-underline hover:underline"
-              >
-                {book.title}
-              </Link>
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <Link
+                  href={`/books/${book.slug}`}
+                  className="min-w-0 flex-1 text-lg font-medium text-foreground no-underline hover:underline"
+                >
+                  {book.title}
+                </Link>
+                <BookDownloadMenu
+                  bookSlug={book.slug}
+                  showCalibreFormats={showCalibreFormats}
+                />
+              </div>
               <p className="text-sm text-muted">
                 Figure: {book.figureName} · {book._count.sections} sections
               </p>

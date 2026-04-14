@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { auth } from "@/auth";
+import { BookDownloadMenu } from "@/components/book-download-menu";
+import { isCalibreExportEnabled } from "@/lib/book-export";
 import { prisma } from "@/lib/db";
 import { EditPencilLink } from "@/components/edit-pencil-link";
 import { ReportForm } from "@/components/report-form";
@@ -11,6 +13,7 @@ type Props = { params: Promise<{ bookSlug: string }> };
 export default async function BookPage({ params }: Props) {
   const { bookSlug } = await params;
   const session = await auth();
+  const showCalibreFormats = isCalibreExportEnabled();
 
   const book = await prisma.book.findUnique({
     where: { slug: bookSlug },
@@ -55,25 +58,31 @@ export default async function BookPage({ params }: Props) {
             {book.tags.map((bt) => bt.tag.name).join(" · ")}
           </p>
         ) : null}
-        {session?.user ? (
-          <div className="mt-4 flex flex-wrap items-center gap-4">
-            <Link
-              href={`/books/${book.slug}/edit`}
-              className="text-sm text-accent no-underline hover:underline"
-            >
-              Edit book details
-            </Link>
-            <form action={bookWatchFormAction}>
-              <input type="hidden" name="bookSlug" value={book.slug} />
-              <button
-                type="submit"
-                className="cursor-pointer text-sm text-accent underline-offset-2 hover:underline"
+        <div className="mt-4 flex flex-wrap items-center gap-4">
+          <BookDownloadMenu
+            bookSlug={book.slug}
+            showCalibreFormats={showCalibreFormats}
+          />
+          {session?.user ? (
+            <>
+              <Link
+                href={`/books/${book.slug}/edit`}
+                className="text-sm text-accent no-underline hover:underline"
               >
-                {watching ? "Unwatch book" : "Watch book"}
-              </button>
-            </form>
-          </div>
-        ) : null}
+                Edit book details
+              </Link>
+              <form action={bookWatchFormAction}>
+                <input type="hidden" name="bookSlug" value={book.slug} />
+                <button
+                  type="submit"
+                  className="cursor-pointer text-sm text-accent underline-offset-2 hover:underline"
+                >
+                  {watching ? "Unwatch book" : "Watch book"}
+                </button>
+              </form>
+            </>
+          ) : null}
+        </div>
       </div>
 
       <section>
