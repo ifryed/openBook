@@ -1,7 +1,8 @@
 "use server";
 
 import type { Prisma } from "@prisma/client";
-import { revalidatePath } from "next/cache";
+import { revalidatePathLocalized } from "@/lib/revalidate-localized";
+import { getLocale, getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
@@ -37,18 +38,16 @@ import {
   slugify,
 } from "@/lib/slug";
 
-const FIGURE_PICK_ERROR =
-  'Use “Check name”, choose a matching person, then “Use selected person” — or restore the original figure name when editing.';
-
 async function requireVerifiedFigurePick(
   figureName: string,
   kindRaw: string | null,
   keyRaw: string | null,
 ): Promise<BookFormState | null> {
+  const t = await getTranslations("Errors");
   const kind = kindRaw?.trim() ?? "";
   const key = keyRaw?.trim() ?? "";
   if (kind !== "wikipedia" && kind !== "wikidata") {
-    return { error: FIGURE_PICK_ERROR };
+    return { error: t("figurePick") };
   }
   const ok = await assertFigurePickInSearchResults(
     figureName,
@@ -56,10 +55,7 @@ async function requireVerifiedFigurePick(
     key,
   );
   if (!ok) {
-    return {
-      error:
-        "Figure choice no longer matches catalog search. Run Check name again and pick again.",
-    };
+    return { error: t("figurePickStale") };
   }
   return null;
 }
@@ -98,6 +94,7 @@ type ValidatedCreateBook = {
 async function validateCreateBookForm(
   formData: FormData,
 ): Promise<BookFormState | ValidatedCreateBook> {
+  const t = await getTranslations("Errors");
   const title = formData.get("title")?.toString().trim() ?? "";
   const figureName = formData.get("figureName")?.toString().trim() ?? "";
   const intendedAges = formData.get("intendedAges")?.toString().trim() ?? "";
@@ -107,28 +104,25 @@ async function validateCreateBookForm(
   const tagsRaw = formData.get("tags")?.toString() ?? "";
 
   if (country.length > 255) {
-    return { error: "Country / region must be 255 characters or fewer." };
+    return { error: t("countryTooLong") };
   }
 
   if (!title || !figureName) {
-    return { error: "Title and historical figure name are required." };
+    return { error: t("titleFigureRequired") };
   }
 
   const slug = slugRaw ? slugify(slugRaw) : defaultBookSlug(figureName, title);
   if (!slug) {
-    return { error: "Could not derive a URL slug from the title and figure name." };
+    return { error: t("slugDerive") };
   }
   if (isReservedSlug(slug)) {
-    return { error: "That URL slug is reserved. Choose another." };
+    return { error: t("slugReserved") };
   }
   if (!intendedAges) {
-    return {
-      error:
-        "Intended ages or audience is required (who should be able to read this book?).",
-    };
+    return { error: t("intendedAgesRequired") };
   }
   if (!isKnownIntendedAudience(intendedAges)) {
-    return { error: "Choose a valid age / audience from the list." };
+    return { error: t("intendedAgesInvalid") };
   }
 
   const pickErr = await requireVerifiedFigurePick(
@@ -142,7 +136,7 @@ async function validateCreateBookForm(
   const defaultLocaleRaw =
     formData.get("defaultLocale")?.toString().trim() || DEFAULT_BOOK_LOCALE;
   if (!isKnownBookLocale(defaultLocaleRaw)) {
-    return { error: "Choose a valid primary language." };
+    return { error: t("primaryLanguageInvalid") };
   }
   const languages = [defaultLocaleRaw];
   const includeIntroduction =
@@ -172,6 +166,7 @@ async function insertNewBook(
   userId: string,
   v: ValidatedCreateBook,
 ): Promise<BookFormState> {
+  const t = await getTranslations("Errors");
   try {
     await prisma.$transaction(async (tx) => {
       const book = await tx.book.create({
@@ -247,9 +242,9 @@ async function insertNewBook(
       await notifyNewBookDigestTx(tx, book.id, userId);
     });
   } catch (e) {
-    const msg = e instanceof Error ? e.message : "Could not create book.";
+    const msg = e instanceof Error ? e.message : t("couldNotCreateBook");
     if (msg.includes("Unique constraint")) {
-      return { error: "A book with this URL slug already exists." };
+      return { error: t("slugExists") };
     }
     return { error: msg };
   }
@@ -261,9 +256,10 @@ export async function createBook(
   _prev: BookFormState,
   formData: FormData,
 ): Promise<BookFormState> {
+  const t = await getTranslations("Errors");
   const session = await auth();
   if (!session?.user?.id) {
-    return { error: "You must be signed in." };
+    return { error: t("signInRequired") };
   }
 
   const validated = await validateCreateBookForm(formData);
@@ -274,34 +270,42 @@ export async function createBook(
   try {
     await assertCanCreateBook(session.user.id);
   } catch (e) {
-    return { error: e instanceof Error ? e.message : "Rate limited." };
+    return { error: e instanceof Error ? e.message : t("rateLimited") };
   }
 
   const err = await insertNewBook(session.user.id, validated);
   if (err.error) return err;
 
-  revalidatePath("/");
-  redirect(withLangQuery(`/books/${validated.slug}`, validated.defaultLocale));
+  revalidatePathLocalized("/");
+  const uiLocale = await getLocale();
+  redirect(
+    `/${uiLocale}${withLangQuery(`/books/${validated.slug}`, validated.defaultLocale)}`,
+  );
+  return {};
 }
 
 type WizardPublishChapterRow = { slug: string; title: string; body: string };
 
-function normalizeWizardPublishChapters(items: unknown):
+async function normalizeWizardPublishChapters(items: unknown): Promise<
   | { ok: true; chapters: WizardPublishChapterRow[] }
-  | { error: string } {
+  | { error: string }
+> {
+  const t = await getTranslations("Errors");
   if (!Array.isArray(items) || items.length === 0) {
-    return { error: "No chapters to publish." };
+    return { error: t("noChaptersPublish") };
   }
   if (items.length > MAX_AUTO_WIZARD_PUBLISH_SECTIONS) {
     return {
-      error: `At most ${MAX_AUTO_WIZARD_PUBLISH_SECTIONS} sections per book.`,
+      error: t("maxWizardSections", {
+        max: MAX_AUTO_WIZARD_PUBLISH_SECTIONS,
+      }),
     };
   }
   const out: WizardPublishChapterRow[] = [];
   const seen = new Set<string>();
   for (const row of items) {
     if (!row || typeof row !== "object") {
-      return { error: "Invalid chapter data." };
+      return { error: t("invalidChapterData") };
     }
     const r = row as Record<string, unknown>;
     const title =
@@ -310,16 +314,14 @@ function normalizeWizardPublishChapters(items: unknown):
     const slugRaw = typeof r.slug === "string" ? r.slug.trim() : "";
     const slug = slugify(slugRaw || title);
     if (!title || !body || !slug) {
-      return {
-        error: "Each chapter needs a title, slug, and non-empty body.",
-      };
+      return { error: t("chapterNeedsBody") };
     }
     if (isReservedSlug(slug)) {
-      return { error: `Reserved slug: ${slug}` };
+      return { error: t("reservedSlug", { slug }) };
     }
     const lower = slug.toLowerCase();
     if (seen.has(lower)) {
-      return { error: `Duplicate slug: ${slug}` };
+      return { error: t("duplicateSlug", { slug }) };
     }
     seen.add(lower);
     out.push({ slug, title, body });
@@ -332,6 +334,7 @@ async function insertPublishedAutoWizardBook(
   v: ValidatedCreateBook,
   chapters: WizardPublishChapterRow[],
 ): Promise<BookFormState> {
+  const t = await getTranslations("Errors");
   try {
     await prisma.$transaction(async (tx) => {
       const book = await tx.book.create({
@@ -422,9 +425,9 @@ async function insertPublishedAutoWizardBook(
       await notifyNewBookDigestTx(tx, book.id, userId);
     });
   } catch (e) {
-    const msg = e instanceof Error ? e.message : "Could not publish book.";
+    const msg = e instanceof Error ? e.message : t("couldNotPublishBook");
     if (msg.includes("Unique constraint")) {
-      return { error: "A book with this URL slug already exists." };
+      return { error: t("slugExists") };
     }
     return { error: msg };
   }
@@ -435,27 +438,28 @@ async function insertPublishedAutoWizardBook(
 export async function assertAutoWizardPublishPreconditions(
   sectionCount: number,
 ): Promise<{ ok: true } | { error: string }> {
+  const t = await getTranslations("Errors");
   const session = await auth();
   if (!session?.user?.id) {
-    return { error: "You must be signed in." };
+    return { error: t("signInRequired") };
   }
   if (
     sectionCount < 1 ||
     sectionCount > MAX_AUTO_WIZARD_PUBLISH_SECTIONS
   ) {
     return {
-      error: `This draft needs between 1 and ${MAX_AUTO_WIZARD_PUBLISH_SECTIONS} sections.`,
+      error: t("wizardSectionRange", { max: MAX_AUTO_WIZARD_PUBLISH_SECTIONS }),
     };
   }
   try {
     await assertCanCreateBook(session.user.id);
   } catch (e) {
-    return { error: e instanceof Error ? e.message : "Rate limited." };
+    return { error: e instanceof Error ? e.message : t("rateLimited") };
   }
   try {
     await assertRevisionBudget(session.user.id, sectionCount);
   } catch (e) {
-    return { error: e instanceof Error ? e.message : "Rate limited." };
+    return { error: e instanceof Error ? e.message : t("rateLimited") };
   }
   return { ok: true };
 }
@@ -471,19 +475,20 @@ export async function publishAutoWizardBook(
   formData: FormData,
   chaptersJson: string,
 ): Promise<PublishAutoWizardResult> {
+  const t = await getTranslations("Errors");
   const session = await auth();
   if (!session?.user?.id) {
-    return { error: "You must be signed in." };
+    return { error: t("signInRequired") };
   }
 
   let parsed: unknown;
   try {
     parsed = JSON.parse(chaptersJson) as unknown;
   } catch {
-    return { error: "Invalid chapter data." };
+    return { error: t("invalidChapterData") };
   }
 
-  const normalized = normalizeWizardPublishChapters(parsed);
+  const normalized = await normalizeWizardPublishChapters(parsed);
   if ("error" in normalized) {
     return { error: normalized.error };
   }
@@ -491,7 +496,7 @@ export async function publishAutoWizardBook(
 
   const validated = await validateCreateBookForm(formData);
   if (!isValidatedCreateBook(validated)) {
-    return { error: validated.error ?? "Invalid form." };
+    return { error: validated.error ?? t("invalidForm") };
   }
 
   const pre = await assertAutoWizardPublishPreconditions(chapters.length);
@@ -508,8 +513,8 @@ export async function publishAutoWizardBook(
     return { error: err.error };
   }
 
-  revalidatePath("/");
-  revalidatePath(`/books/${validated.slug}`);
+  revalidatePathLocalized("/");
+  revalidatePathLocalized(`/books/${validated.slug}`);
   return {
     ok: true,
     slug: validated.slug,
@@ -525,9 +530,10 @@ export async function updateBook(
   _prev: BookFormState,
   formData: FormData,
 ): Promise<BookFormState> {
+  const t = await getTranslations("Errors");
   const session = await auth();
   if (!session?.user?.id) {
-    return { error: "You must be signed in." };
+    return { error: t("signInRequired") };
   }
 
   const book = await prisma.book.findUnique({
@@ -535,7 +541,7 @@ export async function updateBook(
     include: { languages: { select: { locale: true } } },
   });
   if (!book) {
-    return { error: "Book not found." };
+    return { error: t("bookNotFound") };
   }
 
   const title = formData.get("title")?.toString().trim() ?? "";
@@ -547,33 +553,30 @@ export async function updateBook(
   const tagsRaw = formData.get("tags")?.toString() ?? "";
 
   if (country.length > 255) {
-    return { error: "Country / region must be 255 characters or fewer." };
+    return { error: t("countryTooLong") };
   }
 
   if (!title || !figureName) {
-    return { error: "Title and historical figure name are required." };
+    return { error: t("titleFigureRequired") };
   }
 
   const newSlug = slugRaw
     ? slugify(slugRaw)
     : defaultBookSlug(figureName, title);
   if (!newSlug) {
-    return { error: "Could not derive a URL slug from the title and figure name." };
+    return { error: t("slugDerive") };
   }
   if (isReservedSlug(newSlug)) {
-    return { error: "That URL slug is reserved. Choose another." };
+    return { error: t("slugReserved") };
   }
   if (!intendedAges) {
-    return {
-      error:
-        "Intended ages or audience is required (who should be able to read this book?).",
-    };
+    return { error: t("intendedAgesRequired") };
   }
   if (
     !isKnownIntendedAudience(intendedAges) &&
     intendedAges !== book.intendedAges.trim()
   ) {
-    return { error: "Choose a valid age / audience from the list." };
+    return { error: t("intendedAgesInvalid") };
   }
 
   if (figureName !== book.figureName.trim()) {
@@ -589,13 +592,13 @@ export async function updateBook(
     where: { slug: newSlug, id: { not: book.id } },
   });
   if (taken) {
-    return { error: "Another book already uses this URL slug." };
+    return { error: t("anotherSlug") };
   }
 
   try {
     await assertCanCreateRevision(session.user.id);
   } catch (e) {
-    return { error: e instanceof Error ? e.message : "Rate limited." };
+    return { error: e instanceof Error ? e.message : t("rateLimited") };
   }
 
   const tags = parseTags(tagsRaw);
@@ -604,9 +607,7 @@ export async function updateBook(
     formData.get("defaultLocale")?.toString().trim() || "";
   const allowedLocales = new Set(book.languages.map((l) => l.locale));
   if (!defaultLocaleRaw || !allowedLocales.has(defaultLocaleRaw)) {
-    return {
-      error: "Choose a valid primary language from this book’s languages.",
-    };
+    return { error: t("primaryLanguageFromBook") };
   }
 
   try {
@@ -649,17 +650,19 @@ export async function updateBook(
       }
     });
   } catch (e) {
-    const msg = e instanceof Error ? e.message : "Could not update book.";
+    const msg = e instanceof Error ? e.message : t("couldNotUpdateBook");
     if (msg.includes("Unique constraint")) {
-      return { error: "That URL slug is already in use." };
+      return { error: t("slugInUse") };
     }
     return { error: msg };
   }
 
-  revalidatePath("/");
-  revalidatePath(`/books/${currentSlug}`, "layout");
-  revalidatePath(`/books/${newSlug}`, "layout");
-  redirect(`/books/${newSlug}`);
+  revalidatePathLocalized("/");
+  revalidatePathLocalized(`/books/${currentSlug}`, "layout");
+  revalidatePathLocalized(`/books/${newSlug}`, "layout");
+  const uiLocale = await getLocale();
+  redirect(`/${uiLocale}/books/${newSlug}`);
+  return {};
 }
 
 export type AddBookLanguageResult = { error: string } | { ok: true };
@@ -669,14 +672,15 @@ export async function addBookLanguage(
   bookSlug: string,
   locale: string,
 ): Promise<AddBookLanguageResult> {
+  const t = await getTranslations("Errors");
   const session = await auth();
   if (!session?.user?.id) {
-    return { error: "You must be signed in." };
+    return { error: t("signInRequired") };
   }
 
   const loc = locale.trim();
   if (!isKnownBookLocale(loc)) {
-    return { error: "That language is not supported." };
+    return { error: t("languageUnsupported") };
   }
 
   const book = await prisma.book.findUnique({
@@ -684,10 +688,10 @@ export async function addBookLanguage(
     include: { languages: { select: { locale: true } } },
   });
   if (!book) {
-    return { error: "Book not found." };
+    return { error: t("bookNotFound") };
   }
   if (book.languages.some((l) => l.locale === loc)) {
-    return { error: "That language is already on this book." };
+    return { error: t("languageAlreadyOnBook") };
   }
 
   try {
@@ -695,13 +699,13 @@ export async function addBookLanguage(
       data: { bookId: book.id, locale: loc },
     });
   } catch {
-    return { error: "Could not add language." };
+    return { error: t("addLanguageFailed") };
   }
 
-  revalidatePath("/");
-  revalidatePath(`/books/${bookSlug}`);
-  revalidatePath(`/books/${bookSlug}`, "layout");
-  revalidatePath(`/books/${bookSlug}/edit`);
+  revalidatePathLocalized("/");
+  revalidatePathLocalized(`/books/${bookSlug}`);
+  revalidatePathLocalized(`/books/${bookSlug}`, "layout");
+  revalidatePathLocalized(`/books/${bookSlug}/edit`);
   return { ok: true };
 }
 
@@ -712,9 +716,10 @@ export async function addSectionToBook(
   _prev: AddSectionState,
   formData: FormData,
 ): Promise<AddSectionState> {
+  const t = await getTranslations("Errors");
   const session = await auth();
   if (!session?.user?.id) {
-    return { error: "You must be signed in." };
+    return { error: t("signInRequired") };
   }
 
   const title = formData.get("title")?.toString().trim() ?? "";
@@ -722,10 +727,10 @@ export async function addSectionToBook(
   const slug = slugRaw ? slugify(slugRaw) : slugify(title);
 
   if (!title || !slug) {
-    return { error: "Section title is required." };
+    return { error: t("sectionTitleRequired") };
   }
   if (isReservedSlug(slug)) {
-    return { error: "That URL slug is reserved." };
+    return { error: t("sectionSlugReserved") };
   }
 
   const book = await prisma.book.findUnique({
@@ -734,7 +739,7 @@ export async function addSectionToBook(
       sections: { orderBy: { orderIndex: "desc" }, take: 1 },
     },
   });
-  if (!book) return { error: "Book not found." };
+  if (!book) return { error: t("bookNotFound") };
 
   const nextOrder = (book.sections[0]?.orderIndex ?? -1) + 1;
   const loc = book.defaultLocale;
@@ -742,7 +747,7 @@ export async function addSectionToBook(
   try {
     await assertCanCreateRevision(session.user.id);
   } catch (e) {
-    return { error: e instanceof Error ? e.message : "Rate limited." };
+    return { error: e instanceof Error ? e.message : t("rateLimited") };
   }
 
   try {
@@ -784,13 +789,17 @@ export async function addSectionToBook(
       e instanceof Error &&
       e.message.includes("Unique constraint")
     ) {
-      return { error: "A section with this URL slug already exists in this book." };
+      return { error: t("sectionExists") };
     }
-    return { error: "Could not add section." };
+    return { error: t("addSectionFailed") };
   }
 
-  revalidatePath(`/books/${bookSlug}`);
-  redirect(withLangQuery(`/books/${bookSlug}/${slug}/edit`, loc));
+  revalidatePathLocalized(`/books/${bookSlug}`);
+  const uiLocale = await getLocale();
+  redirect(
+    `/${uiLocale}${withLangQuery(`/books/${bookSlug}/${slug}/edit`, loc)}`,
+  );
+  return {};
 }
 
 /**
@@ -801,25 +810,26 @@ export async function reorderBookSections(
   bookSlug: string,
   orderedSectionIds: string[],
 ): Promise<{ error?: string }> {
+  const t = await getTranslations("Errors");
   const session = await auth();
   if (!session?.user?.id) {
-    return { error: "You must be signed in." };
+    return { error: t("signInRequired") };
   }
 
   const book = await prisma.book.findUnique({
     where: { slug: bookSlug },
     include: { sections: { select: { id: true } } },
   });
-  if (!book) return { error: "Book not found." };
+  if (!book) return { error: t("bookNotFound") };
 
   const validIds = new Set(book.sections.map((s) => s.id));
   if (orderedSectionIds.length !== validIds.size) {
-    return { error: "Section list does not match this book." };
+    return { error: t("sectionOrderMismatch") };
   }
   const seen = new Set<string>();
   for (const id of orderedSectionIds) {
     if (!validIds.has(id) || seen.has(id)) {
-      return { error: "Invalid or duplicate section in order." };
+      return { error: t("invalidSectionOrder") };
     }
     seen.add(id);
   }
@@ -833,8 +843,8 @@ export async function reorderBookSections(
     ),
   );
 
-  revalidatePath(`/books/${bookSlug}`);
-  revalidatePath(`/books/${bookSlug}/edit/contents`);
+  revalidatePathLocalized(`/books/${bookSlug}`);
+  revalidatePathLocalized(`/books/${bookSlug}/edit/contents`);
   return {};
 }
 
@@ -843,14 +853,15 @@ export async function updateBookLocalizedTitle(
   locale: string,
   newTitle: string,
 ): Promise<{ error?: string }> {
+  const t = await getTranslations("Errors");
   const session = await auth();
   if (!session?.user?.id) {
-    return { error: "You must be signed in." };
+    return { error: t("signInRequired") };
   }
 
   const title = newTitle.trim();
   if (!title) {
-    return { error: "Title is required." };
+    return { error: t("titleRequired") };
   }
 
   const book = await prisma.book.findUnique({
@@ -858,11 +869,11 @@ export async function updateBookLocalizedTitle(
     include: { languages: { select: { locale: true } } },
   });
   if (!book) {
-    return { error: "Book not found." };
+    return { error: t("bookNotFound") };
   }
   const allowed = book.languages.map((l) => l.locale);
   if (!allowed.includes(locale)) {
-    return { error: "Invalid language for this book." };
+    return { error: t("invalidBookLanguage") };
   }
 
   await prisma.$transaction(async (tx) => {
@@ -879,13 +890,13 @@ export async function updateBookLocalizedTitle(
     }
   });
 
-  revalidatePath(`/books/${bookSlug}`);
-  revalidatePath(`/books/${bookSlug}/edit`);
-  revalidatePath(
+  revalidatePathLocalized(`/books/${bookSlug}`);
+  revalidatePathLocalized(`/books/${bookSlug}/edit`);
+  revalidatePathLocalized(
     `/books/${bookSlug}/edit/languages/${encodeURIComponent(locale)}`,
   );
-  revalidatePath(`/books/${bookSlug}/edit/contents`);
-  revalidatePath(`/books/${bookSlug}`, "layout");
+  revalidatePathLocalized(`/books/${bookSlug}/edit/contents`);
+  revalidatePathLocalized(`/books/${bookSlug}`, "layout");
   return {};
 }
 
@@ -897,18 +908,19 @@ export async function updateSectionTitle(
   locale: string,
   newTitle: string,
 ): Promise<{ error?: string }> {
+  const t = await getTranslations("Errors");
   const session = await auth();
   if (!session?.user?.id) {
-    return { error: "You must be signed in." };
+    return { error: t("signInRequired") };
   }
 
   const title = newTitle.trim();
   if (!title) {
-    return { error: "Title is required." };
+    return { error: t("titleRequired") };
   }
   if (title.length > MAX_SECTION_TITLE_LEN) {
     return {
-      error: `Title must be at most ${MAX_SECTION_TITLE_LEN} characters.`,
+      error: t("titleMaxLength", { max: MAX_SECTION_TITLE_LEN }),
     };
   }
 
@@ -922,11 +934,11 @@ export async function updateSectionTitle(
     },
   });
   if (!section) {
-    return { error: "Section not found." };
+    return { error: t("sectionNotFound") };
   }
   const allowed = section.book.languages.map((l) => l.locale);
   if (!allowed.includes(locale)) {
-    return { error: "Invalid language for this book." };
+    return { error: t("invalidBookLanguage") };
   }
 
   await prisma.sectionLocalization.upsert({
@@ -937,11 +949,11 @@ export async function updateSectionTitle(
     update: { title },
   });
 
-  revalidatePath(`/books/${bookSlug}`);
-  revalidatePath(`/books/${bookSlug}/edit/contents`);
-  revalidatePath(`/books/${bookSlug}/${sectionSlug}`);
-  revalidatePath(`/books/${bookSlug}/${sectionSlug}/edit`);
-  revalidatePath(`/books/${bookSlug}/${sectionSlug}/history`);
+  revalidatePathLocalized(`/books/${bookSlug}`);
+  revalidatePathLocalized(`/books/${bookSlug}/edit/contents`);
+  revalidatePathLocalized(`/books/${bookSlug}/${sectionSlug}`);
+  revalidatePathLocalized(`/books/${bookSlug}/${sectionSlug}/edit`);
+  revalidatePathLocalized(`/books/${bookSlug}/${sectionSlug}/history`);
   return {};
 }
 
@@ -990,9 +1002,10 @@ export async function saveSectionRevision(
   _prev: SaveRevisionState,
   formData: FormData,
 ): Promise<SaveRevisionState> {
+  const t = await getTranslations("Errors");
   const session = await auth();
   if (!session?.user?.id) {
-    return { error: "You must be signed in." };
+    return { error: t("signInRequired") };
   }
 
   const body = formData.get("body")?.toString() ?? "";
@@ -1000,7 +1013,7 @@ export async function saveSectionRevision(
   const localeRaw = formData.get("locale")?.toString() ?? "";
 
   if (!body.trim()) {
-    return { error: "Content cannot be empty." };
+    return { error: t("contentEmpty") };
   }
 
   const section = await prisma.section.findFirst({
@@ -1018,7 +1031,7 @@ export async function saveSectionRevision(
     },
   });
   if (!section) {
-    return { error: "Section not found." };
+    return { error: t("sectionNotFound") };
   }
   const allowed = section.book.languages.map((l) => l.locale);
   const locale = normalizeActiveLocale(
@@ -1030,7 +1043,7 @@ export async function saveSectionRevision(
   try {
     await assertCanCreateRevision(session.user.id);
   } catch (e) {
-    return { error: e instanceof Error ? e.message : "Rate limited." };
+    return { error: e instanceof Error ? e.message : t("rateLimited") };
   }
 
   try {
@@ -1067,14 +1080,18 @@ export async function saveSectionRevision(
       });
     });
   } catch (e) {
-    return { error: e instanceof Error ? e.message : "Save failed." };
+    return { error: e instanceof Error ? e.message : t("saveFailed") };
   }
 
-  revalidatePath(`/books/${bookSlug}/${sectionSlug}`);
-  revalidatePath(`/books/${bookSlug}/${sectionSlug}/history`);
-  revalidatePath(`/books/${bookSlug}/${sectionSlug}/edit`);
-  revalidatePath(`/books/${bookSlug}`);
-  redirect(withLangQuery(`/books/${bookSlug}/${sectionSlug}`, locale));
+  revalidatePathLocalized(`/books/${bookSlug}/${sectionSlug}`);
+  revalidatePathLocalized(`/books/${bookSlug}/${sectionSlug}/history`);
+  revalidatePathLocalized(`/books/${bookSlug}/${sectionSlug}/edit`);
+  revalidatePathLocalized(`/books/${bookSlug}`);
+  const uiLocale = await getLocale();
+  redirect(
+    `/${uiLocale}${withLangQuery(`/books/${bookSlug}/${sectionSlug}`, locale)}`,
+  );
+  return {};
 }
 
 export type SaveSectionRevisionInlineResult =
@@ -1088,13 +1105,14 @@ export async function saveSectionRevisionInline(
   body: string,
   summaryComment: string | null = null,
 ): Promise<SaveSectionRevisionInlineResult> {
+  const t = await getTranslations("Errors");
   const session = await auth();
   if (!session?.user?.id) {
-    return { error: "You must be signed in." };
+    return { error: t("signInRequired") };
   }
 
   if (!body.trim()) {
-    return { error: "Content cannot be empty." };
+    return { error: t("contentEmpty") };
   }
 
   const section = await prisma.section.findFirst({
@@ -1113,10 +1131,10 @@ export async function saveSectionRevisionInline(
     },
   });
   if (!section) {
-    return { error: "Section not found." };
+    return { error: t("sectionNotFound") };
   }
   if (section.book.createdById !== session.user.id) {
-    return { error: "Only the book creator can use the auto wizard on this book." };
+    return { error: t("onlyCreatorWizard") };
   }
   const allowed = section.book.languages.map((l) => l.locale);
   const loc = normalizeActiveLocale(
@@ -1128,7 +1146,7 @@ export async function saveSectionRevisionInline(
   try {
     await assertCanCreateRevision(session.user.id);
   } catch (e) {
-    return { error: e instanceof Error ? e.message : "Rate limited." };
+    return { error: e instanceof Error ? e.message : t("rateLimited") };
   }
 
   try {
@@ -1165,13 +1183,13 @@ export async function saveSectionRevisionInline(
       });
     });
   } catch (e) {
-    return { error: e instanceof Error ? e.message : "Save failed." };
+    return { error: e instanceof Error ? e.message : t("saveFailed") };
   }
 
-  revalidatePath(`/books/${bookSlug}/${sectionSlug}`);
-  revalidatePath(`/books/${bookSlug}/${sectionSlug}/history`);
-  revalidatePath(`/books/${bookSlug}/${sectionSlug}/edit`);
-  revalidatePath(`/books/${bookSlug}`);
+  revalidatePathLocalized(`/books/${bookSlug}/${sectionSlug}`);
+  revalidatePathLocalized(`/books/${bookSlug}/${sectionSlug}/history`);
+  revalidatePathLocalized(`/books/${bookSlug}/${sectionSlug}/edit`);
+  revalidatePathLocalized(`/books/${bookSlug}`);
   return { ok: true };
 }
 
@@ -1190,9 +1208,10 @@ export async function getBookSectionsLatestForWizard(
   bookSlug: string,
   locale: string,
 ): Promise<GetBookSectionsLatestForWizardResult> {
+  const t = await getTranslations("Errors");
   const session = await auth();
   if (!session?.user?.id) {
-    return { error: "You must be signed in." };
+    return { error: t("signInRequired") };
   }
 
   const book = await prisma.book.findUnique({
@@ -1205,10 +1224,10 @@ export async function getBookSectionsLatestForWizard(
     },
   });
   if (!book) {
-    return { error: "Book not found." };
+    return { error: t("bookNotFound") };
   }
   if (book.createdById !== session.user.id) {
-    return { error: "Only the book creator can load wizard data for this book." };
+    return { error: t("onlyCreatorLoadWizard") };
   }
   const allowed = book.languages.map((l) => l.locale);
   const loc = normalizeActiveLocale(locale, allowed, book.defaultLocale);
@@ -1252,9 +1271,10 @@ export type WizardChapterBudgetResult = { ok: true } | { error: string };
 export async function assertWizardChapterRevisionBudget(
   bookSlug: string,
 ): Promise<WizardChapterBudgetResult> {
+  const t = await getTranslations("Errors");
   const session = await auth();
   if (!session?.user?.id) {
-    return { error: "You must be signed in." };
+    return { error: t("signInRequired") };
   }
 
   const book = await prisma.book.findUnique({
@@ -1262,17 +1282,17 @@ export async function assertWizardChapterRevisionBudget(
     select: { id: true, createdById: true },
   });
   if (!book) {
-    return { error: "Book not found." };
+    return { error: t("bookNotFound") };
   }
   if (book.createdById !== session.user.id) {
-    return { error: "Only the book creator can run the wizard on this book." };
+    return { error: t("onlyCreatorRunWizard") };
   }
 
   const n = await prisma.section.count({ where: { bookId: book.id } });
   try {
     await assertRevisionBudget(session.user.id, n);
   } catch (e) {
-    return { error: e instanceof Error ? e.message : "Rate limited." };
+    return { error: e instanceof Error ? e.message : t("rateLimited") };
   }
 
   return { ok: true };
@@ -1341,10 +1361,14 @@ export async function revertSectionRevision(
     });
   });
 
-  revalidatePath(`/books/${bookSlug}/${sectionSlug}`);
-  revalidatePath(`/books/${bookSlug}/${sectionSlug}/history`);
-  revalidatePath(`/books/${bookSlug}`);
-  redirect(withLangQuery(`/books/${bookSlug}/${sectionSlug}`, loc));
+  revalidatePathLocalized(`/books/${bookSlug}/${sectionSlug}`);
+  revalidatePathLocalized(`/books/${bookSlug}/${sectionSlug}/history`);
+  revalidatePathLocalized(`/books/${bookSlug}`);
+  const uiLocale = await getLocale();
+  redirect(
+    `/${uiLocale}${withLangQuery(`/books/${bookSlug}/${sectionSlug}`, loc)}`,
+  );
+  return {};
 }
 
 export async function revertSectionFromForm(formData: FormData) {
@@ -1371,29 +1395,32 @@ export async function addTocSectionsFromLlm(
   bookSlug: string,
   itemsJson: string,
 ): Promise<AddTocFromLlmResult> {
+  const t = await getTranslations("Errors");
   const session = await auth();
   if (!session?.user?.id) {
-    return { error: "You must be signed in." };
+    return { error: t("signInRequired") };
   }
 
   let items: unknown;
   try {
     items = JSON.parse(itemsJson) as unknown;
   } catch {
-    return { error: "Invalid data." };
+    return { error: t("invalidData") };
   }
   if (!Array.isArray(items) || items.length === 0) {
-    return { error: "No sections to add." };
+    return { error: t("noSectionsToAdd") };
   }
   if (items.length > MAX_LLM_TOC_SECTIONS) {
-    return { error: `At most ${MAX_LLM_TOC_SECTIONS} sections per request.` };
+    return {
+      error: t("maxTocSections", { max: MAX_LLM_TOC_SECTIONS }),
+    };
   }
 
   const book = await prisma.book.findUnique({
     where: { slug: bookSlug },
     include: { sections: true },
   });
-  if (!book) return { error: "Book not found." };
+  if (!book) return { error: t("bookNotFound") };
 
   type Row = { title: string; slug: string };
   const normalized: Row[] = [];
@@ -1418,16 +1445,13 @@ export async function addTocSectionsFromLlm(
   }
 
   if (normalized.length === 0) {
-    return {
-      error:
-        "No valid new sections (duplicates, reserved slugs, or empty titles were skipped).",
-    };
+    return { error: t("noValidNewSections") };
   }
 
   try {
     await assertRevisionBudget(session.user.id, normalized.length);
   } catch (e) {
-    return { error: e instanceof Error ? e.message : "Rate limited." };
+    return { error: e instanceof Error ? e.message : t("rateLimited") };
   }
 
   const maxOrder = book.sections.reduce(
@@ -1482,7 +1506,7 @@ export async function addTocSectionsFromLlm(
     }
   });
 
-  revalidatePath(`/books/${bookSlug}`);
+  revalidatePathLocalized(`/books/${bookSlug}`);
   return { added, skipped };
 }
 
@@ -1496,34 +1520,34 @@ export async function deleteSectionFromBook(
 ): Promise<DeleteSectionState> {
   void _prev;
   void _formData;
+  const t = await getTranslations("Errors");
   const session = await auth();
   if (!session?.user?.id) {
-    return { error: "You must be signed in." };
+    return { error: t("signInRequired") };
   }
 
   const book = await prisma.book.findUnique({
     where: { slug: bookSlug },
     include: { sections: { select: { id: true, slug: true } } },
   });
-  if (!book) return { error: "Book not found." };
+  if (!book) return { error: t("bookNotFound") };
   if (book.sections.length <= 1) {
-    return {
-      error:
-        "You cannot delete the only section. Add another section first, then delete this one.",
-    };
+    return { error: t("cannotDeleteOnlySection") };
   }
 
   const target = book.sections.find((s) => s.slug === sectionSlug);
-  if (!target) return { error: "Section not found." };
+  if (!target) return { error: t("sectionNotFound") };
 
   await prisma.section.delete({ where: { id: target.id } });
 
-  revalidatePath(`/books/${bookSlug}`);
-  revalidatePath(`/books/${bookSlug}/${sectionSlug}`);
-  revalidatePath(`/books/${bookSlug}/${sectionSlug}/edit`);
-  revalidatePath(`/books/${bookSlug}/${sectionSlug}/history`);
+  revalidatePathLocalized(`/books/${bookSlug}`);
+  revalidatePathLocalized(`/books/${bookSlug}/${sectionSlug}`);
+  revalidatePathLocalized(`/books/${bookSlug}/${sectionSlug}/edit`);
+  revalidatePathLocalized(`/books/${bookSlug}/${sectionSlug}/history`);
 
-  redirect(`/books/${bookSlug}`);
+  const uiLocale = await getLocale();
+  redirect(`/${uiLocale}/books/${bookSlug}`);
+  return {};
 }
 
 export type DeleteBookAdminState = { error?: string };
@@ -1537,35 +1561,35 @@ export async function deleteBookAsAdmin(
   formData: FormData,
 ): Promise<DeleteBookAdminState> {
   void _prev;
+  const t = await getTranslations("Errors");
   const session = await auth();
   if (!session?.user?.id) {
-    return { error: "You must be signed in." };
+    return { error: t("signInRequired") };
   }
   if (!session.user.isAdmin) {
-    return { error: "Only administrators can delete books." };
+    return { error: t("onlyAdminDelete") };
   }
 
   const bookSlug = formData.get("bookSlug")?.toString().trim() ?? "";
   if (!bookSlug) {
-    return { error: "Missing book." };
+    return { error: t("missingBook") };
   }
 
   const book = await prisma.book.findUnique({ where: { slug: bookSlug } });
   if (!book) {
-    return { error: "Book not found." };
+    return { error: t("bookNotFound") };
   }
 
   const typedTitle = formData.get("confirmTitle")?.toString().trim() ?? "";
   if (typedTitle !== book.title.trim()) {
-    return {
-      error:
-        "The title you typed does not match this book. Enter the exact book title to confirm deletion.",
-    };
+    return { error: t("deleteTitleMismatch") };
   }
 
   await prisma.book.delete({ where: { id: book.id } });
 
-  revalidatePath("/");
-  revalidatePath(`/books/${bookSlug}`, "layout");
-  redirect("/");
+  revalidatePathLocalized("/");
+  revalidatePathLocalized(`/books/${bookSlug}`, "layout");
+  const uiLocale = await getLocale();
+  redirect(`/${uiLocale}`);
+  return {};
 }

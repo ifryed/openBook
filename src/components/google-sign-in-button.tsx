@@ -1,15 +1,11 @@
 "use client";
 
 import { signIn } from "next-auth/react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
-export function GoogleSignInButton({
-  callbackUrl,
-  label = "Continue with Google",
-}: {
-  callbackUrl: string;
-  label?: string;
-}) {
+export function GoogleSignInButton({ callbackUrl }: { callbackUrl: string }) {
+  const t = useTranslations("GoogleSignIn");
   const [pending, setPending] = useState(false);
 
   return (
@@ -23,7 +19,7 @@ export function GoogleSignInButton({
       className="flex w-full items-center justify-center gap-2 rounded-md border border-border bg-card px-4 py-2 text-sm font-medium text-foreground shadow-sm hover:bg-background disabled:opacity-50"
     >
       <GoogleMark className="h-5 w-5 shrink-0" aria-hidden />
-      {pending ? "Redirecting…" : label}
+      {pending ? t("redirecting") : t("label")}
     </button>
   );
 }

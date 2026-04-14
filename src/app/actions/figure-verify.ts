@@ -1,6 +1,7 @@
 "use server";
 
 import { auth } from "@/auth";
+import { getTranslations } from "next-intl/server";
 import {
   fetchFigureCandidates,
   type FigureCandidate,
@@ -17,17 +18,18 @@ export type FigureCandidatesResult =
 export async function getFigureNameCandidates(
   name: string,
 ): Promise<FigureCandidatesResult> {
+  const t = await getTranslations("Errors");
   const session = await auth();
   if (!session?.user?.id) {
-    return { ok: false, error: "You must be signed in." };
+    return { ok: false, error: t("signInRequired") };
   }
 
   const trimmed = name.trim();
   if (trimmed.length < 2) {
-    return { ok: false, error: "Enter at least two characters." };
+    return { ok: false, error: t("figureVerifyChars") };
   }
   if (trimmed.length > 200) {
-    return { ok: false, error: "Name is too long." };
+    return { ok: false, error: t("figureVerifyLong") };
   }
 
   try {
@@ -37,7 +39,7 @@ export async function getFigureNameCandidates(
     return {
       ok: false,
       error:
-        e instanceof Error ? e.message : "Could not load name suggestions. Try again.",
+        e instanceof Error ? e.message : t("figureVerifyFailed"),
     };
   }
 }

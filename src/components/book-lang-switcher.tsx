@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { usePathname, useSearchParams } from "next/navigation";
 import { bookLocaleLabel } from "@/lib/book-locales";
 

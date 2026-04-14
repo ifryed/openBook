@@ -1,6 +1,7 @@
 "use server";
 
 import { auth } from "@/auth";
+import { getTranslations } from "next-intl/server";
 import { gatherReferenceSnippetsMarkdown } from "@/lib/reference-lookup";
 
 export type DraftReferenceLookupResult =
@@ -16,9 +17,10 @@ export async function fetchDraftReferenceContext(input: {
   figureName: string;
   sectionTitle: string;
 }): Promise<DraftReferenceLookupResult> {
+  const t = await getTranslations("Errors");
   const session = await auth();
   if (!session?.user?.id) {
-    return { ok: false, error: "You must be signed in to fetch references." };
+    return { ok: false, error: t("signInForReferences") };
   }
 
   try {
@@ -28,7 +30,7 @@ export async function fetchDraftReferenceContext(input: {
     return {
       ok: false,
       error:
-        e instanceof Error ? e.message : "Reference lookup failed. Try again.",
+        e instanceof Error ? e.message : t("referenceLookupFailed"),
     };
   }
 }

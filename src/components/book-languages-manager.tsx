@@ -7,7 +7,7 @@ import {
   filterBookLocaleOptions,
   type BookLocaleOption,
 } from "@/lib/book-locales";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { useRouter } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
 

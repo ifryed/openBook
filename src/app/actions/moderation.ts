@@ -1,36 +1,36 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePathLocalized } from "@/lib/revalidate-localized";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
 import { canResolveReports } from "@/lib/moderation";
 import { awardReputationTx } from "@/lib/reputation";
+import { getTranslations } from "next-intl/server";
 
 export async function resolveReport(formData: FormData) {
+  const t = await getTranslations("Errors");
   const session = await auth();
   if (!session?.user?.id) {
-    throw new Error("You must be signed in.");
+    throw new Error(t("signInRequired"));
   }
 
   const allowed = await canResolveReports(session.user.id, {
     isAdmin: session.user.isAdmin,
   });
   if (!allowed) {
-    throw new Error(
-      "Only Steward-tier contributors or site administrators can resolve reports.",
-    );
+    throw new Error(t("onlyStewardResolve"));
   }
 
   const reportId = formData.get("reportId")?.toString() ?? "";
-  if (!reportId) throw new Error("Missing report.");
+  if (!reportId) throw new Error(t("missingReport"));
 
   const report = await prisma.report.findUnique({
     where: { id: reportId },
     include: { book: { select: { slug: true } } },
   });
-  if (!report) throw new Error("Report not found.");
+  if (!report) throw new Error(t("reportNotFound"));
   if (report.status !== "OPEN") {
-    throw new Error("This report is already resolved.");
+    throw new Error(t("reportAlreadyResolved"));
   }
 
   await prisma.$transaction(async (tx) => {
@@ -49,8 +49,8 @@ export async function resolveReport(formData: FormData) {
     });
   });
 
-  revalidatePath("/moderation/reports");
+  revalidatePathLocalized("/moderation/reports");
   if (report.book?.slug) {
-    revalidatePath(`/books/${report.book.slug}`);
+    revalidatePathLocalized(`/books/${report.book.slug}`);
   }
 }

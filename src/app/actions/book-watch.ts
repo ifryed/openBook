@@ -1,21 +1,23 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePathLocalized } from "@/lib/revalidate-localized";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
+import { getTranslations } from "next-intl/server";
 
 export type WatchState = { error?: string; watching?: boolean };
 
 export async function toggleBookWatch(
   bookSlug: string,
 ): Promise<WatchState> {
+  const t = await getTranslations("Errors");
   const session = await auth();
   if (!session?.user?.id) {
-    return { error: "Sign in to watch books." };
+    return { error: t("signInToWatch") };
   }
 
   const book = await prisma.book.findUnique({ where: { slug: bookSlug } });
-  if (!book) return { error: "Book not found." };
+  if (!book) return { error: t("bookNotFound") };
 
   const existing = await prisma.bookWatch.findUnique({
     where: {
@@ -25,14 +27,14 @@ export async function toggleBookWatch(
 
   if (existing) {
     await prisma.bookWatch.delete({ where: { id: existing.id } });
-    revalidatePath(`/books/${bookSlug}`);
+    revalidatePathLocalized(`/books/${bookSlug}`);
     return { watching: false };
   }
 
   await prisma.bookWatch.create({
     data: { userId: session.user.id, bookId: book.id },
   });
-  revalidatePath(`/books/${bookSlug}`);
+  revalidatePathLocalized(`/books/${bookSlug}`);
   return { watching: true };
 }
 

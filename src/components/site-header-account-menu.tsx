@@ -1,11 +1,16 @@
-import Link from "next/link";
+"use client";
+
 import { signOutAction } from "@/app/actions/auth";
 import { HeaderMenuDetails } from "@/components/header-menu-details";
+import { Link } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 
 export function SiteHeaderAccountMenu(props: {
   canResolveReports: boolean;
   isAdmin: boolean;
 }) {
+  const t = useTranslations("SiteHeader");
+
   return (
     <HeaderMenuDetails
       menuRole="menu"
@@ -16,14 +21,14 @@ export function SiteHeaderAccountMenu(props: {
         className="block px-3 py-2 text-foreground no-underline hover:bg-background"
         role="menuitem"
       >
-        Profile
+        {t("profile")}
       </Link>
       <Link
         href="/settings"
         className="block px-3 py-2 text-foreground no-underline hover:bg-background"
         role="menuitem"
       >
-        Settings
+        {t("settings")}
       </Link>
       {props.canResolveReports ? (
         <>
@@ -33,7 +38,7 @@ export function SiteHeaderAccountMenu(props: {
             className="block px-3 py-2 text-foreground no-underline hover:bg-background"
             role="menuitem"
           >
-            Report queue
+            {t("reportQueue")}
           </Link>
         </>
       ) : null}
@@ -41,21 +46,21 @@ export function SiteHeaderAccountMenu(props: {
         <>
           <div className="my-1 border-t border-border" aria-hidden />
           <p className="px-3 py-1 text-xs font-medium uppercase tracking-wide text-muted">
-            Administration
+            {t("administration")}
           </p>
           <Link
             href="/admin"
             className="block px-3 py-2 text-foreground no-underline hover:bg-background"
             role="menuitem"
           >
-            Admin tools
+            {t("adminTools")}
           </Link>
           <Link
             href="/admin/users"
             className="block px-3 py-2 text-foreground no-underline hover:bg-background"
             role="menuitem"
           >
-            Users
+            {t("users")}
           </Link>
         </>
       ) : null}
@@ -65,7 +70,7 @@ export function SiteHeaderAccountMenu(props: {
           className="w-full cursor-pointer px-3 py-2 text-left text-foreground hover:bg-background"
           role="menuitem"
         >
-          Sign out
+          {t("signOut")}
         </button>
       </form>
     </HeaderMenuDetails>
@@ -73,13 +78,15 @@ export function SiteHeaderAccountMenu(props: {
 }
 
 export function SiteHeaderGuestMenu() {
+  const t = useTranslations("SiteHeader");
+
   return (
     <HeaderMenuDetails menuClassName="absolute right-0 z-50 mt-1 min-w-[10rem] rounded-md border border-border bg-card py-1 text-sm shadow-md">
       <Link
         href="/login"
         className="block px-3 py-2 text-foreground no-underline hover:bg-background"
       >
-        Sign in
+        {t("signIn")}
       </Link>
     </HeaderMenuDetails>
   );
