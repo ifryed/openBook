@@ -16,6 +16,7 @@ import {
   lifeEventsBulletRange,
   tocStep1ChapterBudgetNarrative,
   tocStep1MaxTokens,
+  tocStep2MaxTokens,
 } from "@/lib/llm-toc-prompts";
 import { WEBLLM_CHAT_OPTIONS, WEBLLM_MODEL } from "@/lib/webllm-model";
 import type { MLCEngine } from "@mlc-ai/web-llm";
@@ -24,7 +25,7 @@ import { IntendedAudienceSelect } from "@/components/intended-audience-select";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-const MIN_TOC_CHAPTERS = 3;
+const MIN_BIO_CHAPTERS = 1;
 const WORDS_PER_PAGE = 275;
 
 type ChapterLogEntry = {
@@ -94,11 +95,14 @@ export function AutoBookWizard() {
     /** Creates the Introduction section; wizard drafts it like other chapters. */
     const draftIntroductionWithAi = fd.get("includeIntroduction") === "on";
     const targetChaptersRaw = Number(
-      fd.get("targetChapters")?.toString() ?? String(MIN_TOC_CHAPTERS),
+      fd.get("targetChapters")?.toString() ?? "8",
     );
     const targetChapters = Math.min(
       MAX_LLM_TOC_SECTIONS,
-      Math.max(MIN_TOC_CHAPTERS, Number.isFinite(targetChaptersRaw) ? targetChaptersRaw : MIN_TOC_CHAPTERS),
+      Math.max(
+        MIN_BIO_CHAPTERS,
+        Number.isFinite(targetChaptersRaw) ? targetChaptersRaw : 8,
+      ),
     );
     const pagesRaw = fd.get("targetPages")?.toString().trim() ?? "";
     const targetPages =
@@ -236,7 +240,7 @@ Example:
           },
         ],
         temperature: 0.12,
-        max_tokens: 2048,
+        max_tokens: tocStep2MaxTokens(targetChapters),
       });
 
       const tocText = tocCompletion.choices[0]?.message?.content ?? "";
@@ -556,14 +560,13 @@ Produce the full Markdown body for this chapter only.`,
             <input
               name="targetChapters"
               type="number"
-              min={MIN_TOC_CHAPTERS}
-              max={MAX_LLM_TOC_SECTIONS}
+              min={MIN_BIO_CHAPTERS}
               defaultValue={8}
               className="mt-1 w-full rounded-md border border-border bg-card px-3 py-2 text-sm"
             />
             <span className="mt-1 block text-xs font-normal text-muted">
-              Between {MIN_TOC_CHAPTERS} and {MAX_LLM_TOC_SECTIONS} (app limit). The
-              optional AI Introduction above is separate from this count.
+              At least {MIN_BIO_CHAPTERS}; no fixed max. Very large counts may hit the
+              model or your revision rate limit. Optional Introduction is extra.
             </span>
           </label>
           <label className="block text-sm font-medium">

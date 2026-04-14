@@ -22,7 +22,12 @@ import {
   MAX_AUTO_WIZARD_PUBLISH_SECTIONS,
   MAX_LLM_TOC_SECTIONS,
 } from "@/lib/book-limits";
-import { isReservedSlug, uniqueSlugFromPreferred, slugify } from "@/lib/slug";
+import {
+  defaultBookSlug,
+  isReservedSlug,
+  uniqueSlugFromPreferred,
+  slugify,
+} from "@/lib/slug";
 
 const FIGURE_PICK_ERROR =
   'Use “Check name”, choose a matching person, then “Use selected person” — or restore the original figure name when editing.';
@@ -94,15 +99,16 @@ async function validateCreateBookForm(
     return { error: "Country / region must be 255 characters or fewer." };
   }
 
-  const slug = slugRaw ? slugify(slugRaw) : slugify(figureName || title);
+  if (!title || !figureName) {
+    return { error: "Title and historical figure name are required." };
+  }
+
+  const slug = slugRaw ? slugify(slugRaw) : defaultBookSlug(figureName, title);
   if (!slug) {
-    return { error: "Provide a figure name or URL slug." };
+    return { error: "Could not derive a URL slug from the title and figure name." };
   }
   if (isReservedSlug(slug)) {
     return { error: "That URL slug is reserved. Choose another." };
-  }
-  if (!title || !figureName) {
-    return { error: "Title and historical figure name are required." };
   }
   if (!intendedAges) {
     return {
@@ -484,15 +490,18 @@ export async function updateBook(
     return { error: "Country / region must be 255 characters or fewer." };
   }
 
-  const newSlug = slugRaw ? slugify(slugRaw) : slugify(figureName || title);
+  if (!title || !figureName) {
+    return { error: "Title and historical figure name are required." };
+  }
+
+  const newSlug = slugRaw
+    ? slugify(slugRaw)
+    : defaultBookSlug(figureName, title);
   if (!newSlug) {
-    return { error: "Provide a figure name or URL slug." };
+    return { error: "Could not derive a URL slug from the title and figure name." };
   }
   if (isReservedSlug(newSlug)) {
     return { error: "That URL slug is reserved. Choose another." };
-  }
-  if (!title || !figureName) {
-    return { error: "Title and historical figure name are required." };
   }
   if (!intendedAges) {
     return {

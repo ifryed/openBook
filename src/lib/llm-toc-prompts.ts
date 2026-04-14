@@ -2,7 +2,7 @@ import { MAX_LLM_TOC_SECTIONS } from "@/lib/book-limits";
 
 export function clampTargetNewChapters(n: number): number {
   if (!Number.isFinite(n)) return 8;
-  return Math.min(MAX_LLM_TOC_SECTIONS, Math.max(3, Math.round(n)));
+  return Math.min(MAX_LLM_TOC_SECTIONS, Math.max(1, Math.round(n)));
 }
 
 /** Bullet count range for Step 1 scales with how many new chapters Step 2 will request. */
@@ -11,8 +11,8 @@ export function lifeEventsBulletRange(targetNewChapters: number): {
   hi: number;
 } {
   const t = clampTargetNewChapters(targetNewChapters);
-  const lo = Math.max(8, Math.min(16, t + 2));
-  const hi = Math.max(lo + 2, Math.min(24, t * 2 + 6));
+  const lo = Math.max(4, Math.min(80, Math.floor(t * 0.35) + 4));
+  const hi = Math.max(lo + 3, Math.min(500, Math.floor(t * 1.1) + 10));
   return { lo, hi };
 }
 
@@ -38,5 +38,11 @@ When ${n} is larger, prefer finer-grained periods and sub-themes (still one idea
 
 /** Suggested max_tokens for Step 1 given bullet ceiling. */
 export function tocStep1MaxTokens(bulletHi: number): number {
-  return Math.min(3200, Math.max(1400, 900 + bulletHi * 85));
+  return Math.min(12000, Math.max(1200, 800 + bulletHi * 75));
+}
+
+/** Step 2 NDJSON lines — scale output budget with requested chapter count. */
+export function tocStep2MaxTokens(nChapters: number): number {
+  const n = Math.max(1, Math.round(nChapters));
+  return Math.min(32768, 512 + n * 100);
 }

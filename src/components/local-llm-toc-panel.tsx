@@ -11,8 +11,8 @@ import {
   lifeEventsBulletRange,
   tocStep1ChapterBudgetNarrative,
   tocStep1MaxTokens,
+  tocStep2MaxTokens,
 } from "@/lib/llm-toc-prompts";
-import { MAX_LLM_TOC_SECTIONS } from "@/lib/book-limits";
 import { WEBLLM_CHAT_OPTIONS, WEBLLM_MODEL } from "@/lib/webllm-model";
 import type { MLCEngine } from "@mlc-ai/web-llm";
 import { useRouter } from "next/navigation";
@@ -194,7 +194,7 @@ Example:
           },
         ],
         temperature: 0.12,
-        max_tokens: 2048,
+        max_tokens: tocStep2MaxTokens(nChapters),
       });
 
       const rawToc = completion.choices[0]?.message?.content ?? "";
@@ -277,13 +277,12 @@ Example:
 
           <label className="block">
             <span className="text-xs font-medium text-muted">
-              Target new chapters (Step 1 scales detail to this; Step 2 outputs this
-              many lines — max {MAX_LLM_TOC_SECTIONS})
+              Target new chapters (Step 1 scales to this; Step 2 outputs this many
+              lines — minimum 1, no fixed maximum)
             </span>
             <input
               type="number"
-              min={3}
-              max={MAX_LLM_TOC_SECTIONS}
+              min={1}
               value={targetNewChapters}
               onChange={(e) => {
                 const v = parseInt(e.target.value, 10);

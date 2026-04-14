@@ -21,6 +21,42 @@ export function slugify(input: string): string {
     .slice(0, 80);
 }
 
+const MAX_BOOK_SLUG_LEN = 80;
+
+/**
+ * Short segment from a figure name for default book URLs:
+ * - "Curie, Marie" → "Curie" (bibliographic order)
+ * - "Marie Curie" → "Curie" (two-word → last token as surname)
+ * - longer names → first token (e.g. "Hypatia of Alexandria" → "Hypatia")
+ */
+export function shortFigureNameForSlug(figureName: string): string {
+  const t = figureName.trim();
+  if (!t) return "";
+  const comma = t.indexOf(",");
+  if (comma !== -1) {
+    return t.slice(0, comma).trim();
+  }
+  const words = t.split(/\s+/).filter(Boolean);
+  if (words.length === 0) return "";
+  if (words.length === 2) {
+    return words[1]!;
+  }
+  return words[0]!;
+}
+
+/**
+ * Default book slug when the editor leaves the slug field blank: shortened figure + title.
+ */
+export function defaultBookSlug(figureName: string, title: string): string {
+  const figurePart = slugify(shortFigureNameForSlug(figureName));
+  const titlePart = slugify(title);
+  if (!figurePart && !titlePart) return "";
+  if (!figurePart) return titlePart.slice(0, MAX_BOOK_SLUG_LEN);
+  if (!titlePart) return figurePart.slice(0, MAX_BOOK_SLUG_LEN);
+  const joined = `${figurePart}-${titlePart}`.replace(/-+/g, "-");
+  return joined.replace(/^-+|-+$/g, "").slice(0, MAX_BOOK_SLUG_LEN);
+}
+
 export function isReservedSlug(slug: string): boolean {
   return RESERVED.has(slug.toLowerCase());
 }

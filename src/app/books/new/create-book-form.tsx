@@ -70,7 +70,7 @@ export function CreateBookForm() {
         </span>
       </label>
       <label className="block text-sm font-medium">
-        URL slug (optional — derived from figure name if empty)
+        URL slug (optional — short figure name + title if empty)
         <input
           name="slug"
           placeholder="hypatia"
