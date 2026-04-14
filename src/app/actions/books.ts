@@ -1,5 +1,6 @@
 "use server";
 
+import type { Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
@@ -946,6 +947,43 @@ export async function updateSectionTitle(
 
 export type SaveRevisionState = { error?: string };
 
+/**
+ * Readers require a non-empty SectionLocalization title for the locale. When
+ * publishing a body in a language that has no title row yet, seed the title
+ * from the same fallback chain as the editor (primary locale → first title → slug).
+ */
+async function ensureSectionTitleRowForPublishedBody(
+  tx: Prisma.TransactionClient,
+  section: { id: string; slug: string },
+  locale: string,
+  defaultLocale: string,
+): Promise<void> {
+  const locs = await tx.sectionLocalization.findMany({
+    where: { sectionId: section.id },
+    select: { locale: true, title: true },
+  });
+  if (locs.find((l) => l.locale === locale)?.title?.trim()) {
+    return;
+  }
+  const seedTitle = resolveSectionTitle(
+    section.slug,
+    locs,
+    locale,
+    defaultLocale,
+  );
+  await tx.sectionLocalization.upsert({
+    where: {
+      sectionId_locale: { sectionId: section.id, locale },
+    },
+    create: {
+      sectionId: section.id,
+      locale,
+      title: seedTitle,
+    },
+    update: { title: seedTitle },
+  });
+}
+
 export async function saveSectionRevision(
   bookSlug: string,
   sectionSlug: string,
@@ -1009,6 +1047,12 @@ export async function saveSectionRevision(
         },
         tx,
       );
+      await ensureSectionTitleRowForPublishedBody(
+        tx,
+        section,
+        locale,
+        section.book.defaultLocale,
+      );
       await awardReputationTx(tx, session.user.id, "REVISION_SAVED", {
         refBookId: section.bookId,
         refSectionId: section.id,
@@ -1028,6 +1072,7 @@ export async function saveSectionRevision(
 
   revalidatePath(`/books/${bookSlug}/${sectionSlug}`);
   revalidatePath(`/books/${bookSlug}/${sectionSlug}/history`);
+  revalidatePath(`/books/${bookSlug}/${sectionSlug}/edit`);
   revalidatePath(`/books/${bookSlug}`);
   redirect(withLangQuery(`/books/${bookSlug}/${sectionSlug}`, locale));
 }
@@ -1100,6 +1145,12 @@ export async function saveSectionRevisionInline(
         },
         tx,
       );
+      await ensureSectionTitleRowForPublishedBody(
+        tx,
+        section,
+        loc,
+        section.book.defaultLocale,
+      );
       await awardReputationTx(tx, session.user.id, "REVISION_SAVED", {
         refBookId: section.bookId,
         refSectionId: section.id,
@@ -1119,6 +1170,7 @@ export async function saveSectionRevisionInline(
 
   revalidatePath(`/books/${bookSlug}/${sectionSlug}`);
   revalidatePath(`/books/${bookSlug}/${sectionSlug}/history`);
+  revalidatePath(`/books/${bookSlug}/${sectionSlug}/edit`);
   revalidatePath(`/books/${bookSlug}`);
   return { ok: true };
 }

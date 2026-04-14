@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { auth } from "@/auth";
 import { BookLangSwitcher } from "@/components/book-lang-switcher";
 import {
+  bookLocaleLabel,
   normalizeActiveLocale,
   withLangQuery,
 } from "@/lib/book-locales";
@@ -70,14 +71,74 @@ export default async function SectionReadPage({ params, searchParams }: Props) {
   );
 
   const revision = await getLatestRevision(section.id, activeLocale);
-  if (
-    !isSectionCompleteForLocale(
-      section.localizations,
+  const completeForLocale = isSectionCompleteForLocale(
+    section.localizations,
+    activeLocale,
+    revision?.body,
+  );
+
+  if (!completeForLocale) {
+    if (!session?.user) {
+      notFound();
+    }
+
+    const editHref = withLangQuery(
+      `/books/${section.book.slug}/${section.slug}/edit`,
       activeLocale,
-      revision?.body,
-    )
-  ) {
-    notFound();
+    );
+    const primaryReadHref = withLangQuery(
+      `/books/${section.book.slug}/${section.slug}`,
+      section.book.defaultLocale,
+    );
+
+    return (
+      <article className="space-y-6">
+        <BookLangSwitcher locales={bookLocales} activeLocale={activeLocale} />
+
+        <nav className="text-sm text-muted">
+          <Link href="/" className="text-accent no-underline hover:underline">
+            Home
+          </Link>
+          {" · "}
+          <Link
+            href={withLangQuery(`/books/${section.book.slug}`, activeLocale)}
+            className="text-accent no-underline hover:underline"
+          >
+            {bookTitleDisplay}
+          </Link>
+          {" · "}
+          <span>{sectionTitle}</span>
+        </nav>
+
+        <div className="rounded-lg border border-border bg-card p-6">
+          <h1 className="text-xl font-semibold text-foreground">
+            This chapter is not available in{" "}
+            {bookLocaleLabel(activeLocale)} yet
+          </h1>
+          <p className="mt-2 text-sm text-muted">
+            Readers only see chapters that have both a title and body in a
+            language. Add a translation to publish this chapter in{" "}
+            {bookLocaleLabel(activeLocale)}.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-3">
+            <Link
+              href={editHref}
+              className="inline-flex items-center justify-center rounded-md bg-accent px-4 py-2 text-sm font-medium !text-white no-underline hover:opacity-90"
+            >
+              Edit chapter ({activeLocale})
+            </Link>
+            {activeLocale !== section.book.defaultLocale ? (
+              <Link
+                href={primaryReadHref}
+                className="inline-flex items-center justify-center rounded-md border border-border bg-background px-4 py-2 text-sm font-medium text-foreground no-underline hover:bg-muted/40"
+              >
+                View in {bookLocaleLabel(section.book.defaultLocale)}
+              </Link>
+            ) : null}
+          </div>
+        </div>
+      </article>
+    );
   }
 
   return (

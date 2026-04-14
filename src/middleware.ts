@@ -23,16 +23,25 @@ function isProtectedPath(pathname: string): boolean {
   ) {
     return true;
   }
+  // /books/:bookSlug/edit/languages/:locale
+  if (
+    parts.length === 5 &&
+    parts[2] === "edit" &&
+    parts[3] === "languages"
+  ) {
+    return true;
+  }
   // /books/:bookSlug/:sectionSlug/edit
   if (parts.length >= 4 && parts[parts.length - 1] === "edit") return true;
   return false;
 }
 
 export default auth((req) => {
-  const { pathname } = req.nextUrl;
+  const { pathname, search } = req.nextUrl;
   if (!req.auth && isProtectedPath(pathname)) {
     const u = new URL("/login", req.nextUrl.origin);
-    u.searchParams.set("callbackUrl", pathname);
+    const callbackUrl = `${pathname}${search}`;
+    u.searchParams.set("callbackUrl", callbackUrl);
     return Response.redirect(u);
   }
   return undefined;
@@ -43,6 +52,7 @@ export const config = {
     "/books/new",
     "/books/:bookSlug/edit",
     "/books/:bookSlug/edit/contents",
+    "/books/:bookSlug/edit/languages/:locale",
     "/books/:bookSlug/:sectionSlug/edit",
     "/notifications",
     "/settings",
