@@ -78,7 +78,7 @@ export default async function SectionReadPage({ params }: Props) {
           {session?.user ? (
             <Link
               href={`/books/${section.book.slug}/${section.slug}/edit`}
-              className="inline-flex items-center justify-center rounded-md bg-foreground px-4 py-2 text-sm font-medium text-background no-underline hover:opacity-90"
+              className="inline-flex items-center justify-center rounded-md bg-accent px-4 py-2 text-sm font-medium !text-white no-underline hover:opacity-90 hover:!text-white hover:!no-underline"
             >
               Edit
             </Link>

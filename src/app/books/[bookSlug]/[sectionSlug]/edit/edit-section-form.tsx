@@ -1,6 +1,7 @@
 "use client";
 
 import { ChapterAiDraftPanel } from "@/components/chapter-ai-draft-panel";
+import { MarkdownBody } from "@/components/markdown-body";
 import { useActionState, useEffect, useState } from "react";
 import { useFormStatus } from "react-dom";
 import {
@@ -49,6 +50,8 @@ export function EditSectionForm({
   bookContextMarkdown: string;
 }) {
   const [body, setBody] = useState(initialBody);
+  const [bodyTab, setBodyTab] = useState<"edit" | "preview">("edit");
+
   useEffect(() => {
     setBody(initialBody);
   }, [initialBody]);
@@ -85,17 +88,75 @@ export function EditSectionForm({
           className="mt-1 w-full max-w-xl rounded-md border border-border bg-card px-3 py-2 text-sm"
         />
       </label>
-      <label className="block text-sm font-medium">
-        Body (Markdown)
-        <textarea
-          name="body"
-          required
-          rows={20}
-          value={body}
-          onChange={(e) => setBody(e.target.value)}
-          className="mt-1 w-full rounded-md border border-border bg-card px-3 py-2 font-mono text-sm"
-        />
-      </label>
+      <div className="block">
+        <div className="flex flex-wrap items-end justify-between gap-2">
+          <span className="text-sm font-medium">Body (Markdown)</span>
+          <div
+            className="flex rounded-md border border-border bg-card p-0.5 text-sm shadow-sm"
+            role="tablist"
+            aria-label="Body editor mode"
+          >
+            <button
+              type="button"
+              role="tab"
+              aria-selected={bodyTab === "edit"}
+              id="body-tab-edit"
+              aria-controls="body-panel"
+              onClick={() => setBodyTab("edit")}
+              className={`rounded px-3 py-1 ${
+                bodyTab === "edit"
+                  ? "bg-accent !text-white"
+                  : "text-muted hover:text-foreground"
+              }`}
+            >
+              Edit
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={bodyTab === "preview"}
+              id="body-tab-preview"
+              aria-controls="body-panel"
+              onClick={() => setBodyTab("preview")}
+              className={`rounded px-3 py-1 ${
+                bodyTab === "preview"
+                  ? "bg-accent !text-white"
+                  : "text-muted hover:text-foreground"
+              }`}
+            >
+              Preview
+            </button>
+          </div>
+        </div>
+        <div
+          id="body-panel"
+          role="tabpanel"
+          aria-labelledby={
+            bodyTab === "edit" ? "body-tab-edit" : "body-tab-preview"
+          }
+          className="mt-2"
+        >
+          <textarea
+            name="body"
+            required
+            rows={20}
+            value={body}
+            onChange={(e) => setBody(e.target.value)}
+            className={`w-full rounded-md border border-border bg-card px-3 py-2 font-mono text-sm ${
+              bodyTab === "preview" ? "hidden" : ""
+            }`}
+          />
+          {bodyTab === "preview" ? (
+            <div className="min-h-[min(24rem,60vh)] w-full rounded-md border border-border bg-card px-3 py-3">
+              {body.trim() ? (
+                <MarkdownBody content={body} />
+              ) : (
+                <p className="text-sm text-muted">Nothing to preview yet.</p>
+              )}
+            </div>
+          ) : null}
+        </div>
+      </div>
       {state.error ? (
         <p className="text-sm text-red-700" role="alert">
           {state.error}

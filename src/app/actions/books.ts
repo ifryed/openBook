@@ -414,6 +414,51 @@ export async function reorderBookSections(
   return {};
 }
 
+const MAX_SECTION_TITLE_LEN = 255;
+
+export async function updateSectionTitle(
+  bookSlug: string,
+  sectionSlug: string,
+  newTitle: string,
+): Promise<{ error?: string }> {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { error: "You must be signed in." };
+  }
+
+  const title = newTitle.trim();
+  if (!title) {
+    return { error: "Title is required." };
+  }
+  if (title.length > MAX_SECTION_TITLE_LEN) {
+    return {
+      error: `Title must be at most ${MAX_SECTION_TITLE_LEN} characters.`,
+    };
+  }
+
+  const section = await prisma.section.findFirst({
+    where: {
+      slug: sectionSlug,
+      book: { slug: bookSlug },
+    },
+  });
+  if (!section) {
+    return { error: "Section not found." };
+  }
+
+  await prisma.section.update({
+    where: { id: section.id },
+    data: { title },
+  });
+
+  revalidatePath(`/books/${bookSlug}`);
+  revalidatePath(`/books/${bookSlug}/edit/contents`);
+  revalidatePath(`/books/${bookSlug}/${sectionSlug}`);
+  revalidatePath(`/books/${bookSlug}/${sectionSlug}/edit`);
+  revalidatePath(`/books/${bookSlug}/${sectionSlug}/history`);
+  return {};
+}
+
 export type SaveRevisionState = { error?: string };
 
 export async function saveSectionRevision(

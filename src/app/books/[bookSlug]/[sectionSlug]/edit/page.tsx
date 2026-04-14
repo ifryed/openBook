@@ -4,6 +4,7 @@ import { buildBookContextMarkdown } from "@/lib/book-context";
 import { prisma } from "@/lib/db";
 import { getLatestRevision } from "@/lib/revisions";
 import { EditSectionForm } from "./edit-section-form";
+import { SectionTitleEditor } from "./section-title-editor";
 
 type Props = {
   params: Promise<{ bookSlug: string; sectionSlug: string }>;
@@ -69,7 +70,11 @@ export default async function SectionEditPage({ params }: Props) {
         </Link>
       </nav>
       <div>
-        <h1 className="text-2xl font-semibold">Edit: {section.title}</h1>
+        <SectionTitleEditor
+          bookSlug={section.book.slug}
+          sectionSlug={section.slug}
+          initialTitle={section.title}
+        />
         <p className="mt-1 text-sm text-muted">
           Markdown supported. Each save creates a new revision; nothing is
           overwritten.

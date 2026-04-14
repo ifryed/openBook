@@ -31,17 +31,6 @@ export default async function BookEditPage({ params }: Props) {
       </nav>
       <div>
         <h1 className="text-2xl font-semibold">Edit book details</h1>
-        <p className="mt-1 text-sm text-muted">
-          Title, figure, audience, URL slug, summary, and tags. To change the
-          table of contents or add sections, use{" "}
-          <Link
-            href={`/books/${book.slug}/edit/contents`}
-            className="text-accent no-underline hover:underline"
-          >
-            Edit contents
-          </Link>{" "}
-          from the book page.
-        </p>
       </div>
       <EditBookForm
         bookSlug={book.slug}
