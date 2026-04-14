@@ -19,7 +19,7 @@ import {
   tocStep1ChapterBudgetNarrative,
   tocStep1MaxTokens,
 } from "@/lib/llm-toc-prompts";
-import { WEBLLM_MODEL } from "@/lib/webllm-model";
+import { WEBLLM_CHAT_OPTIONS, WEBLLM_MODEL } from "@/lib/webllm-model";
 import type { MLCEngine } from "@mlc-ai/web-llm";
 import { FigureNameField } from "@/components/figure-name-field";
 import { IntendedAudienceSelect } from "@/components/intended-audience-select";
@@ -161,13 +161,17 @@ export function AutoBookWizard() {
       );
       if (!engineRef.current) {
         const { CreateMLCEngine } = await import("@mlc-ai/web-llm");
-        const engine = await CreateMLCEngine(WEBLLM_MODEL, {
-          initProgressCallback: (report) => {
-            setProgress(
-              `${report.text} (${Math.round(report.progress * 100)}%)`,
-            );
+        const engine = await CreateMLCEngine(
+          WEBLLM_MODEL,
+          {
+            initProgressCallback: (report) => {
+              setProgress(
+                `${report.text} (${Math.round(report.progress * 100)}%)`,
+              );
+            },
           },
-        });
+          WEBLLM_CHAT_OPTIONS,
+        );
         engineRef.current = engine;
       }
 
@@ -432,7 +436,7 @@ Produce the full Markdown body for this chapter only.`,
             },
           ],
           temperature: 0.35,
-          max_tokens: 4096,
+          max_tokens: 10000,
         });
 
         let text = completion.choices[0]?.message?.content?.trim() ?? "";
@@ -737,7 +741,7 @@ Produce the full Markdown body for this chapter only.`,
                   >
                     {c.status}
                   </span>
-                  {c.status === "ok" && bookSlug ? (
+                  {c.status === "ok" && bookSlug && phase === "done" ? (
                     <Link
                       href={`/books/${bookSlug}/${c.slug}`}
                       className="text-xs text-accent underline"

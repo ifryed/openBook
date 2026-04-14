@@ -2,7 +2,7 @@
 
 import { fetchDraftReferenceContext } from "@/app/actions/references";
 import { intendedAudiencePromptSnippet } from "@/lib/book-context";
-import { WEBLLM_MODEL } from "@/lib/webllm-model";
+import { WEBLLM_CHAT_OPTIONS, WEBLLM_MODEL } from "@/lib/webllm-model";
 import type { MLCEngine } from "@mlc-ai/web-llm";
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -70,13 +70,17 @@ export function ChapterAiDraftPanel({
           "Loading Llama 3.1 8B (first run may download several GB)…",
         );
         const { CreateMLCEngine } = await import("@mlc-ai/web-llm");
-        const engine = await CreateMLCEngine(WEBLLM_MODEL, {
-          initProgressCallback: (report) => {
-            setProgress(
-              `${report.text} (${Math.round(report.progress * 100)}%)`,
-            );
+        const engine = await CreateMLCEngine(
+          WEBLLM_MODEL,
+          {
+            initProgressCallback: (report) => {
+              setProgress(
+                `${report.text} (${Math.round(report.progress * 100)}%)`,
+              );
+            },
           },
-        });
+          WEBLLM_CHAT_OPTIONS,
+        );
         engineRef.current = engine;
         setModelReady(true);
       }
@@ -158,7 +162,7 @@ Produce the full Markdown body for this chapter only.`,
           },
         ],
         temperature: 0.35,
-        max_tokens: 4096,
+        max_tokens: 10000,
       });
 
       const text = completion.choices[0]?.message?.content?.trim() ?? "";

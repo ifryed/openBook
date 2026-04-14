@@ -1042,6 +1042,14 @@ export async function deleteBookAsAdmin(
     return { error: "Book not found." };
   }
 
+  const typedTitle = formData.get("confirmTitle")?.toString().trim() ?? "";
+  if (typedTitle !== book.title.trim()) {
+    return {
+      error:
+        "The title you typed does not match this book. Enter the exact book title to confirm deletion.",
+    };
+  }
+
   await prisma.book.delete({ where: { id: book.id } });
 
   revalidatePath("/");

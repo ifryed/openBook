@@ -13,7 +13,7 @@ import {
   tocStep1MaxTokens,
 } from "@/lib/llm-toc-prompts";
 import { MAX_LLM_TOC_SECTIONS } from "@/lib/book-limits";
-import { WEBLLM_MODEL } from "@/lib/webllm-model";
+import { WEBLLM_CHAT_OPTIONS, WEBLLM_MODEL } from "@/lib/webllm-model";
 import type { MLCEngine } from "@mlc-ai/web-llm";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -87,13 +87,17 @@ export function LocalLlmTocPanel({
           "Loading WebLLM — Llama 3.1 8B (first run may download several GB to browser cache)…",
         );
         const { CreateMLCEngine } = await import("@mlc-ai/web-llm");
-        const engine = await CreateMLCEngine(WEBLLM_MODEL, {
-          initProgressCallback: (report) => {
-            setProgress(
-              `${report.text} (${Math.round(report.progress * 100)}%)`,
-            );
+        const engine = await CreateMLCEngine(
+          WEBLLM_MODEL,
+          {
+            initProgressCallback: (report) => {
+              setProgress(
+                `${report.text} (${Math.round(report.progress * 100)}%)`,
+              );
+            },
           },
-        });
+          WEBLLM_CHAT_OPTIONS,
+        );
         engineRef.current = engine;
         setModelReady(true);
       }
