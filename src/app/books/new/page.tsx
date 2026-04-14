@@ -5,7 +5,7 @@ export default function NewBookPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold">New book</h1>
+        <h1 className="text-2xl font-semibold">Add book</h1>
         <p className="mt-1 text-sm text-muted">
           <Link href="/books/new/auto" className="text-accent underline">
             Auto-Gen Book

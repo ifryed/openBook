@@ -14,7 +14,7 @@ export default function NewAutoBookPage() {
       </div>
       <AutoBookWizard />
       <p className="text-sm text-muted">
-        <Link href="/books/new">← Manual new book</Link>
+        <Link href="/books/new">← Manual add book</Link>
         {" · "}
         <Link href="/">Browse</Link>
       </p>

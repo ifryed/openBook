@@ -38,7 +38,7 @@ export async function SiteHeader() {
                 href="/books/new"
                 className="text-muted no-underline hover:underline"
               >
-                New book
+                Add book
               </Link>
               <span
                 className="hidden text-muted sm:inline"
