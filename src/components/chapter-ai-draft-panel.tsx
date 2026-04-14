@@ -5,7 +5,7 @@ import {
   bookContextPromptInstruction,
   intendedAudiencePromptSnippet,
 } from "@/lib/book-context";
-import { WEBLLM_CHAT_OPTIONS, WEBLLM_MODEL } from "@/lib/webllm-model";
+import { ensureWebLlmEngine } from "@/lib/webllm-engine-loader";
 import type { MLCEngine } from "@mlc-ai/web-llm";
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -69,22 +69,7 @@ export function ChapterAiDraftPanel({
     try {
       if (!engineRef.current) {
         setPhase("loading");
-        setProgress(
-          "Loading Llama 3.1 8B (first run may download several GB)…",
-        );
-        const { CreateMLCEngine } = await import("@mlc-ai/web-llm");
-        const engine = await CreateMLCEngine(
-          WEBLLM_MODEL,
-          {
-            initProgressCallback: (report) => {
-              setProgress(
-                `${report.text} (${Math.round(report.progress * 100)}%)`,
-              );
-            },
-          },
-          WEBLLM_CHAT_OPTIONS,
-        );
-        engineRef.current = engine;
+        await ensureWebLlmEngine(engineRef, setProgress);
         setModelReady(true);
       }
 

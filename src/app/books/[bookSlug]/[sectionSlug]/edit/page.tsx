@@ -4,11 +4,15 @@ import { buildBookContextMarkdown } from "@/lib/book-context";
 import { normalizeActiveLocale, withLangQuery } from "@/lib/book-locales";
 import { prisma } from "@/lib/db";
 import { getLatestRevision } from "@/lib/revisions";
-import { resolveSectionTitle } from "@/lib/section-localization";
+import {
+  hasLocalizationTitleForLocale,
+  resolveSectionTitle,
+} from "@/lib/section-localization";
 import { resolveBookTitle } from "@/lib/book-title-localization";
 import { EditSectionForm } from "./edit-section-form";
 import { SectionTitleEditor } from "./section-title-editor";
 import { BookLangSwitcher } from "@/components/book-lang-switcher";
+import type { TranslateFromPrimaryContext } from "@/lib/translate-from-primary";
 
 type Props = {
   params: Promise<{ bookSlug: string; sectionSlug: string }>;
@@ -94,8 +98,29 @@ export default async function SectionEditPage({ params, searchParams }: Props) {
     section.slug,
   );
 
-  const latest = await getLatestRevision(section.id, activeLocale);
+  const [latest, primaryLatest] = await Promise.all([
+    getLatestRevision(section.id, activeLocale),
+    getLatestRevision(section.id, def),
+  ]);
   const initialBody = latest?.body ?? "";
+  const primaryBody = primaryLatest?.body ?? "";
+  const primaryTitleRaw =
+    section.localizations.find((l) => l.locale === def)?.title?.trim() ?? "";
+
+  const translateFromPrimary: TranslateFromPrimaryContext | null =
+    activeLocale !== def
+      ? {
+          primaryLocale: def,
+          activeLocale,
+          sourceBody: primaryBody,
+          sourceTitle: primaryTitleRaw,
+          bodyReady: primaryBody.trim().length > 0,
+          titleReady: hasLocalizationTitleForLocale(
+            section.localizations,
+            def,
+          ),
+        }
+      : null;
 
   const bookTitleResolved =
     bookMeta != null
@@ -133,6 +158,7 @@ export default async function SectionEditPage({ params, searchParams }: Props) {
           sectionSlug={section.slug}
           locale={activeLocale}
           initialTitle={sectionTitle}
+          translateFromPrimary={translateFromPrimary}
         />
         <p className="mt-1 text-sm text-muted">
           Editing chapter title for <strong>{activeLocale}</strong>. Markdown
@@ -150,6 +176,7 @@ export default async function SectionEditPage({ params, searchParams }: Props) {
         figureName={bookMeta?.figureName ?? ""}
         intendedAges={bookMeta?.intendedAges ?? ""}
         bookContextMarkdown={bookContextMarkdown}
+        translateFromPrimary={translateFromPrimary}
       />
     </div>
   );

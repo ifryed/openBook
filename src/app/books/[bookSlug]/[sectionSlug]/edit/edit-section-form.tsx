@@ -1,6 +1,8 @@
 "use client";
 
 import { ChapterAiDraftPanel } from "@/components/chapter-ai-draft-panel";
+import { ChapterTranslateBodyPanel } from "@/components/chapter-translate-body-panel";
+import type { TranslateFromPrimaryContext } from "@/lib/translate-from-primary";
 import { MarkdownBody } from "@/components/markdown-body";
 import { useActionState, useEffect, useState } from "react";
 import { useFormStatus } from "react-dom";
@@ -39,6 +41,7 @@ export function EditSectionForm({
   figureName,
   intendedAges,
   bookContextMarkdown,
+  translateFromPrimary,
 }: {
   bookSlug: string;
   sectionSlug: string;
@@ -50,6 +53,7 @@ export function EditSectionForm({
   figureName: string;
   intendedAges: string;
   bookContextMarkdown: string;
+  translateFromPrimary: TranslateFromPrimaryContext | null;
 }) {
   const [body, setBody] = useState(initialBody);
   const [bodyTab, setBodyTab] = useState<"edit" | "preview">("edit");
@@ -70,6 +74,14 @@ export function EditSectionForm({
 
   return (
     <>
+    {translateFromPrimary ? (
+      <ChapterTranslateBodyPanel
+        context={translateFromPrimary}
+        currentBody={body}
+        initialBody={initialBody}
+        onApplyTranslation={setBody}
+      />
+    ) : null}
     <ChapterAiDraftPanel
       bookTitle={bookTitle}
       figureName={figureName}
