@@ -9,6 +9,7 @@ import {
 } from "@/lib/catalog-search";
 import { resolveBookTitle } from "@/lib/book-title-localization";
 import {
+  bookLocaleHtmlAttributes,
   bookLocaleLabel,
   normalizeActiveLocale,
   withLangQuery,
@@ -261,7 +262,10 @@ export default async function HomePage({ params, searchParams }: Props) {
                 key={book.id}
                 className="rounded-lg border border-border bg-card p-4 shadow-sm"
               >
-                <div className="flex flex-wrap items-start justify-between gap-3">
+                <div
+                  className="flex flex-wrap items-start justify-between gap-3"
+                  {...bookLocaleHtmlAttributes(catalogLocale)}
+                >
                   <Link
                     href={bookHref}
                     className="min-w-0 flex-1 text-lg font-medium text-foreground no-underline hover:underline"
@@ -279,6 +283,7 @@ export default async function HomePage({ params, searchParams }: Props) {
                   <Link
                     href={`/${locale}?figure=${encodeURIComponent(book.figureName)}`}
                     className="text-accent no-underline hover:underline"
+                    {...bookLocaleHtmlAttributes(catalogLocale)}
                   >
                     {book.figureName}
                   </Link>
@@ -328,12 +333,18 @@ export default async function HomePage({ params, searchParams }: Props) {
                   </p>
                 ) : null}
                 {book.summary ? (
-                  <p className="mt-2 line-clamp-2 text-sm text-foreground">
+                  <p
+                    className="mt-2 line-clamp-2 text-sm text-foreground"
+                    {...bookLocaleHtmlAttributes(catalogLocale)}
+                  >
                     {book.summary}
                   </p>
                 ) : null}
                 {book.tags.length > 0 ? (
-                  <p className="mt-2 text-xs text-muted">
+                  <p
+                    className="mt-2 text-xs text-muted"
+                    {...bookLocaleHtmlAttributes(catalogLocale)}
+                  >
                     {book.tags.map((bt) => bt.tag.name).join(" · ")}
                   </p>
                 ) : null}
