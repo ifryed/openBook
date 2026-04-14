@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "messages:sync": "node scripts/sync-locale-messages.mjs",
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",

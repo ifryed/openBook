@@ -7,7 +7,8 @@ OpenBook is a small **wiki-style biography app**: each *book* is about one histo
 - [Next.js](https://nextjs.org/) 15 (App Router), React 19, TypeScript  
 - [Prisma](https://www.prisma.io/) + **PostgreSQL**  
 - [Auth.js](https://authjs.dev/) (NextAuth v5) — email/password and optional Google  
-- [WebLLM](https://webllm.mlc.ai/) — in-browser Llama 3.1 8B for TOC / chapter drafting (WebGPU)
+- [WebLLM](https://webllm.mlc.ai/) — in-browser Llama 3.1 8B for TOC / chapter drafting (WebGPU)  
+- [next-intl](https://next-intl.dev/) — UI strings in `messages/*.json` (eight locales)
 
 ## Prerequisites
 
@@ -68,6 +69,15 @@ OpenBook is a small **wiki-style biography app**: each *book* is about one histo
 | `npm run db:migrate` | `prisma migrate deploy` |
 | `npm run db:push` | `prisma db push` (prototyping) |
 | `npm run db:setup` | Shell helper for DB + migrate |
+| `npm run messages:sync` | Sync non-English locale files from `messages/en.json` (see below) |
+| `npm run messages:sync -- he` | Sync **one** locale only (`zh`, `es`, `fr`, `de`, `pt`, `ar`, or `he`); npm needs `--` before the code |
+
+### UI locale messages
+
+- **Source of truth:** Edit English copy only in [`messages/en.json`](messages/en.json). Other locale files (`zh`, `es`, `fr`, `de`, `pt`, `ar`, `he`) are derived from that tree.
+- **When to run:** After you add, change, or remove keys in `en.json`, run **`npm run messages:sync`** yourself. It is **not** run as part of `npm run dev` or `npm run build`.
+- **One locale at a time:** Use **`npm run messages:sync -- he`** (or `zh`, `es`, …) to update only that locale file. You must pass **`--`** so npm forwards the argument to the script; alternatively run `node scripts/sync-locale-messages.mjs he`. Other locale files are left unchanged; run a full `npm run messages:sync` (no extra args) occasionally so every file picks up key removals from `en.json`.
+- **How sync works:** The script updates the other locale files and records what was translated in `messages/.sync-state.json` so unchanged English strings are not re-translated. If [Ollama](https://ollama.com/) is running locally (`OLLAMA_HOST`, `OLLAMA_MODEL` in `.env`), it translates new or changed strings; if Ollama is unreachable, missing strings fall back to English so the app stays valid. Commit the updated JSON files (and usually `.sync-state.json`) when you want to share translations with the team or CI.
 
 ## Features (short)
 
