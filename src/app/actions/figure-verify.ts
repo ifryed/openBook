@@ -11,7 +11,8 @@ export type FigureCandidatesResult =
   | { ok: false; error: string };
 
 /**
- * Returns Wikipedia + Wikidata search hits so the user can pick the intended person.
+ * Returns Wikipedia + Wikidata search hits so the user can pick the intended real
+ * person (Wikidata instance of human / Q5 only; fictional entries dropped).
  */
 export async function getFigureNameCandidates(
   name: string,

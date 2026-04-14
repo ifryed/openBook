@@ -14,6 +14,8 @@ import {
   getLatestRevision,
   revertToRevision,
 } from "@/lib/revisions";
+import { notifyBookActivityTx, notifyNewBookDigestTx } from "@/lib/notifications";
+import { awardReputationTx } from "@/lib/reputation";
 import { assertFigurePickInSearchResults } from "@/lib/figure-candidates";
 import { isReservedSlug, uniqueSlugFromPreferred, slugify } from "@/lib/slug";
 
@@ -144,7 +146,7 @@ export async function createBook(
         },
       });
 
-      await tx.revision.create({
+      const introRevision = await tx.revision.create({
         data: {
           sectionId: section.id,
           authorId: session.user!.id,
@@ -153,6 +155,13 @@ export async function createBook(
           summaryComment: "Initial revision",
         },
       });
+
+      await awardReputationTx(tx, session.user!.id, "BOOK_CREATED", {
+        refBookId: book.id,
+        refSectionId: section.id,
+        refRevisionId: introRevision.id,
+      });
+      await notifyNewBookDigestTx(tx, book.id, session.user!.id);
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : "Could not create book.";
@@ -325,13 +334,25 @@ export async function addSectionToBook(
           orderIndex: nextOrder,
         },
       });
-      await tx.revision.create({
+      const rev = await tx.revision.create({
         data: {
           sectionId: section.id,
           authorId: session.user!.id,
           body: `## ${title}\n\n_Add content for this section._`,
           summaryComment: "New section",
         },
+      });
+      await awardReputationTx(tx, session.user!.id, "SECTION_ADDED", {
+        refBookId: book.id,
+        refSectionId: section.id,
+        refRevisionId: rev.id,
+      });
+      await notifyBookActivityTx(tx, {
+        bookId: book.id,
+        actorId: session.user!.id,
+        type: "NEW_SECTION",
+        sectionId: section.id,
+        revisionId: rev.id,
       });
     });
   } catch (e) {
@@ -346,6 +367,51 @@ export async function addSectionToBook(
 
   revalidatePath(`/books/${bookSlug}`);
   redirect(`/books/${bookSlug}/${slug}/edit`);
+}
+
+/**
+ * Sets section order for a book. `orderedSectionIds` must be a permutation of that
+ * book’s section ids (same length, no extras).
+ */
+export async function reorderBookSections(
+  bookSlug: string,
+  orderedSectionIds: string[],
+): Promise<{ error?: string }> {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { error: "You must be signed in." };
+  }
+
+  const book = await prisma.book.findUnique({
+    where: { slug: bookSlug },
+    include: { sections: { select: { id: true } } },
+  });
+  if (!book) return { error: "Book not found." };
+
+  const validIds = new Set(book.sections.map((s) => s.id));
+  if (orderedSectionIds.length !== validIds.size) {
+    return { error: "Section list does not match this book." };
+  }
+  const seen = new Set<string>();
+  for (const id of orderedSectionIds) {
+    if (!validIds.has(id) || seen.has(id)) {
+      return { error: "Invalid or duplicate section in order." };
+    }
+    seen.add(id);
+  }
+
+  await prisma.$transaction(
+    orderedSectionIds.map((id, orderIndex) =>
+      prisma.section.update({
+        where: { id },
+        data: { orderIndex },
+      }),
+    ),
+  );
+
+  revalidatePath(`/books/${bookSlug}`);
+  revalidatePath(`/books/${bookSlug}/edit/contents`);
+  return {};
 }
 
 export type SaveRevisionState = { error?: string };
@@ -384,15 +450,31 @@ export async function saveSectionRevision(
     return { error: e instanceof Error ? e.message : "Rate limited." };
   }
 
-  const latest = await getLatestRevision(section.id);
-
   try {
-    await createRevision({
-      sectionId: section.id,
-      authorId: session.user.id,
-      body,
-      summaryComment,
-      parentRevisionId: latest?.id ?? null,
+    await prisma.$transaction(async (tx) => {
+      const latest = await getLatestRevision(section.id, tx);
+      const rev = await createRevision(
+        {
+          sectionId: section.id,
+          authorId: session.user.id,
+          body,
+          summaryComment,
+          parentRevisionId: latest?.id ?? null,
+        },
+        tx,
+      );
+      await awardReputationTx(tx, session.user.id, "REVISION_SAVED", {
+        refBookId: section.bookId,
+        refSectionId: section.id,
+        refRevisionId: rev.id,
+      });
+      await notifyBookActivityTx(tx, {
+        bookId: section.bookId,
+        actorId: session.user.id,
+        type: "NEW_REVISION",
+        sectionId: section.id,
+        revisionId: rev.id,
+      });
     });
   } catch (e) {
     return { error: e instanceof Error ? e.message : "Save failed." };
@@ -428,10 +510,27 @@ export async function revertSectionRevision(
     throw e instanceof Error ? e : new Error("Rate limited");
   }
 
-  await revertToRevision({
-    sectionId: section.id,
-    authorId: session.user.id,
-    targetRevisionId: revisionId,
+  await prisma.$transaction(async (tx) => {
+    const rev = await revertToRevision(
+      {
+        sectionId: section.id,
+        authorId: session.user.id,
+        targetRevisionId: revisionId,
+      },
+      tx,
+    );
+    await awardReputationTx(tx, session.user.id, "REVERT", {
+      refBookId: section.bookId,
+      refSectionId: section.id,
+      refRevisionId: rev.id,
+    });
+    await notifyBookActivityTx(tx, {
+      bookId: section.bookId,
+      actorId: session.user.id,
+      type: "REVERT",
+      sectionId: section.id,
+      revisionId: rev.id,
+    });
   });
 
   revalidatePath(`/books/${bookSlug}/${sectionSlug}`);
@@ -545,7 +644,7 @@ export async function addTocSectionsFromLlm(
         },
       });
       const body = `## ${row.title}\n\n_Outline from local AI — add narrative here._`;
-      await tx.revision.create({
+      const rev = await tx.revision.create({
         data: {
           sectionId: section.id,
           authorId: session.user!.id,
@@ -553,7 +652,21 @@ export async function addTocSectionsFromLlm(
           summaryComment: "Section from local LLM TOC",
         },
       });
+      await awardReputationTx(tx, session.user!.id, "SECTION_ADDED", {
+        refBookId: book.id,
+        refSectionId: section.id,
+        refRevisionId: rev.id,
+      });
       added += 1;
+    }
+    if (added > 0) {
+      await notifyBookActivityTx(tx, {
+        bookId: book.id,
+        actorId: session.user!.id,
+        type: "NEW_SECTION",
+        sectionId: null,
+        revisionId: null,
+      });
     }
   });
 

@@ -7,19 +7,45 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String    @unique
-  emailVerified DateTime? @map("email_verified")
-  image         String?
-  passwordHash  String?   @map("password_hash")
+enum NotificationType {
+  NEW_REVISION
+  NEW_BOOK
+  NEW_SECTION
+  REVERT
+}
 
-  accounts  Account[]
-  sessions  Session[]
-  books     Book[]
-  revisions Revision[]
-  reports   Report[]
+enum ReportStatus {
+  OPEN
+  RESOLVED
+}
+
+enum ReputationKind {
+  REVISION_SAVED
+  BOOK_CREATED
+  SECTION_ADDED
+  REVERT
+  REPORT_RESOLVED
+}
+
+model User {
+  id               String    @id @default(cuid())
+  name             String?
+  email            String    @unique
+  emailVerified    DateTime? @map("email_verified")
+  image            String?
+  passwordHash     String?   @map("password_hash")
+  reputationPoints Int       @default(0) @map("reputation_points")
+  digestOptIn      Boolean   @default(false) @map("digest_opt_in")
+
+  accounts          Account[]
+  sessions          Session[]
+  books             Book[]
+  revisions         Revision[]
+  reports           Report[]
+  resolvedReports   Report[]  @relation("ReportResolver")
+  bookWatches       BookWatch[]
+  notifications     Notification[]
+  reputationEvents  ReputationEvent[]
 }
 
 model Account {
@@ -58,21 +84,23 @@ model VerificationToken {
 }
 
 model Book {
-  id          String   @id @default(cuid())
-  slug        String   @unique
-  title       String
-  figureName  String   @map("figure_name")
+  id             String   @id @default(cuid())
+  slug           String   @unique
+  title          String
+  figureName     String   @map("figure_name")
   /** Age range or audience label (e.g. "8–12", "Young adult", "General adult"). */
-  intendedAges String  @default("") @map("intended_ages") @db.VarChar(255)
-  summary     String?  @db.Text
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-  createdById String   @map("created_by_id")
+  intendedAges   String   @default("") @map("intended_ages") @db.VarChar(255)
+  summary        String?  @db.Text
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+  createdById    String   @map("created_by_id")
 
-  createdBy User      @relation(fields: [createdById], references: [id])
-  sections  Section[]
-  tags      BookTag[]
-  reports   Report[]
+  createdBy     User            @relation(fields: [createdById], references: [id])
+  sections      Section[]
+  tags          BookTag[]
+  reports       Report[]
+  watchers      BookWatch[]
+  notifications Notification[]
 }
 
 model Section {
@@ -82,9 +110,10 @@ model Section {
   title      String
   orderIndex Int    @default(0) @map("order_index")
 
-  book      Book       @relation(fields: [bookId], references: [id], onDelete: Cascade)
-  revisions Revision[]
-  reports   Report[]
+  book          Book           @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  revisions     Revision[]
+  reports       Report[]
+  notifications Notification[]
 
   @@unique([bookId, slug])
 }
@@ -98,8 +127,9 @@ model Revision {
   parentRevisionId String?  @map("parent_revision_id")
   createdAt        DateTime @default(now()) @map("created_at")
 
-  section Section @relation(fields: [sectionId], references: [id], onDelete: Cascade)
-  author  User    @relation(fields: [authorId], references: [id])
+  section       Section        @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  author        User           @relation(fields: [authorId], references: [id])
+  notifications Notification[]
 }
 
 model Tag {
@@ -119,15 +149,69 @@ model BookTag {
   @@id([bookId, tagId])
 }
 
-model Report {
+model BookWatch {
   id        String   @id @default(cuid())
-  bookId    String?  @map("book_id")
-  sectionId String?  @map("section_id")
   userId    String   @map("user_id")
-  reason    String   @db.Text
+  bookId    String   @map("book_id")
   createdAt DateTime @default(now()) @map("created_at")
 
-  book    Book?    @relation(fields: [bookId], references: [id], onDelete: Cascade)
-  section Section? @relation(fields: [sectionId], references: [id], onDelete: Cascade)
-  user    User     @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, bookId])
+  @@index([bookId])
+}
+
+model Notification {
+  id         String           @id @default(cuid())
+  userId     String           @map("user_id")
+  type       NotificationType
+  viaDigest  Boolean          @default(false) @map("via_digest")
+  readAt     DateTime?        @map("read_at")
+  createdAt  DateTime         @default(now()) @map("created_at")
+  bookId     String?          @map("book_id")
+  sectionId  String?          @map("section_id")
+  revisionId String?          @map("revision_id")
+  actorId    String?          @map("actor_id")
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  book     Book?     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  section  Section?  @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  revision Revision? @relation(fields: [revisionId], references: [id], onDelete: SetNull)
+
+  @@index([userId, readAt, createdAt])
+}
+
+model ReputationEvent {
+  id            String         @id @default(cuid())
+  userId        String         @map("user_id")
+  kind          ReputationKind
+  delta         Int
+  refBookId     String?        @map("ref_book_id")
+  refSectionId  String?        @map("ref_section_id")
+  refRevisionId String?        @map("ref_revision_id")
+  refReportId   String?        @map("ref_report_id")
+  createdAt     DateTime       @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([userId, kind, createdAt])
+}
+
+model Report {
+  id           String       @id @default(cuid())
+  bookId       String?      @map("book_id")
+  sectionId    String?      @map("section_id")
+  userId       String       @map("user_id")
+  reason       String       @db.Text
+  createdAt    DateTime     @default(now()) @map("created_at")
+  status       ReportStatus @default(OPEN)
+  resolvedAt   DateTime?    @map("resolved_at")
+  resolvedById String?      @map("resolved_by_id")
+
+  book       Book?    @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  section    Section? @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id])
+  resolvedBy User?    @relation("ReportResolver", fields: [resolvedById], references: [id])
 }

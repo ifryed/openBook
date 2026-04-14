@@ -2,9 +2,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
-import { LocalLlmTocPanel } from "@/components/local-llm-toc-panel";
+import { EditPencilLink } from "@/components/edit-pencil-link";
 import { ReportForm } from "@/components/report-form";
-import { AddSectionForm } from "./add-section-form";
+import { bookWatchFormAction } from "@/app/actions/book-watch";
 
 type Props = { params: Promise<{ bookSlug: string }> };
 
@@ -22,6 +22,16 @@ export default async function BookPage({ params }: Props) {
   });
 
   if (!book) notFound();
+
+  let watching = false;
+  if (session?.user?.id) {
+    const w = await prisma.bookWatch.findUnique({
+      where: {
+        userId_bookId: { userId: session.user.id, bookId: book.id },
+      },
+    });
+    watching = !!w;
+  }
 
   return (
     <div className="space-y-8">
@@ -46,54 +56,57 @@ export default async function BookPage({ params }: Props) {
           </p>
         ) : null}
         {session?.user ? (
-          <p className="mt-4">
+          <div className="mt-4 flex flex-wrap items-center gap-4">
             <Link
               href={`/books/${book.slug}/edit`}
               className="text-sm text-accent no-underline hover:underline"
             >
               Edit book details
             </Link>
-          </p>
+            <form action={bookWatchFormAction}>
+              <input type="hidden" name="bookSlug" value={book.slug} />
+              <button
+                type="submit"
+                className="cursor-pointer text-sm text-accent underline-offset-2 hover:underline"
+              >
+                {watching ? "Unwatch book" : "Watch book"}
+              </button>
+            </form>
+          </div>
         ) : null}
       </div>
 
       <section>
-        <h2 className="text-lg font-medium">Contents</h2>
+        <div className="flex flex-wrap items-center gap-2">
+          <h2 className="text-lg font-medium">Contents</h2>
+          {session?.user ? (
+            <EditPencilLink
+              href={`/books/${book.slug}/edit/contents`}
+              label="Edit table of contents"
+            />
+          ) : null}
+        </div>
         <ol className="mt-3 list-decimal space-y-2 pl-6">
           {book.sections.map((s) => (
             <li key={s.id}>
-              <Link
-                href={`/books/${book.slug}/${s.slug}`}
-                className="text-accent no-underline hover:underline"
-              >
-                {s.title}
-              </Link>
+              <span className="inline-flex flex-wrap items-center gap-1">
+                <Link
+                  href={`/books/${book.slug}/${s.slug}`}
+                  className="text-accent no-underline hover:underline"
+                >
+                  {s.title}
+                </Link>
+                {session?.user ? (
+                  <EditPencilLink
+                    href={`/books/${book.slug}/${s.slug}/edit`}
+                    label={`Edit chapter: ${s.title}`}
+                  />
+                ) : null}
+              </span>
             </li>
           ))}
         </ol>
       </section>
-
-      {session?.user ? (
-        <LocalLlmTocPanel
-          bookSlug={book.slug}
-          bookTitle={book.title}
-          figureName={book.figureName}
-          intendedAges={book.intendedAges}
-          existingSlugs={book.sections.map((s) => s.slug)}
-        />
-      ) : null}
-
-      {session?.user ? (
-        <section className="rounded-lg border border-border bg-card p-4">
-          <h2 className="text-sm font-medium text-muted">Add section</h2>
-          <p className="mt-1 text-xs text-muted">
-            Each section has its own revision history (Wikipedia-style).
-          </p>
-          <div className="mt-3">
-            <AddSectionForm bookSlug={book.slug} />
-          </div>
-        </section>
-      ) : null}
 
       {session?.user ? (
         <ReportForm bookSlug={book.slug} />

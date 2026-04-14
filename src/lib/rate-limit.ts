@@ -1,36 +1,58 @@
 import { prisma } from "@/lib/db";
-
-const BOOKS_PER_HOUR = 10;
-const REVISIONS_PER_HOUR = 120;
+import { tierFromPoints } from "@/lib/reputation";
 
 function hourAgo() {
   return new Date(Date.now() - 60 * 60 * 1000);
 }
 
+function limitsForUserPoints(points: number) {
+  const tier = tierFromPoints(points);
+  switch (tier) {
+    case "STEWARD":
+      return { booksPerHour: 40, revisionsPerHour: 480 };
+    case "CONTRIBUTOR":
+      return { booksPerHour: 20, revisionsPerHour: 240 };
+    default:
+      return { booksPerHour: 10, revisionsPerHour: 120 };
+  }
+}
+
+async function userPoints(userId: string) {
+  const u = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { reputationPoints: true },
+  });
+  return u?.reputationPoints ?? 0;
+}
+
 export async function assertCanCreateBook(userId: string) {
+  const points = await userPoints(userId);
+  const { booksPerHour } = limitsForUserPoints(points);
   const n = await prisma.book.count({
     where: {
       createdById: userId,
       createdAt: { gte: hourAgo() },
     },
   });
-  if (n >= BOOKS_PER_HOUR) {
+  if (n >= booksPerHour) {
     throw new Error(
-      `You can create at most ${BOOKS_PER_HOUR} books per hour. Try again later.`,
+      `You can create at most ${booksPerHour} books per hour. Try again later.`,
     );
   }
 }
 
 export async function assertCanCreateRevision(userId: string) {
+  const points = await userPoints(userId);
+  const { revisionsPerHour } = limitsForUserPoints(points);
   const n = await prisma.revision.count({
     where: {
       authorId: userId,
       createdAt: { gte: hourAgo() },
     },
   });
-  if (n >= REVISIONS_PER_HOUR) {
+  if (n >= revisionsPerHour) {
     throw new Error(
-      `Edit rate limit reached (${REVISIONS_PER_HOUR} revisions per hour). Try again later.`,
+      `Edit rate limit reached (${revisionsPerHour} revisions per hour). Try again later.`,
     );
   }
 }
@@ -38,15 +60,17 @@ export async function assertCanCreateRevision(userId: string) {
 /** Ensures creating `howMany` new revisions in one batch stays under the hourly cap. */
 export async function assertRevisionBudget(userId: string, howMany: number) {
   if (howMany <= 0) return;
+  const points = await userPoints(userId);
+  const { revisionsPerHour } = limitsForUserPoints(points);
   const n = await prisma.revision.count({
     where: {
       authorId: userId,
       createdAt: { gte: hourAgo() },
     },
   });
-  if (n + howMany > REVISIONS_PER_HOUR) {
+  if (n + howMany > revisionsPerHour) {
     throw new Error(
-      `Adding ${howMany} sections would exceed ${REVISIONS_PER_HOUR} revisions per hour (you have ${n} in the last hour). Try fewer sections or wait.`,
+      `Adding ${howMany} sections would exceed ${revisionsPerHour} revisions per hour (you have ${n} in the last hour). Try fewer sections or wait.`,
     );
   }
 }

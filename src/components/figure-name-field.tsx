@@ -89,7 +89,9 @@ export function FigureNameField({
     }
     setCandidates(res.candidates);
     if (res.candidates.length === 0) {
-      setActionError("No Wikipedia or Wikidata matches — try another spelling.");
+      setActionError(
+        "No matching real person found — try another spelling or a fuller name.",
+      );
     }
   }, [value]);
 
@@ -175,8 +177,8 @@ export function FigureNameField({
         </p>
       ) : (
         <p className="text-xs text-muted">
-          Search catalogs, pick the right person, then confirm. The ✓ appears only
-          after that; save stays disabled until then.
+          Before saving, make sure you validated the figure name. The ✓ appears only
+          after that; save will be disabled until then.
         </p>
       )}
 
@@ -192,7 +194,7 @@ export function FigureNameField({
               {loading ? "Searching…" : "Check name"}
             </button>
             <span className="text-xs text-muted">
-              Wikipedia + Wikidata matches (same sources as chapter references).
+              {`Non-fictional people only, from Wikipedia + Wikidata.`}
             </span>
           </div>
 

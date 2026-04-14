@@ -52,26 +52,47 @@ export default async function SectionReadPage({ params }: Props) {
         <span>{section.title}</span>
       </nav>
 
-      <header>
-        <h1 className="text-3xl font-semibold">{section.title}</h1>
-        <p className="mt-1 text-sm text-muted">
-          {section.book.figureName}
-        </p>
-        {section.book.intendedAges.trim() ? (
-          <p className="mt-0.5 text-xs text-muted">
-            Intended for: {section.book.intendedAges.trim()}
+      <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <h1 className="text-3xl font-semibold">{section.title}</h1>
+          <p className="mt-1 text-sm text-muted">
+            {section.book.figureName}
           </p>
-        ) : null}
-        {revision ? (
-          <p className="mt-2 text-xs text-muted">
-            Last edited{" "}
-            {revision.createdAt.toLocaleString()} by{" "}
-            {revision.author.name ?? revision.author.email}
-            {revision.summaryComment ? ` · ${revision.summaryComment}` : ""}
-          </p>
-        ) : (
-          <p className="mt-2 text-sm text-muted">No content yet.</p>
-        )}
+          {section.book.intendedAges.trim() ? (
+            <p className="mt-0.5 text-xs text-muted">
+              Intended for: {section.book.intendedAges.trim()}
+            </p>
+          ) : null}
+          {revision ? (
+            <p className="mt-2 text-xs text-muted">
+              Last edited{" "}
+              {revision.createdAt.toLocaleString()} by{" "}
+              {revision.author.name ?? revision.author.email}
+              {revision.summaryComment ? ` · ${revision.summaryComment}` : ""}
+            </p>
+          ) : (
+            <p className="mt-2 text-sm text-muted">No content yet.</p>
+          )}
+        </div>
+        <div className="shrink-0">
+          {session?.user ? (
+            <Link
+              href={`/books/${section.book.slug}/${section.slug}/edit`}
+              className="inline-flex items-center justify-center rounded-md bg-foreground px-4 py-2 text-sm font-medium text-background no-underline hover:opacity-90"
+            >
+              Edit
+            </Link>
+          ) : (
+            <Link
+              href={`/login?callbackUrl=${encodeURIComponent(
+                `/books/${section.book.slug}/${section.slug}/edit`,
+              )}`}
+              className="inline-flex items-center justify-center rounded-md border border-border bg-card px-4 py-2 text-sm font-medium text-foreground no-underline hover:bg-muted/40"
+            >
+              Sign in to edit
+            </Link>
+          )}
+        </div>
       </header>
 
       {revision ? <MarkdownBody content={revision.body} /> : null}
@@ -83,18 +104,6 @@ export default async function SectionReadPage({ params }: Props) {
         >
           View history
         </Link>
-        {session?.user ? (
-          <Link
-            href={`/books/${section.book.slug}/${section.slug}/edit`}
-            className="text-accent no-underline hover:underline"
-          >
-            Edit
-          </Link>
-        ) : (
-          <Link href="/login" className="text-muted no-underline hover:underline">
-            Sign in to edit
-          </Link>
-        )}
       </div>
 
       {session?.user ? (
