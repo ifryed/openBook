@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePathLocalized } from "@/lib/revalidate-localized";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
 
@@ -21,8 +21,8 @@ export async function markNotificationRead(formData: FormData) {
     data: { readAt: new Date() },
   });
 
-  revalidatePath("/notifications");
-  revalidatePath("/", "layout");
+  revalidatePathLocalized("/notifications");
+  revalidatePathLocalized("/", "layout");
 }
 
 export async function markAllNotificationsRead() {
@@ -34,6 +34,6 @@ export async function markAllNotificationsRead() {
     data: { readAt: new Date() },
   });
 
-  revalidatePath("/notifications");
-  revalidatePath("/", "layout");
+  revalidatePathLocalized("/notifications");
+  revalidatePathLocalized("/", "layout");
 }

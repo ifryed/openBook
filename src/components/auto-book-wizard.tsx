@@ -24,7 +24,7 @@ import type { MLCEngine } from "@mlc-ai/web-llm";
 import { BookPrimaryLanguageSelect } from "@/components/book-primary-language-select";
 import { FigureNameField } from "@/components/figure-name-field";
 import { IntendedAudienceSelect } from "@/components/intended-audience-select";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const MIN_BIO_CHAPTERS = 1;

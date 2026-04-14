@@ -3,7 +3,7 @@
 import { reorderBookSections } from "@/app/actions/books";
 import { EditPencilLink } from "@/components/edit-pencil-link";
 import { withLangQuery } from "@/lib/book-locales";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 

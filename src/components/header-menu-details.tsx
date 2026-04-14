@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, type ReactNode } from "react";
+import { useTranslations } from "next-intl";
 import { IconMenu } from "@/components/site-header-icons";
 
 type Props = {
@@ -14,6 +15,7 @@ export function HeaderMenuDetails({
   menuClassName,
   menuRole,
 }: Props) {
+  const t = useTranslations("SiteHeader");
   const detailsRef = useRef<HTMLDetailsElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
 
@@ -42,7 +44,7 @@ export function HeaderMenuDetails({
     <details ref={detailsRef} className="relative">
       <summary
         className="flex cursor-pointer list-none items-center justify-center rounded-md p-2 text-muted hover:bg-background hover:text-foreground [&::-webkit-details-marker]:hidden [&::marker]:hidden"
-        aria-label="Account menu"
+        aria-label={t("accountMenu")}
       >
         <IconMenu className="h-5 w-5" />
       </summary>
