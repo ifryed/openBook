@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
-import { isUserSteward } from "@/lib/moderation";
+import { canResolveReports } from "@/lib/moderation";
 import { awardReputationTx } from "@/lib/reputation";
 
 export async function resolveReport(formData: FormData) {
@@ -12,9 +12,13 @@ export async function resolveReport(formData: FormData) {
     throw new Error("You must be signed in.");
   }
 
-  const steward = await isUserSteward(session.user.id);
-  if (!steward) {
-    throw new Error("Only Steward-tier contributors can resolve reports.");
+  const allowed = await canResolveReports(session.user.id, {
+    isAdmin: session.user.isAdmin,
+  });
+  if (!allowed) {
+    throw new Error(
+      "Only Steward-tier contributors or site administrators can resolve reports.",
+    );
   }
 
   const reportId = formData.get("reportId")?.toString() ?? "";

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { auth } from "@/auth";
-import { signOutAction } from "@/app/actions/auth";
+import { SiteHeaderAccountMenu, SiteHeaderGuestMenu } from "@/components/site-header-account-menu";
+import { IconEnvelope } from "@/components/site-header-icons";
 import { countUnreadNotifications } from "@/lib/notifications";
 import { getUserPointsAndTier, tierLabel } from "@/lib/reputation";
 import { isUserSteward } from "@/lib/moderation";
@@ -11,13 +12,14 @@ export async function SiteHeader() {
   let unread = 0;
   let points = 0;
   let tierName = "";
-  let showModeration = false;
+  let canResolveReports = false;
   if (session?.user?.id) {
     unread = await countUnreadNotifications(session.user.id);
     const profile = await getUserPointsAndTier(session.user.id);
     points = profile.points;
     tierName = tierLabel(profile.tier);
-    showModeration = await isUserSteward(session.user.id);
+    const steward = await isUserSteward(session.user.id);
+    canResolveReports = steward || session.user.isAdmin;
   }
 
   return (
@@ -26,63 +28,52 @@ export async function SiteHeader() {
         <Link href="/" className="font-semibold text-foreground no-underline">
           OpenBook
         </Link>
-        <nav className="flex flex-wrap items-center gap-3 text-sm">
+        <nav className="flex flex-wrap items-center gap-2 text-sm sm:gap-3">
           <Link href="/" className="text-muted no-underline hover:underline">
             Browse
           </Link>
           {session?.user ? (
             <>
               <Link
-                href="/notifications"
-                className="relative inline-block text-muted no-underline hover:underline"
-              >
-                Notifications
-                {unread > 0 ? (
-                  <span className="absolute -right-2 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-medium text-white">
-                    {unread > 99 ? "99+" : unread}
-                  </span>
-                ) : null}
-              </Link>
-              <Link
-                href="/settings"
-                className="text-muted no-underline hover:underline"
-              >
-                Settings
-              </Link>
-              {showModeration ? (
-                <Link
-                  href="/moderation/reports"
-                  className="text-muted no-underline hover:underline"
-                >
-                  Moderation
-                </Link>
-              ) : null}
-              <Link
                 href="/books/new"
                 className="text-muted no-underline hover:underline"
               >
                 New book
               </Link>
-              <span className="text-muted" title="Reputation tier and points">
+              <span
+                className="hidden text-muted sm:inline"
+                title="Reputation tier and points"
+              >
                 {tierName} · {points} pts
               </span>
-              <span className="text-muted">
+              <span className="hidden max-w-[10rem] truncate text-muted sm:inline">
                 {session.user.name ?? session.user.email}
               </span>
-              <form action={signOutAction}>
-                <button
-                  type="submit"
-                  className="cursor-pointer text-accent underline-offset-2 hover:underline"
+              <div className="flex items-center gap-0.5">
+                <Link
+                  href="/notifications"
+                  className={`relative inline-flex items-center justify-center rounded-md p-2 no-underline transition-colors ${
+                    unread > 0
+                      ? "bg-accent text-white hover:opacity-90 hover:!text-white"
+                      : "bg-transparent text-muted hover:bg-background hover:text-foreground"
+                  }`}
+                  aria-label={
+                    unread > 0
+                      ? `Notifications, ${unread > 99 ? "99+" : unread} unread`
+                      : "Notifications"
+                  }
                 >
-                  Sign out
-                </button>
-              </form>
+                  <IconEnvelope className="h-5 w-5 shrink-0" />
+                </Link>
+                <SiteHeaderAccountMenu
+                  canResolveReports={canResolveReports}
+                  isAdmin={session.user.isAdmin}
+                />
+              </div>
             </>
           ) : (
             <>
-              <Link href="/login" className="text-muted no-underline hover:underline">
-                Sign in
-              </Link>
+              <SiteHeaderGuestMenu />
               <Link
                 href="/signup"
                 className="rounded-md bg-accent px-3 py-1.5 !text-white no-underline hover:opacity-90 hover:!text-white"

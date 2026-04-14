@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { resolveReport } from "@/app/actions/moderation";
 import { prisma } from "@/lib/db";
-import { isUserSteward } from "@/lib/moderation";
+import { canResolveReports } from "@/lib/moderation";
 
 export const metadata = { title: "Reports" };
 
@@ -13,17 +13,21 @@ export default async function ModerationReportsPage() {
     redirect("/login?callbackUrl=/moderation/reports");
   }
 
-  const steward = await isUserSteward(session.user.id);
-  if (!steward) {
+  const allowed = await canResolveReports(session.user.id, {
+    isAdmin: session.user.isAdmin,
+  });
+  if (!allowed) {
     return (
       <div className="space-y-3">
         <h1 className="text-2xl font-semibold">Moderation</h1>
         <p className="text-muted">
           Report triage is limited to{" "}
-          <strong>Steward</strong>-tier contributors (500+ reputation points).
+          <strong>Steward</strong>-tier contributors (500+ reputation points)
+          or <strong>site administrators</strong>.
         </p>
         <p className="text-sm text-muted">
-          Keep editing and resolving community reports once you reach that tier.
+          Keep editing and earning reputation to reach Steward tier, or contact
+          an administrator if you need access.
         </p>
       </div>
     );

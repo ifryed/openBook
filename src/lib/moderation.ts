@@ -9,3 +9,12 @@ export async function isUserSteward(userId: string): Promise<boolean> {
   const points = u?.reputationPoints ?? 0;
   return tierFromPoints(points) === "STEWARD";
 }
+
+/** Stewards (high reputation) and site administrators may triage the report queue. */
+export async function canResolveReports(
+  userId: string,
+  opts: { isAdmin: boolean },
+): Promise<boolean> {
+  if (opts.isAdmin) return true;
+  return isUserSteward(userId);
+}
