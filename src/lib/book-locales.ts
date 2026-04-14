@@ -79,6 +79,32 @@ export function parseBookLocalesFromFormData(formData: FormData): string[] {
   return out;
 }
 
+/**
+ * ISO 639-1 codes in our allowlist that use right-to-left scripts.
+ * Extend when adding RTL languages to BOOK_LOCALE_OPTIONS.
+ */
+const RTL_BOOK_LOCALES = new Set(["ar", "he", "fa", "ur"]);
+
+export function isRtlBookLocale(code: string): boolean {
+  return RTL_BOOK_LOCALES.has(code.trim().toLowerCase());
+}
+
+export function textDirectionForBookLocale(code: string): "ltr" | "rtl" {
+  return isRtlBookLocale(code) ? "rtl" : "ltr";
+}
+
+/** Spread onto a root element for book views (Markdown, forms inherit `dir`). */
+export function bookLocaleHtmlAttributes(locale: string): {
+  dir: "ltr" | "rtl";
+  lang: string;
+} {
+  const trimmed = locale.trim();
+  return {
+    dir: textDirectionForBookLocale(trimmed),
+    lang: trimmed || DEFAULT_BOOK_LOCALE,
+  };
+}
+
 export function normalizeActiveLocale(
   requested: string | undefined | null,
   bookLocales: string[],

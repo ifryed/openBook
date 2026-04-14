@@ -4,7 +4,11 @@ import { auth } from "@/auth";
 import { revertSectionFromForm } from "@/app/actions/books";
 import { BookLangSwitcher } from "@/components/book-lang-switcher";
 import { DiffView } from "@/components/diff-view";
-import { normalizeActiveLocale, withLangQuery } from "@/lib/book-locales";
+import {
+  bookLocaleHtmlAttributes,
+  normalizeActiveLocale,
+  withLangQuery,
+} from "@/lib/book-locales";
 import { prisma } from "@/lib/db";
 import { listRevisions } from "@/lib/revisions";
 import { resolveSectionTitle } from "@/lib/section-localization";
@@ -82,7 +86,7 @@ export default async function SectionHistoryPage({
   );
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8" {...bookLocaleHtmlAttributes(activeLocale)}>
       <BookLangSwitcher locales={bookLocales} activeLocale={activeLocale} />
 
       <nav className="text-sm text-muted">

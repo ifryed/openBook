@@ -1,7 +1,11 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { bookLocaleLabel, withLangQuery } from "@/lib/book-locales";
+import {
+  bookLocaleHtmlAttributes,
+  bookLocaleLabel,
+  withLangQuery,
+} from "@/lib/book-locales";
 import { prisma } from "@/lib/db";
 import { latestRevisionBodiesForLocale } from "@/lib/section-locale-body";
 import {
@@ -58,7 +62,7 @@ export default async function BookLanguageEditPage({ params }: Props) {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" {...bookLocaleHtmlAttributes(locale)}>
       <nav className="text-sm text-muted">
         <Link
           href={`/books/${book.slug}/edit`}

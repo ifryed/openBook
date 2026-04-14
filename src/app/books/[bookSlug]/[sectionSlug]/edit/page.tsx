@@ -1,7 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { buildBookContextMarkdown } from "@/lib/book-context";
-import { normalizeActiveLocale, withLangQuery } from "@/lib/book-locales";
+import {
+  bookLocaleHtmlAttributes,
+  normalizeActiveLocale,
+  withLangQuery,
+} from "@/lib/book-locales";
 import { prisma } from "@/lib/db";
 import { getLatestRevision } from "@/lib/revisions";
 import {
@@ -138,7 +142,7 @@ export default async function SectionEditPage({ params, searchParams }: Props) {
         );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" {...bookLocaleHtmlAttributes(activeLocale)}>
       <BookLangSwitcher locales={bookLocales} activeLocale={activeLocale} />
 
       <nav className="text-sm text-muted">

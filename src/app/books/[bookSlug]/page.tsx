@@ -5,7 +5,12 @@ import { AdminDeleteBookForm } from "@/components/admin-delete-book-form";
 import { BookDownloadMenu } from "@/components/book-download-menu";
 import { BookLangSwitcher } from "@/components/book-lang-switcher";
 import { isCalibreExportEnabled } from "@/lib/book-export";
-import { bookLocaleLabel, normalizeActiveLocale, withLangQuery } from "@/lib/book-locales";
+import {
+  bookLocaleHtmlAttributes,
+  bookLocaleLabel,
+  normalizeActiveLocale,
+  withLangQuery,
+} from "@/lib/book-locales";
 import { prisma } from "@/lib/db";
 import { EditPencilLink } from "@/components/edit-pencil-link";
 import { ReportForm } from "@/components/report-form";
@@ -84,7 +89,7 @@ export default async function BookPage({ params, searchParams }: Props) {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8" {...bookLocaleHtmlAttributes(activeLocale)}>
       <BookLangSwitcher locales={bookLocales} activeLocale={activeLocale} />
 
       <div>

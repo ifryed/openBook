@@ -8,7 +8,10 @@ import remarkParse from "remark-parse";
 import remarkRehype from "remark-rehype";
 import rehypeStringify from "rehype-stringify";
 import { unified } from "unified";
-import { normalizeActiveLocale } from "@/lib/book-locales";
+import {
+  normalizeActiveLocale,
+  textDirectionForBookLocale,
+} from "@/lib/book-locales";
 import { prisma } from "@/lib/db";
 import { getLatestRevision } from "@/lib/revisions";
 import {
@@ -27,7 +30,7 @@ body { font-family: system-ui, sans-serif; line-height: 1.65; color: #1a1a1a; ma
 .prose-wiki { line-height: 1.65; }
 .prose-wiki h1, .prose-wiki h2, .prose-wiki h3 { font-weight: 600; margin-top: 1.25em; margin-bottom: 0.5em; }
 .prose-wiki p { margin-bottom: 0.75em; }
-.prose-wiki ul { list-style: disc; padding-left: 1.5em; margin-bottom: 0.75em; }
+.prose-wiki ul { list-style: disc; padding-inline-start: 1.5em; margin-bottom: 0.75em; }
 .prose-wiki code { font-family: ui-monospace, monospace; font-size: 0.9em; background: #f0eeea; padding: 0.1em 0.35em; border-radius: 4px; }
 .prose-wiki pre { background: #f0eeea; padding: 1em; border-radius: 8px; overflow-x: auto; margin-bottom: 0.75em; }
 .prose-wiki pre code { background: none; padding: 0; }
@@ -164,6 +167,7 @@ export async function buildFullHtmlExportDocument(
     ? `<p class="book-export-summary">${escapeHtml(book.summary.trim())}</p>`
     : "";
   const htmlLang = escapeHtml(book.exportLocale);
+  const htmlDir = textDirectionForBookLocale(book.exportLocale);
 
   const sectionBlocks = (
     await Promise.all(
@@ -175,7 +179,7 @@ export async function buildFullHtmlExportDocument(
   ).join("\n\n");
 
   return `<!DOCTYPE html>
-<html lang="${htmlLang}">
+<html lang="${htmlLang}" dir="${htmlDir}">
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>

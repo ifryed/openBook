@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { auth } from "@/auth";
 import { BookLangSwitcher } from "@/components/book-lang-switcher";
 import {
+  bookLocaleHtmlAttributes,
   bookLocaleLabel,
   normalizeActiveLocale,
   withLangQuery,
@@ -92,7 +93,10 @@ export default async function SectionReadPage({ params, searchParams }: Props) {
     );
 
     return (
-      <article className="space-y-6">
+      <article
+        className="space-y-6"
+        {...bookLocaleHtmlAttributes(activeLocale)}
+      >
         <BookLangSwitcher locales={bookLocales} activeLocale={activeLocale} />
 
         <nav className="text-sm text-muted">
@@ -142,7 +146,10 @@ export default async function SectionReadPage({ params, searchParams }: Props) {
   }
 
   return (
-    <article className="space-y-6">
+    <article
+      className="space-y-6"
+      {...bookLocaleHtmlAttributes(activeLocale)}
+    >
       <BookLangSwitcher locales={bookLocales} activeLocale={activeLocale} />
 
       <nav className="text-sm text-muted">

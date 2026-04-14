@@ -3,7 +3,11 @@ import { notFound } from "next/navigation";
 import { BookLangSwitcher } from "@/components/book-lang-switcher";
 import { ContentsOrderPanel } from "@/components/contents-order-panel";
 import { LocalLlmTocPanel } from "@/components/local-llm-toc-panel";
-import { normalizeActiveLocale, withLangQuery } from "@/lib/book-locales";
+import {
+  bookLocaleHtmlAttributes,
+  normalizeActiveLocale,
+  withLangQuery,
+} from "@/lib/book-locales";
 import { prisma } from "@/lib/db";
 import { resolveSectionTitle } from "@/lib/section-localization";
 import { resolveBookTitle } from "@/lib/book-title-localization";
@@ -63,7 +67,7 @@ export default async function BookEditContentsPage({
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" {...bookLocaleHtmlAttributes(activeLocale)}>
       <BookLangSwitcher locales={bookLocales} activeLocale={activeLocale} />
 
       <nav className="text-sm text-muted">
