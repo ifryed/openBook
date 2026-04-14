@@ -7,7 +7,12 @@ import {
   catalogClearFiltersHref,
   getBookCatalogFilterOptions,
 } from "@/lib/catalog-search";
-import { bookLocaleLabel } from "@/lib/book-locales";
+import { resolveBookTitle } from "@/lib/book-title-localization";
+import {
+  bookLocaleLabel,
+  normalizeActiveLocale,
+  withLangQuery,
+} from "@/lib/book-locales";
 import { prisma } from "@/lib/db";
 import { Link } from "@/i18n/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
@@ -60,6 +65,7 @@ export default async function HomePage({ params, searchParams }: Props) {
       include: {
         tags: { include: { tag: true } },
         languages: { select: { locale: true } },
+        titleLocales: { select: { locale: true, title: true } },
         _count: { select: { sections: true } },
       },
     }),
@@ -226,89 +232,114 @@ export default async function HomePage({ params, searchParams }: Props) {
         </p>
       ) : (
         <ul className="space-y-4">
-          {books.map((book) => (
-            <li
-              key={book.id}
-              className="rounded-lg border border-border bg-card p-4 shadow-sm"
-            >
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <Link
-                  href={`/books/${book.slug}`}
-                  className="min-w-0 flex-1 text-lg font-medium text-foreground no-underline hover:underline"
-                >
-                  {book.title}
-                </Link>
-                <BookDownloadMenu
-                  bookSlug={book.slug}
-                  showCalibreFormats={showCalibreFormats}
-                  exportLang={book.defaultLocale}
-                />
-              </div>
-              <p className="text-sm text-muted">
-                {c("figure")}{" "}
-                <Link
-                  href={`/${locale}?figure=${encodeURIComponent(book.figureName)}`}
-                  className="text-accent no-underline hover:underline"
-                >
-                  {book.figureName}
-                </Link>
-                {book.country.trim() ? (
-                  <>
-                    {" · "}
-                    <Link
-                      href={`/${locale}?country=${encodeURIComponent(book.country.trim())}`}
-                      className="text-accent no-underline hover:underline"
-                    >
-                      {book.country.trim()}
-                    </Link>
-                  </>
-                ) : null}
-                {" · "}
-                {book._count.sections} {c("sections")}
-              </p>
-              {book.intendedAges.trim() ? (
-                <p className="mt-1 text-xs text-muted">
-                  {t("ageAudienceLabel")}{" "}
+          {books.map((book) => {
+            const bookLocales = book.languages.map((l) => l.locale);
+            const localePreference = langFilter ? langFilter : locale;
+            const catalogLocale = normalizeActiveLocale(
+              localePreference,
+              bookLocales,
+              book.defaultLocale,
+            );
+            const landingLocale = normalizeActiveLocale(
+              undefined,
+              bookLocales,
+              book.defaultLocale,
+            );
+            const displayTitle = resolveBookTitle(
+              book.title,
+              book.titleLocales,
+              catalogLocale,
+              book.defaultLocale,
+            );
+            const bookHref =
+              catalogLocale !== landingLocale
+                ? withLangQuery(`/books/${book.slug}`, catalogLocale)
+                : `/books/${book.slug}`;
+
+            return (
+              <li
+                key={book.id}
+                className="rounded-lg border border-border bg-card p-4 shadow-sm"
+              >
+                <div className="flex flex-wrap items-start justify-between gap-3">
                   <Link
-                    href={`/${locale}?age=${encodeURIComponent(book.intendedAges.trim())}`}
+                    href={bookHref}
+                    className="min-w-0 flex-1 text-lg font-medium text-foreground no-underline hover:underline"
+                  >
+                    {displayTitle}
+                  </Link>
+                  <BookDownloadMenu
+                    bookSlug={book.slug}
+                    showCalibreFormats={showCalibreFormats}
+                    exportLang={catalogLocale}
+                  />
+                </div>
+                <p className="text-sm text-muted">
+                  {c("figure")}{" "}
+                  <Link
+                    href={`/${locale}?figure=${encodeURIComponent(book.figureName)}`}
                     className="text-accent no-underline hover:underline"
                   >
-                    {book.intendedAges.trim()}
+                    {book.figureName}
                   </Link>
+                  {book.country.trim() ? (
+                    <>
+                      {" · "}
+                      <Link
+                        href={`/${locale}?country=${encodeURIComponent(book.country.trim())}`}
+                        className="text-accent no-underline hover:underline"
+                      >
+                        {book.country.trim()}
+                      </Link>
+                    </>
+                  ) : null}
+                  {" · "}
+                  {book._count.sections} {c("sections")}
                 </p>
-              ) : null}
-              {book.languages.length > 0 ? (
-                <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted">
-                  <span>{c("languages")}:</span>
-                  {book.languages.map(({ locale: loc }) => (
+                {book.intendedAges.trim() ? (
+                  <p className="mt-1 text-xs text-muted">
+                    {t("ageAudienceLabel")}{" "}
                     <Link
-                      key={loc}
-                      href={buildCatalogUrl(locale, {
-                        q: query,
-                        figure: figureFilter,
-                        age: ageFilter,
-                        country: countryFilter,
-                        lang: loc,
-                      })}
+                      href={`/${locale}?age=${encodeURIComponent(book.intendedAges.trim())}`}
                       className="text-accent no-underline hover:underline"
                     >
-                      {bookLocaleLabel(loc)}
+                      {book.intendedAges.trim()}
                     </Link>
-                  ))}
-                </p>
-              ) : null}
-              {book.summary ? (
-                <p className="mt-2 line-clamp-2 text-sm text-foreground">
-                  {book.summary}
-                </p>
-              ) : null}
-              {book.tags.length > 0 ? (
-                <p className="mt-2 text-xs text-muted">
-                  {book.tags.map((bt) => bt.tag.name).join(" · ")}
-                </p>
-              ) : null}
-            </li>
-          ))}
+                  </p>
+                ) : null}
+                {book.languages.length > 0 ? (
+                  <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted">
+                    <span>{c("languages")}:</span>
+                    {book.languages.map(({ locale: loc }) => (
+                      <Link
+                        key={loc}
+                        href={buildCatalogUrl(locale, {
+                          q: query,
+                          figure: figureFilter,
+                          age: ageFilter,
+                          country: countryFilter,
+                          lang: loc,
+                        })}
+                        className="text-accent no-underline hover:underline"
+                      >
+                        {bookLocaleLabel(loc)}
+                      </Link>
+                    ))}
+                  </p>
+                ) : null}
+                {book.summary ? (
+                  <p className="mt-2 line-clamp-2 text-sm text-foreground">
+                    {book.summary}
+                  </p>
+                ) : null}
+                {book.tags.length > 0 ? (
+                  <p className="mt-2 text-xs text-muted">
+                    {book.tags.map((bt) => bt.tag.name).join(" · ")}
+                  </p>
+                ) : null}
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>
