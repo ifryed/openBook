@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { auth } from "@/auth";
+import { AdminDeleteBookForm } from "@/components/admin-delete-book-form";
 import { prisma } from "@/lib/db";
 import { EditBookForm } from "./edit-book-form";
 
@@ -7,6 +9,7 @@ type Props = { params: Promise<{ bookSlug: string }> };
 
 export default async function BookEditPage({ params }: Props) {
   const { bookSlug } = await params;
+  const session = await auth();
 
   const book = await prisma.book.findUnique({
     where: { slug: bookSlug },
@@ -42,6 +45,9 @@ export default async function BookEditPage({ params }: Props) {
         slug={book.slug}
         tagsDisplay={tagsDisplay}
       />
+      {session?.user?.isAdmin ? (
+        <AdminDeleteBookForm bookSlug={book.slug} bookTitle={book.title} />
+      ) : null}
     </div>
   );
 }

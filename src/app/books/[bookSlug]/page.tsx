@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { auth } from "@/auth";
+import { AdminDeleteBookForm } from "@/components/admin-delete-book-form";
 import { BookDownloadMenu } from "@/components/book-download-menu";
 import { isCalibreExportEnabled } from "@/lib/book-export";
 import { prisma } from "@/lib/db";
@@ -129,6 +130,10 @@ export default async function BookPage({ params }: Props) {
           <Link href="/login">Sign in</Link> to report issues with this book.
         </p>
       )}
+
+      {session?.user?.isAdmin ? (
+        <AdminDeleteBookForm bookSlug={book.slug} bookTitle={book.title} />
+      ) : null}
     </div>
   );
 }

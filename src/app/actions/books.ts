@@ -1012,3 +1012,39 @@ export async function deleteSectionFromBook(
 
   redirect(`/books/${bookSlug}`);
 }
+
+export type DeleteBookAdminState = { error?: string };
+
+/**
+ * Permanently deletes a book and all related sections/revisions (cascade).
+ * Only users with `User.isAdmin` may call this.
+ */
+export async function deleteBookAsAdmin(
+  _prev: DeleteBookAdminState,
+  formData: FormData,
+): Promise<DeleteBookAdminState> {
+  void _prev;
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { error: "You must be signed in." };
+  }
+  if (!session.user.isAdmin) {
+    return { error: "Only administrators can delete books." };
+  }
+
+  const bookSlug = formData.get("bookSlug")?.toString().trim() ?? "";
+  if (!bookSlug) {
+    return { error: "Missing book." };
+  }
+
+  const book = await prisma.book.findUnique({ where: { slug: bookSlug } });
+  if (!book) {
+    return { error: "Book not found." };
+  }
+
+  await prisma.book.delete({ where: { id: book.id } });
+
+  revalidatePath("/");
+  revalidatePath(`/books/${bookSlug}`, "layout");
+  redirect("/");
+}

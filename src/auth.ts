@@ -19,6 +19,37 @@ const googleProvider =
 export const { handlers, signIn, signOut, auth } = NextAuth({
   ...authConfig,
   adapter: PrismaAdapter(prisma),
+  callbacks: {
+    ...authConfig.callbacks,
+    async jwt({ token, user, ...rest }) {
+      let t = token;
+      if (authConfig.callbacks?.jwt) {
+        t = await authConfig.callbacks.jwt({ token: t, user, ...rest });
+      }
+      if (user?.id) {
+        const row = await prisma.user.findUnique({
+          where: { id: user.id },
+          select: { isAdmin: true },
+        });
+        t.isAdmin = row?.isAdmin ?? false;
+      }
+      return t;
+    },
+    async session({ session, token, ...rest }) {
+      let s = session;
+      if (authConfig.callbacks?.session) {
+        s = await authConfig.callbacks.session({
+          session: s,
+          token,
+          ...rest,
+        });
+      }
+      if (s.user) {
+        s.user.isAdmin = Boolean(token.isAdmin);
+      }
+      return s;
+    },
+  },
   providers: [
     ...(googleProvider ? [googleProvider] : []),
     Credentials({

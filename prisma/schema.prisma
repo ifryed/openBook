@@ -34,6 +34,8 @@ model User {
   emailVerified    DateTime? @map("email_verified")
   image            String?
   passwordHash     String?   @map("password_hash")
+  /** Site moderators may remove books and use other admin-only tools. */
+  isAdmin          Boolean   @default(false) @map("is_admin")
   reputationPoints Int       @default(0) @map("reputation_points")
   digestOptIn      Boolean   @default(false) @map("digest_opt_in")
 
