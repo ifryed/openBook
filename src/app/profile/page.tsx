@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { UserProfileContent } from "@/components/user-profile-content";
 import {
+  PROFILE_PREVIEW_LIMIT,
+  getProfileSectionCounts,
   loadUserProfileCore,
   loadUserProfilePrivate,
 } from "@/lib/user-profile-data";
@@ -16,9 +18,14 @@ export default async function ProfilePage() {
   }
 
   const userId = session.user.id;
-  const [core, privateExtras] = await Promise.all([
-    loadUserProfileCore(userId),
-    loadUserProfilePrivate(userId),
+  const [core, privateExtras, sectionCounts] = await Promise.all([
+    loadUserProfileCore(userId, PROFILE_PREVIEW_LIMIT),
+    loadUserProfilePrivate(
+      userId,
+      PROFILE_PREVIEW_LIMIT,
+      PROFILE_PREVIEW_LIMIT,
+    ),
+    getProfileSectionCounts(userId),
   ]);
 
   const displayName =
@@ -57,6 +64,9 @@ export default async function ProfilePage() {
         contributionRows={core.contributionRows}
         reputationEventAtLimit={core.reputationEventAtLimit}
         privateExtras={privateExtras}
+        isPreview
+        profileUserId={userId}
+        sectionCounts={sectionCounts}
       />
     </div>
   );

@@ -5,6 +5,8 @@ import { auth } from "@/auth";
 import { UserProfileContent } from "@/components/user-profile-content";
 import { prisma } from "@/lib/db";
 import {
+  PROFILE_PREVIEW_LIMIT,
+  getProfileSectionCounts,
   loadUserProfileCore,
   publicProfileDisplayName,
 } from "@/lib/user-profile-data";
@@ -32,7 +34,10 @@ export default async function PublicUserProfilePage({ params }: Props) {
   const session = await auth();
   const isOwner = session?.user?.id === userId;
 
-  const core = await loadUserProfileCore(userId);
+  const [core, sectionCounts] = await Promise.all([
+    loadUserProfileCore(userId, PROFILE_PREVIEW_LIMIT),
+    getProfileSectionCounts(userId),
+  ]);
   const displayName = publicProfileDisplayName(user.name);
 
   return (
@@ -60,6 +65,9 @@ export default async function PublicUserProfilePage({ params }: Props) {
         revisions={core.revisions}
         contributionRows={core.contributionRows}
         reputationEventAtLimit={core.reputationEventAtLimit}
+        isPreview
+        profileUserId={userId}
+        sectionCounts={sectionCounts}
       />
     </div>
   );

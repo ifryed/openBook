@@ -5,13 +5,10 @@ const { auth } = NextAuth(authConfig);
 
 function isProtectedPath(pathname: string): boolean {
   if (pathname === "/books/new") return true;
-  if (
-    pathname === "/notifications" ||
-    pathname === "/settings" ||
-    pathname === "/profile"
-  ) {
+  if (pathname === "/notifications" || pathname === "/settings") {
     return true;
   }
+  if (pathname.startsWith("/profile")) return true;
   if (pathname.startsWith("/moderation")) return true;
   if (pathname.startsWith("/admin")) return true;
   const parts = pathname.split("/").filter(Boolean);
@@ -50,6 +47,7 @@ export const config = {
     "/notifications",
     "/settings",
     "/profile",
+    "/profile/:path*",
     "/moderation/:path*",
     "/admin",
     "/admin/:path*",

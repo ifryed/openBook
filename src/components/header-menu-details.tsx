@@ -21,7 +21,7 @@ export function HeaderMenuDetails({
     const panel = panelRef.current;
     if (!panel) return;
 
-    const onPointerDown = (e: PointerEvent) => {
+    const onClick = (e: MouseEvent) => {
       const details = detailsRef.current;
       if (!details) return;
       const target = e.target;
@@ -32,11 +32,9 @@ export function HeaderMenuDetails({
       }
     };
 
-    panel.addEventListener("pointerdown", onPointerDown, { capture: true });
+    panel.addEventListener("click", onClick);
     return () => {
-      panel.removeEventListener("pointerdown", onPointerDown, {
-        capture: true,
-      });
+      panel.removeEventListener("click", onClick);
     };
   }, []);
 

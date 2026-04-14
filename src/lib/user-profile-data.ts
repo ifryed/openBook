@@ -11,6 +11,7 @@ import {
 
 export const PROFILE_LIST_LIMIT = 50;
 export const PROFILE_REPORTS_LIMIT = 25;
+export const PROFILE_PREVIEW_LIMIT = 3;
 
 /** Public profile: never use email; fall back when name is empty. */
 export function publicProfileDisplayName(
@@ -46,40 +47,53 @@ export type ProfileCoreData = {
   reputationEventAtLimit: boolean;
 };
 
-export async function loadUserProfileCore(
+export async function loadProfileBooks(
   userId: string,
-): Promise<ProfileCoreData> {
-  const [profile, books, revisions, reputationEvents] = await Promise.all([
-    getUserPointsAndTier(userId),
-    prisma.book.findMany({
-      where: { createdById: userId },
-      orderBy: { updatedAt: "desc" },
-      take: PROFILE_LIST_LIMIT,
-      select: { id: true, slug: true, title: true, updatedAt: true },
-    }),
-    prisma.revision.findMany({
-      where: { authorId: userId },
-      orderBy: { createdAt: "desc" },
-      take: PROFILE_LIST_LIMIT,
-      select: {
-        id: true,
-        createdAt: true,
-        summaryComment: true,
-        section: {
-          select: {
-            slug: true,
-            title: true,
-            book: { select: { slug: true, title: true } },
-          },
+  limit: number,
+): Promise<ProfileBookRow[]> {
+  return prisma.book.findMany({
+    where: { createdById: userId },
+    orderBy: { updatedAt: "desc" },
+    take: limit,
+    select: { id: true, slug: true, title: true, updatedAt: true },
+  });
+}
+
+export async function loadProfileRevisions(
+  userId: string,
+  limit: number,
+): Promise<ProfileRevisionRow[]> {
+  return prisma.revision.findMany({
+    where: { authorId: userId },
+    orderBy: { createdAt: "desc" },
+    take: limit,
+    select: {
+      id: true,
+      createdAt: true,
+      summaryComment: true,
+      section: {
+        select: {
+          slug: true,
+          title: true,
+          book: { select: { slug: true, title: true } },
         },
       },
-    }),
-    prisma.reputationEvent.findMany({
-      where: { userId },
-      orderBy: { createdAt: "desc" },
-      take: PROFILE_LIST_LIMIT,
-    }),
-  ]);
+    },
+  });
+}
+
+export async function loadProfileContributionRows(
+  userId: string,
+  limit: number,
+): Promise<{
+  rows: ReputationEventDisplayRow[];
+  reputationEventAtLimit: boolean;
+}> {
+  const reputationEvents = await prisma.reputationEvent.findMany({
+    where: { userId },
+    orderBy: { createdAt: "desc" },
+    take: limit,
+  });
 
   const bookIds = new Set<string>();
   const sectionIds = new Set<string>();
@@ -112,18 +126,35 @@ export async function loadUserProfileCore(
     refSections.map((s) => [s.id, { slug: s.slug, book: s.book }]),
   );
 
-  const contributionRows = toReputationEventDisplayRows(
+  const rows = toReputationEventDisplayRows(
     reputationEvents,
     bookById,
     sectionById,
   );
 
   return {
+    rows,
+    reputationEventAtLimit: reputationEvents.length >= limit,
+  };
+}
+
+export async function loadUserProfileCore(
+  userId: string,
+  listLimit: number = PROFILE_LIST_LIMIT,
+): Promise<ProfileCoreData> {
+  const [profile, books, revisions, contrib] = await Promise.all([
+    getUserPointsAndTier(userId),
+    loadProfileBooks(userId, listLimit),
+    loadProfileRevisions(userId, listLimit),
+    loadProfileContributionRows(userId, listLimit),
+  ]);
+
+  return {
     profile,
     books,
     revisions,
-    contributionRows,
-    reputationEventAtLimit: reputationEvents.length >= PROFILE_LIST_LIMIT,
+    contributionRows: contrib.rows,
+    reputationEventAtLimit: contrib.reputationEventAtLimit,
   };
 }
 
@@ -147,42 +178,85 @@ export type ProfilePrivateExtras = {
   filedReports: ProfileFiledReportRow[];
 };
 
+export async function loadProfileWatches(
+  userId: string,
+  limit: number,
+): Promise<ProfileWatchRow[]> {
+  const watches = await prisma.bookWatch.findMany({
+    where: { userId },
+    orderBy: { createdAt: "desc" },
+    take: limit,
+    include: {
+      book: { select: { slug: true, title: true, updatedAt: true } },
+    },
+  });
+  return watches.map((w) => ({
+    id: w.id,
+    createdAt: w.createdAt,
+    book: w.book,
+  }));
+}
+
+export async function loadProfileFiledReports(
+  userId: string,
+  limit: number,
+): Promise<ProfileFiledReportRow[]> {
+  const filedReports = await prisma.report.findMany({
+    where: { userId },
+    orderBy: { createdAt: "desc" },
+    take: limit,
+    include: {
+      book: { select: { slug: true, title: true } },
+      section: { select: { slug: true, title: true } },
+    },
+  });
+  return filedReports.map((r) => ({
+    id: r.id,
+    createdAt: r.createdAt,
+    status: r.status,
+    reason: r.reason,
+    book: r.book,
+    section: r.section,
+  }));
+}
+
 export async function loadUserProfilePrivate(
   userId: string,
+  listLimit: number = PROFILE_LIST_LIMIT,
+  reportsLimit: number = PROFILE_REPORTS_LIMIT,
 ): Promise<ProfilePrivateExtras> {
   const [watches, filedReports] = await Promise.all([
-    prisma.bookWatch.findMany({
-      where: { userId },
-      orderBy: { createdAt: "desc" },
-      take: PROFILE_LIST_LIMIT,
-      include: {
-        book: { select: { slug: true, title: true, updatedAt: true } },
-      },
-    }),
-    prisma.report.findMany({
-      where: { userId },
-      orderBy: { createdAt: "desc" },
-      take: PROFILE_REPORTS_LIMIT,
-      include: {
-        book: { select: { slug: true, title: true } },
-        section: { select: { slug: true, title: true } },
-      },
-    }),
+    loadProfileWatches(userId, listLimit),
+    loadProfileFiledReports(userId, reportsLimit),
   ]);
+  return { watches, filedReports };
+}
 
+export type ProfileSectionCounts = {
+  books: number;
+  revisions: number;
+  contributions: number;
+  watches: number;
+  reports: number;
+};
+
+export async function getProfileSectionCounts(
+  userId: string,
+): Promise<ProfileSectionCounts> {
+  const [books, revisions, contributions, watches, reports] = await Promise.all(
+    [
+      prisma.book.count({ where: { createdById: userId } }),
+      prisma.revision.count({ where: { authorId: userId } }),
+      prisma.reputationEvent.count({ where: { userId } }),
+      prisma.bookWatch.count({ where: { userId } }),
+      prisma.report.count({ where: { userId } }),
+    ],
+  );
   return {
-    watches: watches.map((w) => ({
-      id: w.id,
-      createdAt: w.createdAt,
-      book: w.book,
-    })),
-    filedReports: filedReports.map((r) => ({
-      id: r.id,
-      createdAt: r.createdAt,
-      status: r.status,
-      reason: r.reason,
-      book: r.book,
-      section: r.section,
-    })),
+    books,
+    revisions,
+    contributions,
+    watches,
+    reports,
   };
 }
