@@ -14,6 +14,11 @@ import {
   intendedAudiencePromptSnippet,
 } from "@/lib/book-context";
 import { parseTocFromLlmText, type TocSuggestion } from "@/lib/llm-toc-parse";
+import {
+  lifeEventsBulletRange,
+  tocStep1ChapterBudgetNarrative,
+  tocStep1MaxTokens,
+} from "@/lib/llm-toc-prompts";
 import { WEBLLM_MODEL } from "@/lib/webllm-model";
 import type { MLCEngine } from "@mlc-ai/web-llm";
 import { FigureNameField } from "@/components/figure-name-field";
@@ -142,11 +147,12 @@ export function AutoBookWizard() {
     const intendedAges = fd.get("intendedAges")?.toString().trim() ?? "";
     const audienceLine = intendedAudiencePromptSnippet(intendedAges);
 
-    const bulletLo = Math.max(8, Math.min(16, targetChapters + 2));
-    const bulletHi = Math.max(
-      bulletLo + 2,
-      Math.min(24, targetChapters * 2 + 6),
-    );
+    const { lo: bulletLo, hi: bulletHi } =
+      lifeEventsBulletRange(targetChapters);
+    const chapterBudgetBlock = tocStep1ChapterBudgetNarrative(targetChapters, {
+      existingSectionNote:
+        "This book already has an Introduction section; these bullets support only the new chapters in the next step.",
+    });
 
     try {
       setPhase("loading_model");
@@ -174,7 +180,7 @@ export function AutoBookWizard() {
           {
             role: "system",
             content:
-              "You help plan biographies using well-established historical and public knowledge. You cannot browse the web. Prefer facts widely attested in reference works; if you are unsure, omit rather than invent. The editor states an intended readership (ages/audience): weight which life themes matter for that audience (depth vs. skim, emphasis) without inventing facts. Reply in plain text only.",
+              "You help plan biographies using well-established historical and public knowledge. You cannot browse the web. Prefer facts widely attested in reference works; if you are unsure, omit rather than invent. The editor states an intended readership (ages/audience): weight which life themes matter for that audience (depth vs. skim, emphasis) without inventing facts. The editor states how many NEW chapters will follow; scale the breadth and granularity of your bullet list to that count so each chapter can be grounded without invention or padding. Reply in plain text only.",
           },
           {
             role: "user",
@@ -185,11 +191,13 @@ Historical figure: ${figureName}
 ${audienceLine}
 ${userBlock}${pageHint}
 
-Task: list ONLY important events, periods, roles, and turning points in this person's life that deserve chapters or major sections. Use ${bulletLo}–${bulletHi} short bullet lines (one event or theme per line), in rough chronological order. Focus on what historians and general encyclopedias typically emphasize. Do not include a table of contents yet — bullets only, no JSON.`,
+${chapterBudgetBlock}
+
+Task: list ONLY important events, periods, roles, and turning points in this person's life that could anchor those chapters. Use ${bulletLo}–${bulletHi} short bullet lines (one event or theme per line), in rough chronological order. Focus on what historians and general encyclopedias typically emphasize. Do not include a table of contents — bullets only, no JSON.`,
           },
         ],
         temperature: 0.35,
-        max_tokens: 1600,
+        max_tokens: tocStep1MaxTokens(bulletHi),
       });
 
       const researchText =

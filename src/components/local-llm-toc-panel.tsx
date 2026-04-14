@@ -6,6 +6,13 @@ import {
   parseTocFromLlmText,
   type TocSuggestion,
 } from "@/lib/llm-toc-parse";
+import {
+  clampTargetNewChapters,
+  lifeEventsBulletRange,
+  tocStep1ChapterBudgetNarrative,
+  tocStep1MaxTokens,
+} from "@/lib/llm-toc-prompts";
+import { MAX_LLM_TOC_SECTIONS } from "@/lib/book-limits";
 import { WEBLLM_MODEL } from "@/lib/webllm-model";
 import type { MLCEngine } from "@mlc-ai/web-llm";
 import { useRouter } from "next/navigation";
@@ -32,6 +39,7 @@ export function LocalLlmTocPanel({
   const engineRef = useRef<MLCEngine | null>(null);
   const [open, setOpen] = useState(false);
   const [notes, setNotes] = useState("");
+  const [targetNewChapters, setTargetNewChapters] = useState(8);
   const [phase, setPhase] = useState<
     "idle" | "loading" | "generating" | "done" | "adding"
   >("idle");
@@ -98,6 +106,12 @@ export function LocalLlmTocPanel({
         : "No extra notes.";
       const audienceLine = intendedAudiencePromptSnippet(intendedAges);
 
+      const nChapters = clampTargetNewChapters(targetNewChapters);
+      const { lo: bulletLo, hi: bulletHi } = lifeEventsBulletRange(nChapters);
+      const chapterBudgetBlock = tocStep1ChapterBudgetNarrative(nChapters, {
+        existingSectionNote: `This book already has ${existingSlugs.length} section(s). Step 2 will suggest exactly ${nChapters} new chapter lines to add (you will choose which to keep).`,
+      });
+
       // Step 1: “research” — consolidate major life events from model knowledge (no web access).
       setProgress("Step 1 of 2: outlining important life events…");
       const researchCompletion = await engine.chat.completions.create({
@@ -105,7 +119,7 @@ export function LocalLlmTocPanel({
           {
             role: "system",
             content:
-              "You help plan biographies using well-established historical and public knowledge. You cannot browse the web. Prefer facts widely attested in reference works; if you are unsure, omit rather than invent. The editor states an intended readership (ages/audience): weight which life themes matter for that audience (depth vs. skim, emphasis) without inventing facts. Reply in plain text only.",
+              "You help plan biographies using well-established historical and public knowledge. You cannot browse the web. Prefer facts widely attested in reference works; if you are unsure, omit rather than invent. The editor states an intended readership (ages/audience): weight which life themes matter for that audience (depth vs. skim, emphasis) without inventing facts. The editor also states how many NEW chapters will follow; scale the richness and granularity of your bullet list to that count so every chapter can be grounded without invention or padding. Reply in plain text only.",
           },
           {
             role: "user",
@@ -116,11 +130,13 @@ Historical figure: ${figureName}
 ${audienceLine}
 ${userBlock}
 
-Task: list ONLY important events, periods, roles, and turning points in this person's life that deserve chapters or major sections. Use 10–20 short bullet lines (one event or theme per line), in rough chronological order. Focus on what historians and general encyclopedias typically emphasize. Do not include a table of contents yet — bullets only, no JSON.`,
+${chapterBudgetBlock}
+
+Task: list ONLY important events, periods, roles, and turning points in this person's life that could anchor those chapters. Use ${bulletLo}–${bulletHi} short bullet lines (one event or theme per line), in rough chronological order. Focus on what historians and general encyclopedias typically emphasize. Do not include a table of contents — bullets only, no JSON.`,
           },
         ],
         temperature: 0.35,
-        max_tokens: 1400,
+        max_tokens: tocStep1MaxTokens(bulletHi),
       });
 
       const rawResearch =
@@ -163,7 +179,7 @@ ${eventsForPrompt}
 --- end ---
 
 Output format — follow exactly:
-- Write 6 to 12 lines. Each line is ONE compact JSON object and nothing else on that line.
+- Write exactly ${nChapters} lines (no more, no fewer). Each line is ONE compact JSON object and nothing else on that line.
 - Each object MUST have exactly: "title" (string) and "slug" (string). No summary, no other fields.
 - slug: lowercase, a-z 0-9 and hyphens only, no spaces, matches the chapter title (e.g. title "Early life" → slug "early-life"). Each slug must differ from the others.
 - Do NOT wrap lines in [ ]. One object per line. No trailing commas.
@@ -211,7 +227,7 @@ Example:
       setPhase("idle");
       setProgress("");
     }
-  }, [bookTitle, figureName, intendedAges, notes, existingSlugs]);
+  }, [bookTitle, figureName, intendedAges, notes, existingSlugs, targetNewChapters]);
 
   const addSelected = useCallback(async () => {
     const rows = suggestions.filter((s) => selected[s.slug]);
@@ -254,6 +270,31 @@ Example:
             several&nbsp;GB). When you add sections, only the chosen titles/slugs are
             sent to the app like normal edits.
           </p>
+
+          <label className="block">
+            <span className="text-xs font-medium text-muted">
+              Target new chapters (Step 1 scales detail to this; Step 2 outputs this
+              many lines — max {MAX_LLM_TOC_SECTIONS})
+            </span>
+            <input
+              type="number"
+              min={3}
+              max={MAX_LLM_TOC_SECTIONS}
+              value={targetNewChapters}
+              onChange={(e) => {
+                const v = parseInt(e.target.value, 10);
+                setTargetNewChapters(
+                  clampTargetNewChapters(Number.isFinite(v) ? v : 8),
+                );
+              }}
+              className="mt-1 w-28 rounded-md border border-border bg-background px-3 py-2 text-sm"
+              disabled={
+                phase === "loading" ||
+                phase === "generating" ||
+                phase === "adding"
+              }
+            />
+          </label>
 
           <label className="block">
             <span className="text-xs font-medium text-muted">
