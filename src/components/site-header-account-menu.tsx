@@ -73,6 +73,13 @@ export function SiteHeaderAccountMenu(props: {
           >
             {t("users")}
           </Link>
+          <Link
+            href="/moderation/log"
+            className="block px-3 py-2 text-foreground no-underline hover:bg-background"
+            role="menuitem"
+          >
+            {t("contentReportLog")}
+          </Link>
         </>
       ) : null}
       <form action={signOutAction} className="border-t border-border pt-1">

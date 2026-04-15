@@ -7,6 +7,8 @@ import {
   PROFILE_REPORTS_LIMIT,
   loadProfileFiledReports,
 } from "@/lib/user-profile-data";
+import { loadReportProfileLabels } from "@/lib/report-profile-labels";
+import { getTranslations } from "next-intl/server";
 
 type Props = { params: Promise<{ locale: string }> };
 
@@ -20,7 +22,11 @@ export default async function ProfileReportsPage({ params }: Props) {
   }
 
   const userId = session.user.id;
-  const reports = await loadProfileFiledReports(userId, PROFILE_REPORTS_LIMIT);
+  const [reports, reportLabels, tProf] = await Promise.all([
+    loadProfileFiledReports(userId, PROFILE_REPORTS_LIMIT),
+    loadReportProfileLabels(),
+    getTranslations("ProfileReports"),
+  ]);
 
   return (
     <div className="space-y-6">
@@ -30,16 +36,16 @@ export default async function ProfileReportsPage({ params }: Props) {
         </Link>
       </p>
       <div>
-        <h1 className="text-2xl font-semibold">Reports you filed</h1>
+        <h1 className="text-2xl font-semibold">{tProf("title")}</h1>
         <p className="mt-1 text-sm text-muted">
           Content reports you submitted, newest first.
         </p>
       </div>
       {reports.length === 0 ? (
-        <p className="text-sm text-muted">You have not submitted any reports.</p>
+        <p className="text-sm text-muted">{tProf("empty")}</p>
       ) : (
         <>
-          <ProfileReportsList reports={reports} />
+          <ProfileReportsList reports={reports} labels={reportLabels} />
           {reports.length >= PROFILE_REPORTS_LIMIT ? (
             <p className="text-xs text-muted">
               Showing your {PROFILE_REPORTS_LIMIT} most recent reports.

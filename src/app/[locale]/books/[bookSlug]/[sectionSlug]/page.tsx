@@ -17,7 +17,7 @@ import {
 import { resolveBookTitle } from "@/lib/book-title-localization";
 import { MarkdownBody } from "@/components/markdown-body";
 import { ReportForm } from "@/components/report-form";
-import { setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 
 type Props = {
   params: Promise<{ locale: string; bookSlug: string; sectionSlug: string }>;
@@ -29,6 +29,7 @@ export default async function SectionReadPage({ params, searchParams }: Props) {
   setRequestLocale(locale);
   const { lang } = await searchParams;
   const session = await auth();
+  const tBookLog = await getTranslations("BookReportLog");
 
   const section = await prisma.section.findFirst({
     where: {
@@ -234,6 +235,12 @@ export default async function SectionReadPage({ params, searchParams }: Props) {
           className="text-accent no-underline hover:underline"
         >
           View history
+        </Link>
+        <Link
+          href={`/books/${section.book.slug}/reports`}
+          className="text-accent no-underline hover:underline"
+        >
+          {tBookLog("linkFromSection")}
         </Link>
       </div>
 

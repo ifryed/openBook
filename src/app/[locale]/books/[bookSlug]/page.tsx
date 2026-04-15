@@ -21,16 +21,19 @@ import {
   resolveSectionTitle,
 } from "@/lib/section-localization";
 import { resolveBookTitle } from "@/lib/book-title-localization";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 
 type Props = {
-  params: Promise<{ bookSlug: string }>;
+  params: Promise<{ locale: string; bookSlug: string }>;
   searchParams: Promise<{ lang?: string }>;
 };
 
 export default async function BookPage({ params, searchParams }: Props) {
-  const { bookSlug } = await params;
+  const { locale, bookSlug } = await params;
+  setRequestLocale(locale);
   const { lang } = await searchParams;
   const session = await auth();
+  const tBookLog = await getTranslations("BookReportLog");
   const showCalibreFormats = isCalibreExportEnabled();
 
   const book = await prisma.book.findUnique({
@@ -135,6 +138,12 @@ export default async function BookPage({ params, searchParams }: Props) {
             exportLang={activeLocale}
             showCalibreFormats={showCalibreFormats}
           />
+          <Link
+            href={`/books/${book.slug}/reports`}
+            className="text-sm text-accent no-underline hover:underline"
+          >
+            {tBookLog("linkFromBook")}
+          </Link>
           {session?.user ? (
             <>
               <Link

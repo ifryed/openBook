@@ -5,6 +5,7 @@ import type {
   ProfileRevisionRow,
   ProfileWatchRow,
 } from "@/lib/user-profile-data";
+import type { ReportProfileLabels } from "@/lib/report-profile-labels";
 import type { ReputationEventDisplayRow } from "@/lib/reputation-event-display";
 
 function truncate(s: string, max: number): string {
@@ -137,8 +138,10 @@ export function ProfileWatchesList({ watches }: { watches: ProfileWatchRow[] }) 
 
 export function ProfileReportsList({
   reports,
+  labels,
 }: {
   reports: ProfileFiledReportRow[];
+  labels: ReportProfileLabels;
 }) {
   return (
     <ul className="space-y-2">
@@ -150,11 +153,25 @@ export function ProfileReportsList({
           <p className="text-xs text-muted">
             {r.createdAt.toLocaleString()} ·{" "}
             {r.status === "OPEN" ? (
-              <span className="text-foreground">Open</span>
+              <span className="text-foreground">{labels.statusOpen}</span>
             ) : (
-              <span className="text-foreground">Resolved</span>
+              <span className="text-foreground">{labels.statusClosed}</span>
             )}
           </p>
+          {r.status === "RESOLVED" && r.disposition ? (
+            <p className="mt-1 text-xs text-muted">
+              {labels.outcomeLabel}:{" "}
+              <span className="text-foreground">
+                {labels.dispositions[r.disposition]}
+              </span>
+            </p>
+          ) : null}
+          {r.status === "RESOLVED" && r.closePublicSummary ? (
+            <p className="mt-1 text-xs text-muted">
+              {labels.stewardSummaryLabel}:{" "}
+              <span className="text-foreground">{truncate(r.closePublicSummary, 220)}</span>
+            </p>
+          ) : null}
           {r.book ? (
             <p className="mt-2">
               <Link

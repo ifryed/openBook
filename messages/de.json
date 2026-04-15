@@ -52,7 +52,8 @@
     "administration": "Verwaltung",
     "adminTools": "Admin-Tools",
     "users": "Benutzer",
-    "accountMenu": "Kontomenü"
+    "accountMenu": "Kontomenü",
+    "contentReportLog": "Report log"
   },
   "LanguageSwitcher": {
     "label": "Sprache",
@@ -230,7 +231,11 @@
     "title": "Your reports",
     "empty": "You have not submitted any reports.",
     "status": "Status",
-    "book": "Book"
+    "book": "Book",
+    "statusOpen": "Open — awaiting moderator review",
+    "statusClosed": "Resolved",
+    "outcomeLabel": "Outcome",
+    "stewardSummaryLabel": "Public moderator summary"
   },
   "ProfileWatches": {
     "title": "Watched books",
@@ -321,7 +326,14 @@
     "figureVerifyFailed": "Kann nicht Namenvorschläge laden. Versuchen Sie es erneut.",
     "couldNotCreateBook": "Konnte keinen Buch erstellen.",
     "couldNotPublishBook": "Konnte das Buch nicht veröffentlichen.",
-    "couldNotUpdateBook": "Konnte das Buch nicht aktualisieren."
+    "couldNotUpdateBook": "Konnte das Buch nicht aktualisieren.",
+    "reportDispositionInvalid": "Choose a valid outcome.",
+    "reportPublicSummaryTooShort": "Public summary must be at least 10 characters.",
+    "reportPublicSummaryTooLong": "Public summary is too long.",
+    "reportInternalNoteTooLong": "Internal note is too long.",
+    "reportPublicCommentTooShort": "Comment must be at least 5 characters.",
+    "reportPublicCommentTooLong": "Comment is too long.",
+    "reportPublicCommentOnlyOpen": "Public comments can only be added while the report is open."
   },
   "AutoWizard": {
     "confirmFigure": "Bewahren Sie die historische Person mit Überprüfen des Namens → wählen Sie aus → Verwenden Sie den ausgewählten Menschen.",
@@ -511,5 +523,71 @@
         "description": "Resolved ten or more community reports."
       }
     }
+  },
+  "ModerationReports": {
+    "title": "Content reports",
+    "intro": "Review open reports, add public comments visible on the transparency log, then close each report with an outcome and a public summary.",
+    "tabOpen": "Open queue",
+    "tabClosed": "Recently closed",
+    "noOpen": "No open reports.",
+    "noClosed": "No closed reports yet.",
+    "reportedBy": "Reported by",
+    "reporterMessage": "Reporter message (stewards only)",
+    "timeline": "Activity",
+    "kindDisposition": "Outcome recorded",
+    "kindPublicComment": "Public comment",
+    "kindInternal": "Internal note (stewards only)",
+    "closeHeading": "Close report",
+    "dispositionLabel": "Outcome",
+    "publicSummary": "Public summary",
+    "publicSummaryHint": "This text appears on the public report log together with the reporter’s original message.",
+    "internalNote": "Internal note",
+    "internalNoteHint": "Visible only to stewards and administrators.",
+    "closeSubmit": "Close with outcome",
+    "commentHeading": "Add public comment",
+    "commentHint": "Shown on the public log while this report is still open.",
+    "commentSubmit": "Post comment",
+    "closedAt": "Closed",
+    "closedBy": "By",
+    "outcome": "Outcome",
+    "summary": "Summary",
+    "legacyNoDisposition": "Earlier resolution (legacy)",
+    "viewPublicLog": "View public log"
+  },
+  "ModerationLog": {
+    "title": "Content report log",
+    "intro": "Public transparency log of how reported content was handled, including each reporter’s original message and follow-up moderator actions.",
+    "empty": "No log entries yet.",
+    "when": "When",
+    "actor": "By",
+    "target": "Target",
+    "kind": "Entry",
+    "disposition": "Outcome",
+    "summary": "Summary",
+    "prev": "Previous",
+    "next": "Next",
+    "pageStatus": "Page {page} of {totalPages} ({total} entries)",
+    "kindDisposition": "Outcome recorded",
+    "kindPublicComment": "Public comment",
+    "kindReportFiled": "Report filed",
+    "reportFiledBook": "A reader filed a content report about this book.",
+    "reportFiledSection": "A reader filed a content report about this section.",
+    "pageStatusThreads": "Page {page} of {totalPages} ({total} reports)",
+    "threadReplyCount": "{count, plural, =1 {# public update} other {# public updates}}",
+    "threadFollowUps": "Follow-up on this report",
+    "expandThread": "Show full thread for this report",
+    "reporterMessage": "Reporter’s message"
+  },
+  "ReportDispositions": {
+    "CONTENT_ADDRESSED": "Content addressed",
+    "NO_ACTION_NEEDED": "No action needed",
+    "INVALID_OR_ABUSIVE": "Invalid or abusive report"
+  },
+  "BookReportLog": {
+    "title": "Content reports for this book",
+    "intro": "Public log of reports filed about this book: each reporter’s message and how reports were handled.",
+    "empty": "No public report activity for this book yet.",
+    "linkFromBook": "Content report log",
+    "linkFromSection": "This book’s content report log"
   }
 }

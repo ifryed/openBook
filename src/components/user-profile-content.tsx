@@ -16,6 +16,7 @@ import {
 } from "@/lib/user-profile-data";
 import type { ReputationEventDisplayRow } from "@/lib/reputation-event-display";
 import type { BadgeId } from "@/lib/badges";
+import type { ReportProfileLabels } from "@/lib/report-profile-labels";
 import { ProfileBadges } from "@/components/profile-badges";
 
 type Props = {
@@ -32,6 +33,8 @@ type Props = {
   isPreview: boolean;
   profileUserId: string;
   sectionCounts: ProfileSectionCounts;
+  /** UI strings for report dispositions (used on private dashboard filed reports). */
+  reportLabels: ReportProfileLabels;
 };
 
 function ViewAllLink({
@@ -66,6 +69,7 @@ export function UserProfileContent({
   isPreview,
   profileUserId,
   sectionCounts,
+  reportLabels,
 }: Props) {
   const isPrivate = variant === "private";
   const booksTitle = isPrivate ? "Your books" : "Books";
@@ -212,7 +216,10 @@ export function UserProfileContent({
               </p>
             ) : (
               <>
-                <ProfileReportsList reports={privateExtras.filedReports} />
+                <ProfileReportsList
+                  reports={privateExtras.filedReports}
+                  labels={reportLabels}
+                />
                 {isPreview ? (
                   <ViewAllLink
                     href="/profile/reports"

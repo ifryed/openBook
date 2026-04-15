@@ -19,6 +19,24 @@ enum ReportStatus {
   RESOLVED
 }
 
+enum ReportDisposition {
+  CONTENT_ADDRESSED
+  NO_ACTION_NEEDED
+  INVALID_OR_ABUSIVE
+}
+
+enum ReportModerationLogKind {
+  REPORT_FILED
+  DISPOSITION_SET
+  PUBLIC_COMMENT
+  INTERNAL_NOTE
+}
+
+enum ReportModerationLogVisibility {
+  PUBLIC
+  STEWARD_ONLY
+}
+
 enum ReputationKind {
   REVISION_SAVED
   BOOK_CREATED
@@ -47,7 +65,8 @@ model User {
   resolvedReports   Report[]  @relation("ReportResolver")
   bookWatches       BookWatch[]
   notifications     Notification[]
-  reputationEvents  ReputationEvent[]
+  reputationEvents            ReputationEvent[]
+  reportModerationLogEntries  ReportModerationLogEntry[]
 }
 
 model Account {
@@ -254,5 +273,25 @@ model Report {
   book       Book?    @relation(fields: [bookId], references: [id], onDelete: Cascade)
   section    Section? @relation(fields: [sectionId], references: [id], onDelete: Cascade)
   user       User     @relation(fields: [userId], references: [id])
-  resolvedBy User?    @relation("ReportResolver", fields: [resolvedById], references: [id])
+  resolvedBy   User?                     @relation("ReportResolver", fields: [resolvedById], references: [id])
+  disposition  ReportDisposition?
+  moderationLog ReportModerationLogEntry[]
+}
+
+model ReportModerationLogEntry {
+  id          String                       @id @default(cuid())
+  reportId    String                       @map("report_id")
+  actorId     String                       @map("actor_id")
+  createdAt   DateTime                     @default(now()) @map("created_at")
+  kind        ReportModerationLogKind
+  visibility  ReportModerationLogVisibility @default(PUBLIC)
+  disposition ReportDisposition?
+  body        String                       @db.Text
+
+  report Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  actor  User   @relation(fields: [actorId], references: [id], onDelete: Cascade)
+
+  @@index([reportId, createdAt])
+  @@index([createdAt])
+  @@map("report_moderation_log_entries")
 }

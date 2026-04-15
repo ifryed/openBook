@@ -10,6 +10,7 @@ import {
   loadUserProfileCore,
   publicProfileDisplayName,
 } from "@/lib/user-profile-data";
+import { loadReportProfileLabels } from "@/lib/report-profile-labels";
 
 type Props = { params: Promise<{ userId: string }> };
 
@@ -34,9 +35,10 @@ export default async function PublicUserProfilePage({ params }: Props) {
   const session = await auth();
   const isOwner = session?.user?.id === userId;
 
-  const [core, sectionCounts] = await Promise.all([
+  const [core, sectionCounts, reportLabels] = await Promise.all([
     loadUserProfileCore(userId, PROFILE_PREVIEW_LIMIT),
     getProfileSectionCounts(userId),
+    loadReportProfileLabels(),
   ]);
   const displayName = publicProfileDisplayName(user.name);
 
@@ -69,6 +71,7 @@ export default async function PublicUserProfilePage({ params }: Props) {
         isPreview
         profileUserId={userId}
         sectionCounts={sectionCounts}
+        reportLabels={reportLabels}
       />
     </div>
   );

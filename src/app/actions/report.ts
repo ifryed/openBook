@@ -3,7 +3,7 @@
 import { revalidatePathLocalized } from "@/lib/revalidate-localized";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 
 export type ReportState = { error?: string; ok?: boolean };
 
@@ -36,19 +36,41 @@ export async function submitReport(
     sectionId = section?.id ?? null;
   }
 
-  await prisma.report.create({
-    data: {
-      bookId: book.id,
-      sectionId,
-      userId: session.user.id,
-      reason,
-    },
+  const userId = session.user.id;
+  const locale = await getLocale();
+  const tLog = await getTranslations({ locale, namespace: "ModerationLog" });
+  const filedBody = sectionId
+    ? tLog("reportFiledSection")
+    : tLog("reportFiledBook");
+
+  await prisma.$transaction(async (tx) => {
+    const report = await tx.report.create({
+      data: {
+        bookId: book.id,
+        sectionId,
+        userId,
+        reason,
+      },
+      select: { id: true },
+    });
+    await tx.reportModerationLogEntry.create({
+      data: {
+        reportId: report.id,
+        actorId: userId,
+        kind: "REPORT_FILED",
+        visibility: "PUBLIC",
+        body: filedBody,
+      },
+    });
   });
 
   revalidatePathLocalized(`/books/${book.slug}`);
+  revalidatePathLocalized(`/books/${book.slug}/reports`);
   if (sectionSlug) {
     revalidatePathLocalized(`/books/${book.slug}/${sectionSlug}`);
   }
+  revalidatePathLocalized("/moderation/reports");
+  revalidatePathLocalized("/moderation/log");
 
   return { ok: true };
 }

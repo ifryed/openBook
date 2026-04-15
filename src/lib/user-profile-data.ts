@@ -1,4 +1,4 @@
-import type { ReportStatus } from "@prisma/client";
+import type { ReportDisposition, ReportStatus } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { resolveSectionTitle } from "@/lib/section-localization";
 import {
@@ -192,6 +192,9 @@ export type ProfileFiledReportRow = {
   id: string;
   createdAt: Date;
   status: ReportStatus;
+  disposition: ReportDisposition | null;
+  /** Steward-written public close summary, when the report was closed. */
+  closePublicSummary: string | null;
   reason: string;
   book: { slug: string; title: string } | null;
   section: { slug: string; title: string } | null;
@@ -238,12 +241,20 @@ export async function loadProfileFiledReports(
           book: { select: { defaultLocale: true } },
         },
       },
+      moderationLog: {
+        where: { kind: "DISPOSITION_SET", visibility: "PUBLIC" },
+        orderBy: { createdAt: "desc" },
+        take: 1,
+        select: { body: true },
+      },
     },
   });
   return filedReports.map((r) => ({
     id: r.id,
     createdAt: r.createdAt,
     status: r.status,
+    disposition: r.disposition,
+    closePublicSummary: r.moderationLog[0]?.body ?? null,
     reason: r.reason,
     book: r.book,
     section: r.section
