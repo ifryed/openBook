@@ -1,11 +1,10 @@
 /** Fixed vocabulary for book age / audience (filters, create, edit). */
 export const INTENDED_AUDIENCE_OPTIONS = [
   "0-3",
-  "3-4",
-  "4-6",
-  "6-8",
-  "8-10",
-  "10-3",
+  "3-8",
+  "5-9",
+  "6-10",
+  "8-12",
   "teens",
   "young adults",
   "adults",
