@@ -20,9 +20,6 @@ export function HeaderMenuDetails({
   const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const panel = panelRef.current;
-    if (!panel) return;
-
     const onPointerDownOutside = (e: PointerEvent) => {
       const details = detailsRef.current;
       if (!details?.open) return;
@@ -31,6 +28,16 @@ export function HeaderMenuDetails({
       if (details.contains(target)) return;
       details.open = false;
     };
+
+    document.addEventListener("pointerdown", onPointerDownOutside, true);
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDownOutside, true);
+    };
+  }, []);
+
+  useEffect(() => {
+    const panel = panelRef.current;
+    if (!panel) return;
 
     const onClick = (e: MouseEvent) => {
       const details = detailsRef.current;
@@ -52,11 +59,9 @@ export function HeaderMenuDetails({
       }
     };
 
-    document.addEventListener("pointerdown", onPointerDownOutside, true);
     panel.addEventListener("click", onClick);
     panel.addEventListener("change", onChange);
     return () => {
-      document.removeEventListener("pointerdown", onPointerDownOutside, true);
       panel.removeEventListener("click", onClick);
       panel.removeEventListener("change", onChange);
     };
