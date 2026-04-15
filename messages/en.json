@@ -32,7 +32,9 @@
     "required": "required",
     "working": "Working…",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "share": "Share",
+    "linkCopied": "Link copied"
   },
   "SiteHeader": {
     "brand": "OpenBook",

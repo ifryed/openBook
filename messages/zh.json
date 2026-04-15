@@ -32,10 +32,13 @@
     "required": "必填",
     "working": "处理中…",
     "yes": "是",
-    "no": "否"
+    "no": "否",
+    "share": "分享",
+    "linkCopied": "链接已复制"
   },
   "SiteHeader": {
     "brand": "子为机演",
+    "contentReportLog": "内容举报日志",
     "browse": "浏览",
     "contribute": "贡献代码",
     "addBook": "添加书籍",
@@ -52,8 +55,7 @@
     "administration": "管理",
     "adminTools": "管理工具",
     "users": "用户",
-    "accountMenu": "账户菜单",
-    "contentReportLog": "Report log"
+    "accountMenu": "账户菜单"
   },
   "LanguageSwitcher": {
     "label": "语言",
@@ -232,14 +234,80 @@
     "empty": "You have not submitted any reports.",
     "status": "Status",
     "book": "Book",
-    "statusOpen": "Open — awaiting moderator review",
-    "statusClosed": "Resolved",
-    "outcomeLabel": "Outcome",
-    "stewardSummaryLabel": "Public moderator summary"
+    "statusOpen": "开放 — 等待版主审核",
+    "statusClosed": "已解决",
+    "outcomeLabel": "结果",
+    "stewardSummaryLabel": "公共版主总结"
   },
   "ProfileWatches": {
     "title": "Watched books",
     "empty": "You are not watching any books."
+  },
+  "ModerationReports": {
+    "title": "内容举报",
+    "intro": "审查未决举报，添加在透明日志上可见的公共评论，然后使用结果和公共摘要关闭每个举报。",
+    "tabOpen": "待处理队列",
+    "tabClosed": "近期已关闭",
+    "noOpen": "暂无未决举报。",
+    "noClosed": "尚未关闭任何举报。",
+    "reportedBy": "举报人：",
+    "reporterMessage": "举报人消息（仅供版主查看）",
+    "timeline": "活动记录",
+    "kindDisposition": "记录结果",
+    "kindPublicComment": "公共评论",
+    "kindInternal": "内部备注（仅限管理员）",
+    "closeHeading": "关闭报告",
+    "dispositionLabel": "处理结果",
+    "publicSummary": "公共摘要",
+    "publicSummaryHint": "此文本将与举报人的原始消息一起显示在公开的报告日志上。",
+    "internalNote": "内部备注",
+    "internalNoteHint": "仅限管理员和管理员可见。",
+    "closeSubmit": "根据结果关闭",
+    "commentHeading": "添加公共评论",
+    "commentHint": "此评论将在报告仍处于开放状态时显示在公共日志中。",
+    "commentSubmit": "发布评论",
+    "closedAt": "关闭时间",
+    "closedBy": "由",
+    "outcome": "处理结果",
+    "summary": "摘要",
+    "legacyNoDisposition": "以前解决（旧版）",
+    "viewPublicLog": "查看公共日志"
+  },
+  "ModerationLog": {
+    "title": "内容举报日志",
+    "intro": "公共透明度日志，记录处理举报内容的方式，包括每个举报人的原始信息和后续管理员操作。",
+    "empty": "暂无日志条目。",
+    "when": "时间",
+    "actor": "作者",
+    "target": "目标",
+    "kind": "条目",
+    "disposition": "结果",
+    "summary": "摘要",
+    "prev": "前一页",
+    "next": "下一页",
+    "pageStatus": "第{page}页，共{totalPages}页 ({total} 条记录)",
+    "pageStatusThreads": "第{page}页，共{totalPages}页 ({total} 份举报)",
+    "threadReplyCount": "{count, plural, =1 {# public update} other {# public updates}}",
+    "threadFollowUps": "对此举报的后续跟进",
+    "expandThread": "显示此举报的完整讨论",
+    "kindDisposition": "记录结果",
+    "kindPublicComment": "公开评论",
+    "reporterMessage": "举报人信息",
+    "kindReportFiled": "举报提交",
+    "reportFiledBook": "一位读者关于此书的內容提交了举报。",
+    "reportFiledSection": "一位读者关于此部分内容提交了举报。"
+  },
+  "BookReportLog": {
+    "title": "此书的内容举报",
+    "intro": "此书内容举报公开日志：每个举报者的信息以及如何处理举报。",
+    "empty": "此书尚未有公开的举报活动。",
+    "linkFromBook": "内容举报日志",
+    "linkFromSection": "此书的内容举报日志"
+  },
+  "ReportDispositions": {
+    "CONTENT_ADDRESSED": "内容已处理",
+    "NO_ACTION_NEEDED": "无需采取行动",
+    "INVALID_OR_ABUSIVE": "无效或滥用举报"
   },
   "ReportForm": {
     "title": "Report content",
@@ -321,19 +389,19 @@
     "onlyStewardResolve": "只有贡献者或站点管理员才能解决报告。",
     "missingReport": "缺失的报告。",
     "reportAlreadyResolved": "这个报告已经被解决了。",
+    "reportDispositionInvalid": "请选择有效的处理结果。",
+    "reportPublicSummaryTooShort": "公开摘要至少需要 10 个字符。",
+    "reportPublicSummaryTooLong": "公开摘要过长。",
+    "reportInternalNoteTooLong": "内部备注过长。",
+    "reportPublicCommentTooShort": "评论至少需要 5 个字符。",
+    "reportPublicCommentTooLong": "评论过长。",
+    "reportPublicCommentOnlyOpen": "只有在举报处于打开状态时才能添加公开评论。",
     "figureVerifyChars": "至少输入两个字符。",
     "figureVerifyLong": "名称太长了。",
     "figureVerifyFailed": "无法加载名称建议。请再试一次。",
     "couldNotCreateBook": "无法创建书籍。",
     "couldNotPublishBook": "无法发布书籍。",
-    "couldNotUpdateBook": "更新书籍失败。",
-    "reportDispositionInvalid": "Choose a valid outcome.",
-    "reportPublicSummaryTooShort": "Public summary must be at least 10 characters.",
-    "reportPublicSummaryTooLong": "Public summary is too long.",
-    "reportInternalNoteTooLong": "Internal note is too long.",
-    "reportPublicCommentTooShort": "Comment must be at least 5 characters.",
-    "reportPublicCommentTooLong": "Comment is too long.",
-    "reportPublicCommentOnlyOpen": "Public comments can only be added while the report is open."
+    "couldNotUpdateBook": "更新书籍失败。"
   },
   "AutoWizard": {
     "confirmFigure": "确认历史人物：检查名称→选择→使用选定的个人。",
@@ -463,131 +531,65 @@
     "title": "本地AI生成TOC"
   },
   "Badges": {
-    "sectionTitle": "Badges",
-    "emptyPrivate": "Earn badges by creating books, editing chapters, resolving reports, and building reputation.",
-    "emptyPublic": "This contributor has not earned badges yet.",
+    "sectionTitle": "徽章",
+    "emptyPrivate": "通过创建书籍、编辑章节、处理报告和建立声誉来获取徽章。",
+    "emptyPublic": "此贡献者尚未获得徽章。",
     "ids": {
       "first_book": {
-        "title": "First book",
-        "short": "1st book",
-        "description": "Started at least one book on OpenBook."
+        "title": "第一本书",
+        "short": "第一本",
+        "description": "在 OpenBook 上开始了一本书。"
       },
       "bibliographer": {
-        "title": "Bibliographer",
-        "short": "5 books",
-        "description": "Created five or more books."
+        "title": "编目学家",
+        "short": "5本书",
+        "description": "创建了五本或更多书籍。"
       },
       "architect": {
-        "title": "Architect",
-        "short": "Structure",
-        "description": "Added a new section to a book."
+        "title": "建筑师",
+        "short": "结构",
+        "description": "向一本书添加了一个新章节。"
       },
       "first_edit": {
-        "title": "First edit",
-        "short": "1st edit",
-        "description": "Saved at least one chapter revision."
+        "title": "第一次编辑",
+        "short": "第一次编辑",
+        "description": "保存了至少一次章节修改。"
       },
       "scribe": {
-        "title": "Scribe",
-        "short": "25 edits",
-        "description": "Saved 25 or more chapter revisions."
+        "title": "撰稿人",
+        "short": "25次编辑",
+        "description": "保存了25次或更多章节修改。"
       },
       "historian": {
-        "title": "Historian",
-        "short": "100 edits",
-        "description": "Saved 100 or more chapter revisions."
+        "title": "历史学家",
+        "short": "100 次编辑",
+        "description": "保存了 100 个或更多章节修订记录。"
       },
       "curator": {
-        "title": "Curator",
-        "short": "Reverts",
-        "description": "Reverted content at least five times to restore quality."
+        "title": "策展人",
+        "short": "回退",
+        "description": "至少五次回退内容以恢复质量。"
       },
       "contributor_tier": {
-        "title": "Contributor tier",
-        "short": "100+ pts",
-        "description": "Reached 100 reputation points."
+        "title": "贡献者层级",
+        "short": "100+ 分",
+        "description": "达到 100 个声誉点。"
       },
       "steward_tier": {
-        "title": "Steward tier",
-        "short": "Steward",
-        "description": "Reached 500 reputation points."
+        "title": "管理层级",
+        "short": "管理员",
+        "description": "达到 500 个声誉点。"
       },
       "moderator": {
-        "title": "Moderator",
-        "short": "Reports",
-        "description": "Resolved at least one community report."
+        "title": "版主",
+        "short": "举报",
+        "description": "至少解决了 一个社区举报。"
       },
       "trusted_resolver": {
-        "title": "Trusted resolver",
-        "short": "10 reports",
-        "description": "Resolved ten or more community reports."
+        "title": "可信解决者",
+        "short": "10 个报告",
+        "description": "解决了十个或更多社区报告。"
       }
     }
-  },
-  "ModerationReports": {
-    "title": "Content reports",
-    "intro": "Review open reports, add public comments visible on the transparency log, then close each report with an outcome and a public summary.",
-    "tabOpen": "Open queue",
-    "tabClosed": "Recently closed",
-    "noOpen": "No open reports.",
-    "noClosed": "No closed reports yet.",
-    "reportedBy": "Reported by",
-    "reporterMessage": "Reporter message (stewards only)",
-    "timeline": "Activity",
-    "kindDisposition": "Outcome recorded",
-    "kindPublicComment": "Public comment",
-    "kindInternal": "Internal note (stewards only)",
-    "closeHeading": "Close report",
-    "dispositionLabel": "Outcome",
-    "publicSummary": "Public summary",
-    "publicSummaryHint": "This text appears on the public report log together with the reporter’s original message.",
-    "internalNote": "Internal note",
-    "internalNoteHint": "Visible only to stewards and administrators.",
-    "closeSubmit": "Close with outcome",
-    "commentHeading": "Add public comment",
-    "commentHint": "Shown on the public log while this report is still open.",
-    "commentSubmit": "Post comment",
-    "closedAt": "Closed",
-    "closedBy": "By",
-    "outcome": "Outcome",
-    "summary": "Summary",
-    "legacyNoDisposition": "Earlier resolution (legacy)",
-    "viewPublicLog": "View public log"
-  },
-  "ModerationLog": {
-    "title": "Content report log",
-    "intro": "Public transparency log of how reported content was handled, including each reporter’s original message and follow-up moderator actions.",
-    "empty": "No log entries yet.",
-    "when": "When",
-    "actor": "By",
-    "target": "Target",
-    "kind": "Entry",
-    "disposition": "Outcome",
-    "summary": "Summary",
-    "prev": "Previous",
-    "next": "Next",
-    "pageStatus": "Page {page} of {totalPages} ({total} entries)",
-    "kindDisposition": "Outcome recorded",
-    "kindPublicComment": "Public comment",
-    "kindReportFiled": "Report filed",
-    "reportFiledBook": "A reader filed a content report about this book.",
-    "reportFiledSection": "A reader filed a content report about this section.",
-    "pageStatusThreads": "Page {page} of {totalPages} ({total} reports)",
-    "threadReplyCount": "{count, plural, =1 {# public update} other {# public updates}}",
-    "threadFollowUps": "Follow-up on this report",
-    "expandThread": "Show full thread for this report",
-    "reporterMessage": "Reporter’s message"
-  },
-  "ReportDispositions": {
-    "CONTENT_ADDRESSED": "Content addressed",
-    "NO_ACTION_NEEDED": "No action needed",
-    "INVALID_OR_ABUSIVE": "Invalid or abusive report"
-  },
-  "BookReportLog": {
-    "title": "Content reports for this book",
-    "intro": "Public log of reports filed about this book: each reporter’s message and how reports were handled.",
-    "empty": "No public report activity for this book yet.",
-    "linkFromBook": "Content report log",
-    "linkFromSection": "This book’s content report log"
   }
 }

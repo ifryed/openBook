@@ -17,6 +17,7 @@ import {
 import { resolveBookTitle } from "@/lib/book-title-localization";
 import { MarkdownBody } from "@/components/markdown-body";
 import { ReportForm } from "@/components/report-form";
+import { SharePageButton } from "@/components/share-page-button";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 type Props = {
@@ -118,9 +119,17 @@ export default async function SectionReadPage({ params, searchParams }: Props) {
         </nav>
 
         <div className="rounded-lg border border-border bg-card p-6">
-          <h1 className="text-xl font-semibold text-foreground">
-            This chapter is not available in{" "}
-            {bookLocaleLabel(activeLocale)} yet
+          <h1 className="text-xl font-semibold leading-snug text-foreground">
+            This chapter is not available in {bookLocaleLabel(activeLocale)} yet
+            <SharePageButton
+              uiLocale={locale}
+              pathWithQuery={withLangQuery(
+                `/books/${section.book.slug}/${section.slug}`,
+                activeLocale,
+              )}
+              shareTitle={sectionTitle}
+              className="ms-1"
+            />
           </h1>
           <p className="mt-2 text-sm text-muted">
             Readers only see chapters that have both a title and body in a
@@ -172,7 +181,18 @@ export default async function SectionReadPage({ params, searchParams }: Props) {
 
       <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
-          <h1 className="text-3xl font-semibold">{sectionTitle}</h1>
+          <h1 className="text-3xl font-semibold leading-snug">
+            {sectionTitle}
+            <SharePageButton
+              uiLocale={locale}
+              pathWithQuery={withLangQuery(
+                `/books/${section.book.slug}/${section.slug}`,
+                activeLocale,
+              )}
+              shareTitle={sectionTitle}
+              className="ms-1"
+            />
+          </h1>
           <p className="mt-1 text-sm text-muted">
             {section.book.figureName}
           </p>

@@ -32,10 +32,13 @@
     "required": "مطلوب",
     "working": "جارٍ العمل…",
     "yes": "نعم",
-    "no": "لا"
+    "no": "لا",
+    "share": "شارك",
+    "linkCopied": "تم نسخ الرابط"
   },
   "SiteHeader": {
     "brand": "",
+    "contentReportLog": "سجل التقارير المحتوى",
     "browse": "تصفح",
     "contribute": "ساهم في الكود",
     "addBook": "إضافة كتاب",
@@ -52,8 +55,7 @@
     "administration": "الإدارة",
     "adminTools": "أدوات المشرف",
     "users": "المستخدمون",
-    "accountMenu": "قائمة الحساب",
-    "contentReportLog": "Report log"
+    "accountMenu": "قائمة الحساب"
   },
   "LanguageSwitcher": {
     "label": "اللغة",
@@ -232,14 +234,80 @@
     "empty": "You have not submitted any reports.",
     "status": "Status",
     "book": "Book",
-    "statusOpen": "Open — awaiting moderator review",
-    "statusClosed": "Resolved",
-    "outcomeLabel": "Outcome",
-    "stewardSummaryLabel": "Public moderator summary"
+    "statusOpen": "مفتوح - قيد مراجعة المدقق",
+    "statusClosed": "محلول",
+    "outcomeLabel": "نتيجة",
+    "stewardSummaryLabel": "ملخص المفتش العام"
   },
   "ProfileWatches": {
     "title": "Watched books",
     "empty": "You are not watching any books."
+  },
+  "ModerationReports": {
+    "title": "تقارير المحتوى",
+    "intro": "راجع التقارير المفتوحة، أضف تعليقات عامة مرئية في سجل الشفافية، ثم أغلق كل تقرير بنتيجة وملخص عام.",
+    "tabOpen": "الصفوف المفتوحة",
+    "tabClosed": "المغلق حديثًا",
+    "noOpen": "لا توجد تقارير مفتوحة.",
+    "noClosed": "لم يتم إغلاق أي تقارير بعد.",
+    "reportedBy": "الإبلاغ عن بواسطة",
+    "reporterMessage": "رسالة المبلغ (فقط للمحافظين)",
+    "timeline": "النشاط",
+    "kindDisposition": "تم تسجيل النتيجة",
+    "kindPublicComment": "تعليق عام",
+    "kindInternal": "ملاحظة داخلية (للمشرفين فقط)",
+    "closeHeading": "إغلاق التقرير",
+    "dispositionLabel": "النتيجة",
+    "publicSummary": "ملخص عام",
+    "publicSummaryHint": "يظهر هذا النص في سجل التقارير العامة مع الرسالة الأصلية للمبلغ عليه.",
+    "internalNote": "ملاحظة داخلية",
+    "internalNoteHint": "مرئي فقط للمشرفين والإداريين.",
+    "closeSubmit": "إغلاق مع نتيجة",
+    "commentHeading": "أضف تعليقًا عامًا",
+    "commentHint": "يُعرض في سجل العمليات العامة بينما يكون هذا التقرير مفتوحًا.",
+    "commentSubmit": "نشر التعليق",
+    "closedAt": "مغلق",
+    "closedBy": "من قبل",
+    "outcome": "النتيجة",
+    "summary": "الملخص",
+    "legacyNoDisposition": "قرار سابق (القديم)",
+    "viewPublicLog": "عرض سجل العمليات العامة"
+  },
+  "ModerationLog": {
+    "title": "سجل تقارير المحتوى",
+    "intro": "سجل شفاف للجمهور لكيفية معالجة المحتوى المُبلغ عنه، بما في ذلك الرسالة الأصلية لكل مبلغ ومؤثرات الموديريت المحققة التالية.",
+    "empty": "لا يوجد مدخلات تسجيل بعد.",
+    "when": "متى",
+    "actor": "من قبل",
+    "target": "الهدف",
+    "kind": "دخول",
+    "disposition": "النتيجة",
+    "summary": "الملخص",
+    "prev": "السابق",
+    "next": "التالي",
+    "pageStatus": "الصفحة {page} من {totalPages} ({total} مدخلات)",
+    "pageStatusThreads": "الصفحة {page} من {totalPages} ({total} تقارير)",
+    "threadReplyCount": "{count, plural, =1 {# public update} other {# public updates}}",
+    "threadFollowUps": "متابعة لهذا التقرير",
+    "expandThread": "عرض سلسلة كاملة لهذه التقرير",
+    "kindDisposition": "سُجلت النتيجة",
+    "kindPublicComment": "تعليق عام",
+    "reporterMessage": "رسالة المبلغ",
+    "kindReportFiled": "تم تقديم التقرير",
+    "reportFiledBook": "قدم قارئ تقرير عن محتوى هذا الكتاب.",
+    "reportFiledSection": "قدم قارئ تقرير عن محتوى هذه القسمة."
+  },
+  "BookReportLog": {
+    "title": "تقرير المحتوى لهذا الكتاب",
+    "intro": "سجل عام لالتقارير المقدمة حول هذا الكتاب: رسالة كل مُبلغ وكيف تم التعامل مع التقارير.",
+    "empty": "لا توجد نشاطات تقرير عامة لهذا الكتاب بعد.",
+    "linkFromBook": "سجل تقرير المحتوى",
+    "linkFromSection": "سجل تقرير محتوى هذا الكتاب"
+  },
+  "ReportDispositions": {
+    "CONTENT_ADDRESSED": "تم معالجة المحتوى",
+    "NO_ACTION_NEEDED": "لا يلزم اتخاذ إجراء",
+    "INVALID_OR_ABUSIVE": "تقرير غير صحيح أو يُعتمد على الاستغلال"
   },
   "ReportForm": {
     "title": "Report content",
@@ -321,19 +389,19 @@
     "onlyStewardResolve": "يمكن فقط للمسؤولين في مستوى القائد أو المسؤولين عن الموقع إنهاء التقارير.",
     "missingReport": "التقرير مفقود.",
     "reportAlreadyResolved": "هذا التقرير منتهي بالفعل.",
+    "reportDispositionInvalid": "اختر نتيجة صحيحة.",
+    "reportPublicSummaryTooShort": "يجب أن يكون ملخص الجمهور على الأقل 10 أحرف.",
+    "reportPublicSummaryTooLong": "ملخص الجمهور طويل جدًا.",
+    "reportInternalNoteTooLong": "ملاحظة داخلية طويلة جدًا.",
+    "reportPublicCommentTooShort": "يجب أن يكون التعليق العام على الأقل 5 أحرف.",
+    "reportPublicCommentTooLong": "التعليق العام طويل جدًا.",
+    "reportPublicCommentOnlyOpen": "يمكن فقط إضافة تعليقات عامة أثناء فتح التقرير.",
     "figureVerifyChars": "أدخل على الأقل حرفين.",
     "figureVerifyLong": "الاسم طويل للغاية.",
     "figureVerifyFailed": "لم يتم تحميل اقتراحات الاسم. حاول مرة أخرى.",
     "couldNotCreateBook": "لا يمكن إنشاء الكتاب.",
     "couldNotPublishBook": "لا يمكن نشر الكتب.",
-    "couldNotUpdateBook": "لم يتم تحديث الكتاب.",
-    "reportDispositionInvalid": "Choose a valid outcome.",
-    "reportPublicSummaryTooShort": "Public summary must be at least 10 characters.",
-    "reportPublicSummaryTooLong": "Public summary is too long.",
-    "reportInternalNoteTooLong": "Internal note is too long.",
-    "reportPublicCommentTooShort": "Comment must be at least 5 characters.",
-    "reportPublicCommentTooLong": "Comment is too long.",
-    "reportPublicCommentOnlyOpen": "Public comments can only be added while the report is open."
+    "couldNotUpdateBook": "لم يتم تحديث الكتاب."
   },
   "AutoWizard": {
     "confirmFigure": "تأكيد الشخص التاريخي مع تحديد الاسم ← اختيار ← استخدام الشخص المحدد.",
@@ -463,131 +531,65 @@
     "title": "تشخيص TOC (الذكاء الاصطناعي المحلي)"
   },
   "Badges": {
-    "sectionTitle": "Badges",
-    "emptyPrivate": "Earn badges by creating books, editing chapters, resolving reports, and building reputation.",
-    "emptyPublic": "This contributor has not earned badges yet.",
+    "sectionTitle": "الشارات",
+    "emptyPrivate": "تُكسب الشارات من خلال كتابة الكتب، تعديل الفصول، حل التقارير، وبناء المصداقية.",
+    "emptyPublic": "لم يحصل هذا المشارك على شارات بعد.",
     "ids": {
       "first_book": {
-        "title": "First book",
-        "short": "1st book",
-        "description": "Started at least one book on OpenBook."
+        "title": "الكتاب الأول",
+        "short": "الكتاب الأول",
+        "description": "بدأ كتابًا على OpenBook على الأقل."
       },
       "bibliographer": {
-        "title": "Bibliographer",
-        "short": "5 books",
-        "description": "Created five or more books."
+        "title": "مُشرف المكتبة",
+        "short": "5 كتب",
+        "description": "أَنشئ خمسة أو أكثر من الكتب."
       },
       "architect": {
-        "title": "Architect",
-        "short": "Structure",
-        "description": "Added a new section to a book."
+        "title": "المعماري",
+        "short": "البنية",
+        "description": "أضف قسمًا جديدًا إلى كتاب."
       },
       "first_edit": {
-        "title": "First edit",
-        "short": "1st edit",
-        "description": "Saved at least one chapter revision."
+        "title": "النسخة الأولى للتعديل",
+        "short": "التعديل الأول",
+        "description": "حفظ نسخة مُحرّرة على الأقل للفصول."
       },
       "scribe": {
-        "title": "Scribe",
-        "short": "25 edits",
-        "description": "Saved 25 or more chapter revisions."
+        "title": "كاتب",
+        "short": "25 تعديلًا",
+        "description": "حفظ 25 أو أكثر من تعديلات الفصول."
       },
       "historian": {
-        "title": "Historian",
-        "short": "100 edits",
-        "description": "Saved 100 or more chapter revisions."
+        "title": "مؤرخ",
+        "short": "100 تعديل",
+        "description": "حفظ 100 أو أكثر من إتمامات الفصل."
       },
       "curator": {
-        "title": "Curator",
-        "short": "Reverts",
-        "description": "Reverted content at least five times to restore quality."
+        "title": "قارئ محتوى",
+        "short": "إعادة الإرجاع",
+        "description": "تم إعادة المحتوى على الأقل خمس مرات لاستعادة الجودة."
       },
       "contributor_tier": {
-        "title": "Contributor tier",
-        "short": "100+ pts",
-        "description": "Reached 100 reputation points."
+        "title": "فئة المساهم",
+        "short": "100+ نقاط",
+        "description": "تم الوصول إلى 100 نقطة شهرة."
       },
       "steward_tier": {
-        "title": "Steward tier",
-        "short": "Steward",
-        "description": "Reached 500 reputation points."
+        "title": "فئة المدير",
+        "short": "مدير",
+        "description": "تم الوصول إلى 500 نقطة شهرة."
       },
       "moderator": {
-        "title": "Moderator",
-        "short": "Reports",
-        "description": "Resolved at least one community report."
+        "title": "المُوَافِق",
+        "short": "تقارير",
+        "description": "تم حل تقرير مجتمع على الأقل."
       },
       "trusted_resolver": {
-        "title": "Trusted resolver",
-        "short": "10 reports",
-        "description": "Resolved ten or more community reports."
+        "title": "الواجهة الموثوقة للحل",
+        "short": "10 تقارير",
+        "description": "تم حل عشرة أو أكثر من تقارير المجتمع."
       }
     }
-  },
-  "ModerationReports": {
-    "title": "Content reports",
-    "intro": "Review open reports, add public comments visible on the transparency log, then close each report with an outcome and a public summary.",
-    "tabOpen": "Open queue",
-    "tabClosed": "Recently closed",
-    "noOpen": "No open reports.",
-    "noClosed": "No closed reports yet.",
-    "reportedBy": "Reported by",
-    "reporterMessage": "Reporter message (stewards only)",
-    "timeline": "Activity",
-    "kindDisposition": "Outcome recorded",
-    "kindPublicComment": "Public comment",
-    "kindInternal": "Internal note (stewards only)",
-    "closeHeading": "Close report",
-    "dispositionLabel": "Outcome",
-    "publicSummary": "Public summary",
-    "publicSummaryHint": "This text appears on the public report log together with the reporter’s original message.",
-    "internalNote": "Internal note",
-    "internalNoteHint": "Visible only to stewards and administrators.",
-    "closeSubmit": "Close with outcome",
-    "commentHeading": "Add public comment",
-    "commentHint": "Shown on the public log while this report is still open.",
-    "commentSubmit": "Post comment",
-    "closedAt": "Closed",
-    "closedBy": "By",
-    "outcome": "Outcome",
-    "summary": "Summary",
-    "legacyNoDisposition": "Earlier resolution (legacy)",
-    "viewPublicLog": "View public log"
-  },
-  "ModerationLog": {
-    "title": "Content report log",
-    "intro": "Public transparency log of how reported content was handled, including each reporter’s original message and follow-up moderator actions.",
-    "empty": "No log entries yet.",
-    "when": "When",
-    "actor": "By",
-    "target": "Target",
-    "kind": "Entry",
-    "disposition": "Outcome",
-    "summary": "Summary",
-    "prev": "Previous",
-    "next": "Next",
-    "pageStatus": "Page {page} of {totalPages} ({total} entries)",
-    "kindDisposition": "Outcome recorded",
-    "kindPublicComment": "Public comment",
-    "kindReportFiled": "Report filed",
-    "reportFiledBook": "A reader filed a content report about this book.",
-    "reportFiledSection": "A reader filed a content report about this section.",
-    "pageStatusThreads": "Page {page} of {totalPages} ({total} reports)",
-    "threadReplyCount": "{count, plural, =1 {# public update} other {# public updates}}",
-    "threadFollowUps": "Follow-up on this report",
-    "expandThread": "Show full thread for this report",
-    "reporterMessage": "Reporter’s message"
-  },
-  "ReportDispositions": {
-    "CONTENT_ADDRESSED": "Content addressed",
-    "NO_ACTION_NEEDED": "No action needed",
-    "INVALID_OR_ABUSIVE": "Invalid or abusive report"
-  },
-  "BookReportLog": {
-    "title": "Content reports for this book",
-    "intro": "Public log of reports filed about this book: each reporter’s message and how reports were handled.",
-    "empty": "No public report activity for this book yet.",
-    "linkFromBook": "Content report log",
-    "linkFromSection": "This book’s content report log"
   }
 }

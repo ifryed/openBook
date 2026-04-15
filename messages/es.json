@@ -32,10 +32,13 @@
     "required": "obligatorio",
     "working": "Trabajando…",
     "yes": "Sí",
-    "no": "No"
+    "no": "No",
+    "share": "Compartir",
+    "linkCopied": "Enlace copiado"
   },
   "SiteHeader": {
     "brand": "LibroAbierto",
+    "contentReportLog": "Registro de informes de contenido",
     "browse": "Explorar",
     "contribute": "Colabora en el código",
     "addBook": "Añadir libro",
@@ -52,8 +55,7 @@
     "administration": "Administración",
     "adminTools": "Herramientas de admin",
     "users": "Usuarios",
-    "accountMenu": "Menú de cuenta",
-    "contentReportLog": "Report log"
+    "accountMenu": "Menú de cuenta"
   },
   "LanguageSwitcher": {
     "label": "Idioma",
@@ -232,14 +234,80 @@
     "empty": "You have not submitted any reports.",
     "status": "Status",
     "book": "Book",
-    "statusOpen": "Open — awaiting moderator review",
-    "statusClosed": "Resolved",
-    "outcomeLabel": "Outcome",
-    "stewardSummaryLabel": "Public moderator summary"
+    "statusOpen": "Abierto — pendiente de revisión del moderador",
+    "statusClosed": "Resuelto",
+    "outcomeLabel": "Resultado",
+    "stewardSummaryLabel": "Resumen público del moderador"
   },
   "ProfileWatches": {
     "title": "Libros vigilados",
     "empty": "No está vigilando ningún libro."
+  },
+  "ModerationReports": {
+    "title": "Informes de contenido",
+    "intro": "Revise los informes abiertos, agregue comentarios públicos visibles en el registro de transparencia y luego cierre cada informe con un resultado y un resumen público.",
+    "tabOpen": "Cola abierta",
+    "tabClosed": "Recientemente cerrados",
+    "noOpen": "No hay informes abiertos.",
+    "noClosed": "Aún no hay informes cerrados.",
+    "reportedBy": "Reportado por",
+    "reporterMessage": "Mensaje del denunciante (solo moderadores)",
+    "timeline": "Actividad",
+    "kindDisposition": "Resultado registrado",
+    "kindPublicComment": "Comentario público",
+    "kindInternal": "Nota interna (solo para administradores)",
+    "closeHeading": "Cerrar informe",
+    "dispositionLabel": "Deslinde",
+    "publicSummary": "Resumen público",
+    "publicSummaryHint": "Este texto aparece en el registro de informes públicos junto con el mensaje original del denunciante.",
+    "internalNote": "Nota interna",
+    "internalNoteHint": "Visible solo para administradores y stewards.",
+    "closeSubmit": "Cerrar con deslinde",
+    "commentHeading": "Agregar comentario público",
+    "commentHint": "Se muestra en el registro público mientras este informe esté abierto.",
+    "commentSubmit": "Publicar comentario",
+    "closedAt": "Cerrado",
+    "closedBy": "Por",
+    "outcome": "Deslinde",
+    "summary": "Resumen",
+    "legacyNoDisposition": "Solución anterior (de legado)",
+    "viewPublicLog": "Ver registro público"
+  },
+  "ModerationLog": {
+    "title": "Registro de informes de contenido",
+    "intro": "Registro público de transparencia sobre cómo se han gestionado los contenidos denunciados, incluido el mensaje original de cada denunciante y las acciones posteriores de los moderadores.",
+    "empty": "No hay entradas en el registro aún.",
+    "when": "Cuándo",
+    "actor": "Por",
+    "target": "Objetivo",
+    "kind": "Entrada",
+    "disposition": "Resultado",
+    "summary": "Resumen",
+    "prev": "Anterior",
+    "next": "Siguiente",
+    "pageStatus": "Página {page} de {totalPages} ({total} entradas)",
+    "pageStatusThreads": "Página {page} de {totalPages} ({total} informes)",
+    "threadReplyCount": "{count, plural, =1 {# public update} other {# public updates}}",
+    "threadFollowUps": "Seguimiento a este informe",
+    "expandThread": "Mostrar el hilo completo de este informe",
+    "kindDisposition": "Resultado registrado",
+    "kindPublicComment": "Comentario público",
+    "reporterMessage": "Mensaje del denunciante",
+    "kindReportFiled": "Reporte presentado",
+    "reportFiledBook": "Un lector presentó un informe de contenido sobre este libro.",
+    "reportFiledSection": "Un lector presentó un informe de contenido sobre esta sección."
+  },
+  "BookReportLog": {
+    "title": "Informes de contenido para este libro",
+    "intro": "Registro público de los informes presentados sobre este libro: el mensaje de cada denunciante y cómo se han tratado los informes.",
+    "empty": "No hay actividad de informe público para este libro todavía.",
+    "linkFromBook": "Registro de informes de contenido",
+    "linkFromSection": "Registro de informes de contenido de este libro"
+  },
+  "ReportDispositions": {
+    "CONTENT_ADDRESSED": "Contenido abordado",
+    "NO_ACTION_NEEDED": "No se necesita ninguna acción",
+    "INVALID_OR_ABUSIVE": "Informe inválido o abusivo"
   },
   "ReportForm": {
     "title": "Contenido del informe",
@@ -321,19 +389,19 @@
     "onlyStewardResolve": "Sólo los contribuyentes de nivel Steward o administradores del sitio pueden resolver informes.",
     "missingReport": "Falta informe.",
     "reportAlreadyResolved": "Este informe ya está resuelto.",
+    "reportDispositionInvalid": "Elija un resultado válido.",
+    "reportPublicSummaryTooShort": "El resumen público debe tener al menos 10 caracteres.",
+    "reportPublicSummaryTooLong": "El resumen público es demasiado largo.",
+    "reportInternalNoteTooLong": "La nota interna es demasiado larga.",
+    "reportPublicCommentTooShort": "El comentario público debe tener al menos 5 caracteres.",
+    "reportPublicCommentTooLong": "El comentario es demasiado largo.",
+    "reportPublicCommentOnlyOpen": "Los comentarios públicos solo se pueden agregar mientras el informe esté abierto.",
     "figureVerifyChars": "Ingresa al menos dos caracteres.",
     "figureVerifyLong": "El nombre es demasiado largo.",
     "figureVerifyFailed": "No se pudo cargar sugerencias de nombres. Intenta de nuevo.",
     "couldNotCreateBook": "No se pudo crear libro.",
     "couldNotPublishBook": "No se pudo publicar el libro.",
-    "couldNotUpdateBook": "No se pudo actualizar el libro.",
-    "reportDispositionInvalid": "Choose a valid outcome.",
-    "reportPublicSummaryTooShort": "Public summary must be at least 10 characters.",
-    "reportPublicSummaryTooLong": "Public summary is too long.",
-    "reportInternalNoteTooLong": "Internal note is too long.",
-    "reportPublicCommentTooShort": "Comment must be at least 5 characters.",
-    "reportPublicCommentTooLong": "Comment is too long.",
-    "reportPublicCommentOnlyOpen": "Public comments can only be added while the report is open."
+    "couldNotUpdateBook": "No se pudo actualizar el libro."
   },
   "AutoWizard": {
     "confirmFigure": "Confirmar la figura histórica con Ver nombre → Seleccionar → Utilizar persona seleccionada.",
@@ -463,131 +531,65 @@
     "title": "Sugerir TOC (IA local)"
   },
   "Badges": {
-    "sectionTitle": "Badges",
-    "emptyPrivate": "Earn badges by creating books, editing chapters, resolving reports, and building reputation.",
-    "emptyPublic": "This contributor has not earned badges yet.",
+    "sectionTitle": "Insignias",
+    "emptyPrivate": "Obtén insignias creando libros, editando capítulos, resolviendo informes y construyendo reputación.",
+    "emptyPublic": "Este colaborador aún no ha ganado ninguna insignia.",
     "ids": {
       "first_book": {
-        "title": "First book",
-        "short": "1st book",
-        "description": "Started at least one book on OpenBook."
+        "title": "Primer libro",
+        "short": "1er libro",
+        "description": "Se inició al menos un libro en OpenBook."
       },
       "bibliographer": {
-        "title": "Bibliographer",
-        "short": "5 books",
-        "description": "Created five or more books."
+        "title": "Bibliógrafo",
+        "short": "5 libros",
+        "description": "Creó cinco o más libros."
       },
       "architect": {
-        "title": "Architect",
-        "short": "Structure",
-        "description": "Added a new section to a book."
+        "title": "Arquitecto",
+        "short": "Estructura",
+        "description": "Se agregó una nueva sección a un libro."
       },
       "first_edit": {
-        "title": "First edit",
-        "short": "1st edit",
-        "description": "Saved at least one chapter revision."
+        "title": "Primera edición",
+        "short": "1ra edición",
+        "description": "Se guardó al menos una revisión de capítulo."
       },
       "scribe": {
-        "title": "Scribe",
-        "short": "25 edits",
-        "description": "Saved 25 or more chapter revisions."
+        "title": "Escritor",
+        "short": "25 ediciones",
+        "description": "Se guardaron 25 o más revisiones de capítulos."
       },
       "historian": {
-        "title": "Historian",
-        "short": "100 edits",
-        "description": "Saved 100 or more chapter revisions."
+        "title": "Historiador",
+        "short": "100 ediciones",
+        "description": "Se guardaron 100 o más revisiones de capítulos."
       },
       "curator": {
-        "title": "Curator",
-        "short": "Reverts",
-        "description": "Reverted content at least five times to restore quality."
+        "title": "Curador",
+        "short": "Revertir",
+        "description": "Se revertío contenido al menos cinco veces para restaurar la calidad."
       },
       "contributor_tier": {
-        "title": "Contributor tier",
+        "title": "Nivel colaborador",
         "short": "100+ pts",
-        "description": "Reached 100 reputation points."
+        "description": "Alcanzó 100 puntos de reputación."
       },
       "steward_tier": {
-        "title": "Steward tier",
-        "short": "Steward",
-        "description": "Reached 500 reputation points."
+        "title": "Nivel administrador",
+        "short": "Administrador",
+        "description": "Alcanzó 500 puntos de reputación."
       },
       "moderator": {
-        "title": "Moderator",
-        "short": "Reports",
-        "description": "Resolved at least one community report."
+        "title": "Moderador",
+        "short": "Informes",
+        "description": "Se resolvieron al menos un informe de la comunidad."
       },
       "trusted_resolver": {
-        "title": "Trusted resolver",
-        "short": "10 reports",
-        "description": "Resolved ten or more community reports."
+        "title": "Resuelve confiable",
+        "short": "10 informes",
+        "description": "Se resolvieron diez o más informes de la comunidad."
       }
     }
-  },
-  "ModerationReports": {
-    "title": "Content reports",
-    "intro": "Review open reports, add public comments visible on the transparency log, then close each report with an outcome and a public summary.",
-    "tabOpen": "Open queue",
-    "tabClosed": "Recently closed",
-    "noOpen": "No open reports.",
-    "noClosed": "No closed reports yet.",
-    "reportedBy": "Reported by",
-    "reporterMessage": "Reporter message (stewards only)",
-    "timeline": "Activity",
-    "kindDisposition": "Outcome recorded",
-    "kindPublicComment": "Public comment",
-    "kindInternal": "Internal note (stewards only)",
-    "closeHeading": "Close report",
-    "dispositionLabel": "Outcome",
-    "publicSummary": "Public summary",
-    "publicSummaryHint": "This text appears on the public report log together with the reporter’s original message.",
-    "internalNote": "Internal note",
-    "internalNoteHint": "Visible only to stewards and administrators.",
-    "closeSubmit": "Close with outcome",
-    "commentHeading": "Add public comment",
-    "commentHint": "Shown on the public log while this report is still open.",
-    "commentSubmit": "Post comment",
-    "closedAt": "Closed",
-    "closedBy": "By",
-    "outcome": "Outcome",
-    "summary": "Summary",
-    "legacyNoDisposition": "Earlier resolution (legacy)",
-    "viewPublicLog": "View public log"
-  },
-  "ModerationLog": {
-    "title": "Content report log",
-    "intro": "Public transparency log of how reported content was handled, including each reporter’s original message and follow-up moderator actions.",
-    "empty": "No log entries yet.",
-    "when": "When",
-    "actor": "By",
-    "target": "Target",
-    "kind": "Entry",
-    "disposition": "Outcome",
-    "summary": "Summary",
-    "prev": "Previous",
-    "next": "Next",
-    "pageStatus": "Page {page} of {totalPages} ({total} entries)",
-    "kindDisposition": "Outcome recorded",
-    "kindPublicComment": "Public comment",
-    "kindReportFiled": "Report filed",
-    "reportFiledBook": "A reader filed a content report about this book.",
-    "reportFiledSection": "A reader filed a content report about this section.",
-    "pageStatusThreads": "Page {page} of {totalPages} ({total} reports)",
-    "threadReplyCount": "{count, plural, =1 {# public update} other {# public updates}}",
-    "threadFollowUps": "Follow-up on this report",
-    "expandThread": "Show full thread for this report",
-    "reporterMessage": "Reporter’s message"
-  },
-  "ReportDispositions": {
-    "CONTENT_ADDRESSED": "Content addressed",
-    "NO_ACTION_NEEDED": "No action needed",
-    "INVALID_OR_ABUSIVE": "Invalid or abusive report"
-  },
-  "BookReportLog": {
-    "title": "Content reports for this book",
-    "intro": "Public log of reports filed about this book: each reporter’s message and how reports were handled.",
-    "empty": "No public report activity for this book yet.",
-    "linkFromBook": "Content report log",
-    "linkFromSection": "This book’s content report log"
   }
 }

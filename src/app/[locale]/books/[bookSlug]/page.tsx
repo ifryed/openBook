@@ -21,6 +21,7 @@ import {
   resolveSectionTitle,
 } from "@/lib/section-localization";
 import { resolveBookTitle } from "@/lib/book-title-localization";
+import { SharePageButton } from "@/components/share-page-button";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 type Props = {
@@ -96,7 +97,15 @@ export default async function BookPage({ params, searchParams }: Props) {
       <BookLangSwitcher locales={bookLocales} activeLocale={activeLocale} />
 
       <div>
-        <h1 className="text-3xl font-semibold">{displayBookTitle}</h1>
+        <h1 className="text-3xl font-semibold leading-snug">
+          {displayBookTitle}
+          <SharePageButton
+            uiLocale={locale}
+            pathWithQuery={withLangQuery(`/books/${book.slug}`, activeLocale)}
+            shareTitle={displayBookTitle}
+            className="ms-1"
+          />
+        </h1>
         <p className="mt-1 text-lg text-muted">{book.figureName}</p>
         {book.intendedAges.trim() ? (
           <p className="mt-1 text-sm text-muted">
