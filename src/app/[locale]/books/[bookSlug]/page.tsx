@@ -138,12 +138,6 @@ export default async function BookPage({ params, searchParams }: Props) {
             exportLang={activeLocale}
             showCalibreFormats={showCalibreFormats}
           />
-          <Link
-            href={`/books/${book.slug}/reports`}
-            className="text-sm text-accent no-underline hover:underline"
-          >
-            {tBookLog("linkFromBook")}
-          </Link>
           {session?.user ? (
             <>
               <Link
@@ -163,6 +157,12 @@ export default async function BookPage({ params, searchParams }: Props) {
               </form>
             </>
           ) : null}
+          <Link
+            href={`/books/${book.slug}/reports`}
+            className="text-sm text-accent no-underline hover:underline"
+          >
+            {tBookLog("linkFromBook")}
+          </Link>
         </div>
       </div>
 
