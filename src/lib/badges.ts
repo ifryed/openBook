@@ -43,6 +43,70 @@ const BADGE_BY_ID: Map<BadgeId, BadgeDefinition> = new Map(
   BADGE_DEFINITIONS.map((d) => [d.id, d]),
 );
 
+/** Emoji + card chrome for profile UI (Tailwind classes must stay literal strings). */
+export type BadgeVisual = {
+  emoji: string;
+  cardClass: string;
+};
+
+export const BADGE_VISUAL: Record<BadgeId, BadgeVisual> = {
+  first_book: {
+    emoji: "📚",
+    cardClass:
+      "border-amber-400/45 bg-gradient-to-br from-amber-400/20 via-orange-400/10 to-transparent shadow-sm shadow-amber-500/15",
+  },
+  bibliographer: {
+    emoji: "📖",
+    cardClass:
+      "border-orange-500/40 bg-gradient-to-br from-orange-500/18 to-rose-500/10 shadow-sm shadow-orange-500/10",
+  },
+  architect: {
+    emoji: "🏗️",
+    cardClass:
+      "border-sky-400/45 bg-gradient-to-br from-sky-400/18 to-cyan-500/10 shadow-sm shadow-sky-500/15",
+  },
+  first_edit: {
+    emoji: "✏️",
+    cardClass:
+      "border-blue-400/45 bg-gradient-to-br from-blue-400/15 to-indigo-500/10 shadow-sm shadow-blue-500/10",
+  },
+  scribe: {
+    emoji: "📝",
+    cardClass:
+      "border-teal-400/45 bg-gradient-to-br from-teal-400/18 to-emerald-600/10 shadow-sm shadow-teal-500/12",
+  },
+  historian: {
+    emoji: "📜",
+    cardClass:
+      "border-violet-500/40 bg-gradient-to-br from-violet-500/18 to-purple-600/10 shadow-sm shadow-violet-500/15",
+  },
+  curator: {
+    emoji: "🔁",
+    cardClass:
+      "border-rose-400/45 bg-gradient-to-br from-rose-400/16 to-fuchsia-500/10 shadow-sm shadow-rose-500/12",
+  },
+  contributor_tier: {
+    emoji: "⭐",
+    cardClass:
+      "border-yellow-500/40 bg-gradient-to-br from-yellow-400/22 to-amber-500/12 shadow-sm shadow-amber-400/20",
+  },
+  steward_tier: {
+    emoji: "👑",
+    cardClass:
+      "border-purple-500/45 bg-gradient-to-br from-purple-500/22 via-fuchsia-500/12 to-violet-600/15 shadow-md shadow-purple-500/20",
+  },
+  moderator: {
+    emoji: "🛡️",
+    cardClass:
+      "border-emerald-500/40 bg-gradient-to-br from-emerald-500/18 to-green-600/10 shadow-sm shadow-emerald-500/12",
+  },
+  trusted_resolver: {
+    emoji: "🤝",
+    cardClass:
+      "border-cyan-500/40 bg-gradient-to-br from-cyan-400/16 to-teal-600/12 shadow-sm shadow-cyan-500/15",
+  },
+};
+
 type Counts = {
   booksCreated: number;
   revisions: number;
