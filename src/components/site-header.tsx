@@ -4,7 +4,6 @@ import {
   SiteHeaderGuestMenu,
 } from "@/components/site-header-account-menu";
 import { IconEnvelope } from "@/components/site-header-icons";
-import { LanguageSwitcher } from "@/components/language-switcher";
 import { Link } from "@/i18n/navigation";
 import { countUnreadNotifications } from "@/lib/notifications";
 import { getUserPointsAndTier, type TrustTier } from "@/lib/reputation";
@@ -51,7 +50,6 @@ export async function SiteHeader() {
           {t("brand")}
         </Link>
         <nav className="flex flex-wrap items-center gap-2 text-sm sm:gap-3">
-          <LanguageSwitcher />
           <Link href="/" className="text-muted no-underline hover:underline">
             {t("browse")}
           </Link>

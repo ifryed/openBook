@@ -23,6 +23,15 @@ export function HeaderMenuDetails({
     const panel = panelRef.current;
     if (!panel) return;
 
+    const onPointerDownOutside = (e: PointerEvent) => {
+      const details = detailsRef.current;
+      if (!details?.open) return;
+      const target = e.target;
+      if (!(target instanceof Node)) return;
+      if (details.contains(target)) return;
+      details.open = false;
+    };
+
     const onClick = (e: MouseEvent) => {
       const details = detailsRef.current;
       if (!details) return;
@@ -34,9 +43,22 @@ export function HeaderMenuDetails({
       }
     };
 
+    const onChange = (e: Event) => {
+      const details = detailsRef.current;
+      if (!details) return;
+      const target = e.target;
+      if (target instanceof HTMLSelectElement && panel.contains(target)) {
+        details.open = false;
+      }
+    };
+
+    document.addEventListener("pointerdown", onPointerDownOutside, true);
     panel.addEventListener("click", onClick);
+    panel.addEventListener("change", onChange);
     return () => {
+      document.removeEventListener("pointerdown", onPointerDownOutside, true);
       panel.removeEventListener("click", onClick);
+      panel.removeEventListener("change", onChange);
     };
   }, []);
 

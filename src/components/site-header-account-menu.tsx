@@ -2,6 +2,7 @@
 
 import { signOutAction } from "@/app/actions/auth";
 import { HeaderMenuDetails } from "@/components/header-menu-details";
+import { LanguageSwitcher } from "@/components/language-switcher";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 
@@ -30,6 +31,8 @@ export function SiteHeaderAccountMenu(props: {
       >
         {t("settings")}
       </Link>
+      <div className="my-1 border-t border-border" aria-hidden />
+      <LanguageSwitcher variant="menu" />
       <div className="my-1 border-t border-border" aria-hidden />
       <Link
         href="/contribute"
@@ -89,7 +92,9 @@ export function SiteHeaderGuestMenu() {
   const t = useTranslations("SiteHeader");
 
   return (
-    <HeaderMenuDetails menuClassName="absolute right-0 z-50 mt-1 min-w-[10rem] rounded-md border border-border bg-card py-1 text-sm shadow-md">
+    <HeaderMenuDetails menuClassName="absolute right-0 z-50 mt-1 min-w-[12rem] rounded-md border border-border bg-card py-1 text-sm shadow-md">
+      <LanguageSwitcher variant="menu" />
+      <div className="my-1 border-t border-border" aria-hidden />
       <Link
         href="/contribute"
         className="block px-3 py-2 text-foreground no-underline hover:bg-background"
