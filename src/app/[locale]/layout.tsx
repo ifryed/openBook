@@ -34,7 +34,11 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "Metadata" });
+  const siteUrl = (
+    process.env.AUTH_URL ?? "http://localhost:3000"
+  ).replace(/\/$/, "");
   return {
+    metadataBase: new URL(siteUrl),
     title: {
       default: t("defaultTitle"),
       template: `%s · OpenBook`,
@@ -44,6 +48,24 @@ export async function generateMetadata({
       languages: Object.fromEntries(
         routing.locales.map((l) => [l, `/${l}`]),
       ),
+    },
+    icons: {
+      icon: [{ url: "/branding/openbook-icon.png", type: "image/png" }],
+      apple: [{ url: "/branding/openbook-icon.png", type: "image/png" }],
+    },
+    openGraph: {
+      images: [
+        {
+          url: "/branding/openbook-full-logo.png",
+          width: 682,
+          height: 1024,
+          alt: "OpenBook",
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      images: ["/branding/openbook-full-logo.png"],
     },
   };
 }

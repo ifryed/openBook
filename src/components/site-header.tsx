@@ -9,6 +9,7 @@ import { countUnreadNotifications } from "@/lib/notifications";
 import { getUserPointsAndTier, type TrustTier } from "@/lib/reputation";
 import { isUserSteward } from "@/lib/moderation";
 import { getTranslations } from "next-intl/server";
+import Image from "next/image";
 
 function tierMessageKey(tier: TrustTier): "newcomer" | "contributor" | "steward" {
   switch (tier) {
@@ -43,11 +44,24 @@ export async function SiteHeader() {
     unread = unreadCount;
   }
 
+  const brandLabel = t("brand").trim() || "OpenBook";
+
   return (
     <header className="border-b border-border bg-card">
       <div className="mx-auto flex max-w-4xl items-center justify-between gap-4 px-4 py-3">
-        <Link href="/" className="font-semibold text-foreground no-underline">
-          {t("brand")}
+        <Link
+          href="/"
+          className="flex shrink-0 items-center text-foreground no-underline"
+        >
+          <Image
+            src="/branding/openbook-full-logo.png"
+            alt=""
+            width={682}
+            height={1024}
+            className="h-10 w-auto"
+            priority
+          />
+          <span className="sr-only">{brandLabel}</span>
         </Link>
         <nav className="flex flex-wrap items-center gap-2 text-sm sm:gap-3">
           <Link href="/" className="text-muted no-underline hover:underline">
