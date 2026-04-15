@@ -32,12 +32,16 @@ export async function SiteHeader() {
   let tierName = "";
   let canResolveReports = false;
   if (session?.user?.id) {
-    unread = await countUnreadNotifications(session.user.id);
-    const profile = await getUserPointsAndTier(session.user.id);
+    const uid = session.user.id;
+    const [profile, steward, unreadCount] = await Promise.all([
+      getUserPointsAndTier(uid),
+      isUserSteward(uid),
+      countUnreadNotifications(uid),
+    ]);
     points = profile.points;
     tierName = tTier(tierMessageKey(profile.tier));
-    const steward = await isUserSteward(session.user.id);
     canResolveReports = steward || session.user.isAdmin;
+    unread = unreadCount;
   }
 
   return (

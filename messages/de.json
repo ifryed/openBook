@@ -449,5 +449,67 @@
   },
   "LocalLlmToc": {
     "title": "TOC vorschlagen (lokales AI)"
+  },
+  "Badges": {
+    "sectionTitle": "Badges",
+    "emptyPrivate": "Earn badges by creating books, editing chapters, resolving reports, and building reputation.",
+    "emptyPublic": "This contributor has not earned badges yet.",
+    "ids": {
+      "first_book": {
+        "title": "First book",
+        "short": "1st book",
+        "description": "Started at least one book on OpenBook."
+      },
+      "bibliographer": {
+        "title": "Bibliographer",
+        "short": "5 books",
+        "description": "Created five or more books."
+      },
+      "architect": {
+        "title": "Architect",
+        "short": "Structure",
+        "description": "Added a new section to a book."
+      },
+      "first_edit": {
+        "title": "First edit",
+        "short": "1st edit",
+        "description": "Saved at least one chapter revision."
+      },
+      "scribe": {
+        "title": "Scribe",
+        "short": "25 edits",
+        "description": "Saved 25 or more chapter revisions."
+      },
+      "historian": {
+        "title": "Historian",
+        "short": "100 edits",
+        "description": "Saved 100 or more chapter revisions."
+      },
+      "curator": {
+        "title": "Curator",
+        "short": "Reverts",
+        "description": "Reverted content at least five times to restore quality."
+      },
+      "contributor_tier": {
+        "title": "Contributor tier",
+        "short": "100+ pts",
+        "description": "Reached 100 reputation points."
+      },
+      "steward_tier": {
+        "title": "Steward tier",
+        "short": "Steward",
+        "description": "Reached 500 reputation points."
+      },
+      "moderator": {
+        "title": "Moderator",
+        "short": "Reports",
+        "description": "Resolved at least one community report."
+      },
+      "trusted_resolver": {
+        "title": "Trusted resolver",
+        "short": "10 reports",
+        "description": "Resolved ten or more community reports."
+      }
+    }
   }
 }

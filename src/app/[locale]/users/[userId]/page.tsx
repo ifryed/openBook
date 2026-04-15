@@ -65,6 +65,7 @@ export default async function PublicUserProfilePage({ params }: Props) {
         revisions={core.revisions}
         contributionRows={core.contributionRows}
         reputationEventAtLimit={core.reputationEventAtLimit}
+        earnedBadgeIds={core.earnedBadgeIds}
         isPreview
         profileUserId={userId}
         sectionCounts={sectionCounts}

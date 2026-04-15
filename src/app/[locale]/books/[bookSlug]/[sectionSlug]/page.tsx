@@ -184,7 +184,12 @@ export default async function SectionReadPage({ params, searchParams }: Props) {
             <p className="mt-2 text-xs text-muted">
               Last edited{" "}
               {revision.createdAt.toLocaleString()} by{" "}
-              {revision.author.name ?? revision.author.email}
+              <Link
+                href={`/users/${revision.author.id}`}
+                className="text-accent no-underline hover:underline"
+              >
+                {revision.author.name ?? revision.author.email}
+              </Link>
               {revision.summaryComment ? ` · ${revision.summaryComment}` : ""}
             </p>
           ) : (

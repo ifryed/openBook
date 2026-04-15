@@ -135,9 +135,12 @@ export default async function SectionHistoryPage({
                   <span className="font-medium">
                     {r.createdAt.toLocaleString()}
                   </span>
-                  <span className="text-muted">
+                  <Link
+                    href={`/users/${r.author.id}`}
+                    className="text-muted no-underline hover:underline"
+                  >
                     {r.author.name ?? r.author.email}
-                  </span>
+                  </Link>
                 </div>
                 {r.summaryComment ? (
                   <p className="mt-1 text-muted">{r.summaryComment}</p>

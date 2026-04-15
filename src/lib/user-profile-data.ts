@@ -9,6 +9,7 @@ import {
   toReputationEventDisplayRows,
   type ReputationEventDisplayRow,
 } from "@/lib/reputation-event-display";
+import { computeUserEarnedBadgeIds, type BadgeId } from "@/lib/badges";
 
 export const PROFILE_LIST_LIMIT = 50;
 export const PROFILE_REPORTS_LIMIT = 25;
@@ -46,6 +47,7 @@ export type ProfileCoreData = {
   revisions: ProfileRevisionRow[];
   contributionRows: ReputationEventDisplayRow[];
   reputationEventAtLimit: boolean;
+  earnedBadgeIds: BadgeId[];
 };
 
 export async function loadProfileBooks(
@@ -162,11 +164,12 @@ export async function loadUserProfileCore(
   userId: string,
   listLimit: number = PROFILE_LIST_LIMIT,
 ): Promise<ProfileCoreData> {
-  const [profile, books, revisions, contrib] = await Promise.all([
+  const [profile, books, revisions, contrib, earnedBadgeIds] = await Promise.all([
     getUserPointsAndTier(userId),
     loadProfileBooks(userId, listLimit),
     loadProfileRevisions(userId, listLimit),
     loadProfileContributionRows(userId, listLimit),
+    computeUserEarnedBadgeIds(userId),
   ]);
 
   return {
@@ -175,6 +178,7 @@ export async function loadUserProfileCore(
     revisions,
     contributionRows: contrib.rows,
     reputationEventAtLimit: contrib.reputationEventAtLimit,
+    earnedBadgeIds,
   };
 }
 

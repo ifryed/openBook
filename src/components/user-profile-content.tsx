@@ -15,6 +15,8 @@ import {
   type ProfileSectionCounts,
 } from "@/lib/user-profile-data";
 import type { ReputationEventDisplayRow } from "@/lib/reputation-event-display";
+import type { BadgeId } from "@/lib/badges";
+import { ProfileBadges } from "@/components/profile-badges";
 
 type Props = {
   variant: "public" | "private";
@@ -24,6 +26,7 @@ type Props = {
   revisions: ProfileCoreData["revisions"];
   contributionRows: ReputationEventDisplayRow[];
   reputationEventAtLimit: boolean;
+  earnedBadgeIds: BadgeId[];
   privateExtras?: ProfilePrivateExtras;
   /** Short dashboard: show up to PREVIEW_LIMIT rows plus “View all” when totals exceed it. */
   isPreview: boolean;
@@ -58,6 +61,7 @@ export function UserProfileContent({
   revisions,
   contributionRows,
   reputationEventAtLimit,
+  earnedBadgeIds,
   privateExtras,
   isPreview,
   profileUserId,
@@ -114,6 +118,8 @@ export function UserProfileContent({
           {tierLabel(profile.tier)} · {profile.points} reputation points
         </p>
       </section>
+
+      <ProfileBadges earnedBadgeIds={earnedBadgeIds} variant={variant} />
 
       <section className="space-y-3">
         <h2 className="text-sm font-medium text-muted">{booksTitle}</h2>

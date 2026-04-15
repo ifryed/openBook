@@ -36,7 +36,7 @@ export default async function BookPage({ params, searchParams }: Props) {
   const book = await prisma.book.findUnique({
     where: { slug: bookSlug },
     include: {
-      createdBy: { select: { name: true, email: true } },
+      createdBy: { select: { id: true, name: true, email: true } },
       tags: { include: { tag: true } },
       languages: { select: { locale: true } },
       titleLocales: { select: { locale: true, title: true } },
@@ -115,8 +115,14 @@ export default async function BookPage({ params, searchParams }: Props) {
           <p className="mt-4 text-foreground">{book.summary}</p>
         ) : null}
         <p className="mt-4 text-sm text-muted">
-          Started by {book.createdBy.name ?? book.createdBy.email} · Updated{" "}
-          {book.updatedAt.toLocaleDateString()}
+          Started by{" "}
+          <Link
+            href={`/users/${book.createdBy.id}`}
+            className="text-accent no-underline hover:underline"
+          >
+            {book.createdBy.name ?? book.createdBy.email}
+          </Link>{" "}
+          · Updated {book.updatedAt.toLocaleDateString()}
         </p>
         {book.tags.length > 0 ? (
           <p className="mt-2 text-sm text-muted">
