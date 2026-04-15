@@ -37,6 +37,7 @@
   "SiteHeader": {
     "brand": "OpenBook",
     "browse": "עיון",
+    "contribute": "הצטרף לכתוב קוד",
     "addBook": "הוספת ספר",
     "signUp": "הרשמה",
     "signIn": "כניסה",
@@ -56,6 +57,23 @@
   "LanguageSwitcher": {
     "label": "שפה",
     "ariaLabel": "שפת האתר"
+  },
+  "Contribute": {
+    "metaTitle": "השתתפות",
+    "metaDescription": "מטרות OpenBook ואיך לעזור לשמור על הפרויקט: GitHub, פיתוח מקומי, Linting ותרגומים של ממשק משתמש.",
+    "title": "השתתף ב-OpenBook",
+    "subtitle": "למתכנתים ושאר המ maintainers שרוצים לשפר את האפליקציה והתיעוד.",
+    "missionHeading": "מטרות",
+    "missionP1": "OpenBook הוא ספרייה בסגנון ויקיפדיה לביוגרפיות: כל ספר עוסק באדם היסטורי אחד, עם פרקים, היסטוריה מלאה של תיקונים, והשתתפות דומה לוויקיפדיה.",
+    "missionP2": "קוראים ועורכים משתמשים באתר על תוכן; עמוד זה נוגע לשמירה על בריאות הבסיס קוד - תיקון באגים, תכונות, גישה, ביצוע ותרגומים של ממשק המשתמש.",
+    "helpHeading": "איך תרם",
+    "helpIntro": "מקור הקוד פתוח. הנה דרכים מעשיות לתמוך במניעה:",
+    "helpBulletGithub": "פתיחת בעיות לביצוע באגים או רעיונות, דיון בשינויים והגשת בקשות משיכה על GitHub.",
+    "helpBulletLocal": "כלא את הרכזית, רן npm install, העתק .env.example ל-.env (הגדר DATABASE_URL ו-AUTH_SECRET), יישום היגרות (לדוגמה npm run db:migrate), ואז npm run dev. ראה את קובץ ה-README של הארכיון לפרטים נוספים.",
+    "helpBulletLint": "הרץ npm run lint לפני פתיחת בקשה משיכה כך שהבדיקות בסגנון CI יישארו ירוקות.",
+    "helpBulletTranslations": "טקסט UI מצוי ב-messages/en.json. לאחר הוספת או שינוי מפתחות, הרן npm run messages:sync כדי שהקובצים של תכונת השפה האחרת יהיו תקפים (ראה README).",
+    "githubLinkLabel": "רשות: github.com/ifryed/openBook",
+    "backHome": "← חזור לעיין"
   },
   "Home": {
     "title": "ספרים על דמויות היסטוריות",

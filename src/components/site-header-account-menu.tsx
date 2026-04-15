@@ -30,6 +30,14 @@ export function SiteHeaderAccountMenu(props: {
       >
         {t("settings")}
       </Link>
+      <div className="my-1 border-t border-border" aria-hidden />
+      <Link
+        href="/contribute"
+        className="block px-3 py-2 text-foreground no-underline hover:bg-background"
+        role="menuitem"
+      >
+        {t("contribute")}
+      </Link>
       {props.canResolveReports ? (
         <>
           <div className="my-1 border-t border-border" aria-hidden />
@@ -82,6 +90,12 @@ export function SiteHeaderGuestMenu() {
 
   return (
     <HeaderMenuDetails menuClassName="absolute right-0 z-50 mt-1 min-w-[10rem] rounded-md border border-border bg-card py-1 text-sm shadow-md">
+      <Link
+        href="/contribute"
+        className="block px-3 py-2 text-foreground no-underline hover:bg-background"
+      >
+        {t("contribute")}
+      </Link>
       <Link
         href="/login"
         className="block px-3 py-2 text-foreground no-underline hover:bg-background"

@@ -37,6 +37,7 @@
   "SiteHeader": {
     "brand": "OpenBook",
     "browse": "Parcourir",
+    "contribute": "Contribuer au code",
     "addBook": "Ajouter un livre",
     "signUp": "S’inscrire",
     "signIn": "Se connecter",
@@ -56,6 +57,23 @@
   "LanguageSwitcher": {
     "label": "Langue",
     "ariaLabel": "Langue du site"
+  },
+  "Contribute": {
+    "metaTitle": "Contribuer",
+    "metaDescription": "Mission d'OpenBook et comment aider à maintenir le projet : GitHub, développement local, analyse de code et traductions de l'interface.",
+    "title": "Contribuez à OpenBook",
+    "subtitle": "Pour les développeurs et les mainteneurs qui souhaitent améliorer l'application et la documentation.",
+    "missionHeading": "Mission",
+    "missionP1": "OpenBook est une bibliothèque wiki pour des biographies : chaque livre suit un personnage historique, avec des sections, une historique de révisions complète et une collaboration similaire à Wikipédia.",
+    "missionP2": "Les lecteurs et les éditeurs utilisent le site pour le contenu ; cette page concerne la maintenance de la base de code : correction de bugs, nouvelles fonctionnalités, accessibilité, performances et traductions de l'interface.",
+    "helpHeading": "Comment vous pouvez aider",
+    "helpIntro": "Le code source est public. Voici des moyens pratiques de soutenir la maintenance :",
+    "helpBulletGithub": "Ouvrez des problèmes pour les bugs ou les idées, discutez des modifications et soumettez des demandes de fusion sur GitHub.",
+    "helpBulletLocal": "Clonnez le référentiel, exécutez npm install, copiez .env.example en .env (définissez DATABASE_URL et AUTH_SECRET), appliquez les migrations (par exemple npm run db:migrate) puis npm run dev. Consultez la description du référentiel pour plus de détails.",
+    "helpBulletLint": "Exécutez npm run lint avant d'ouvrir une demande de fusion afin que les vérifications de style CI restent vertes.",
+    "helpBulletTranslations": "Le texte de l'interface est hébergé dans messages/en.json. Après avoir ajouté ou modifié des clés, exécutez npm run messages:sync pour que les autres fichiers de localisation restent valides (voir la description du référentiel).",
+    "githubLinkLabel": "Répertoire : github.com/ifryed/openBook",
+    "backHome": "← Retourner à la navigation"
   },
   "Home": {
     "title": "Livres sur des personnages historiques",

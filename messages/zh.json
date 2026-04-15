@@ -37,6 +37,7 @@
   "SiteHeader": {
     "brand": "子为机演",
     "browse": "浏览",
+    "contribute": "贡献代码",
     "addBook": "添加书籍",
     "signUp": "注册",
     "signIn": "登录",
@@ -56,6 +57,23 @@
   "LanguageSwitcher": {
     "label": "语言",
     "ariaLabel": "网站语言"
+  },
+  "Contribute": {
+    "metaTitle": "贡献",
+    "metaDescription": "OpenBook 的使命以及如何帮助维护项目：GitHub、本地开发、代码格式化和 UI 翻译。",
+    "title": "向 OpenBook 贡献",
+    "subtitle": "面向想要改进应用程序和文档的开发者和维护人员。",
+    "missionHeading": "使命",
+    "missionP1": "OpenBook 是一个类似维基百科的书籍库，用于个人传记：每本书都介绍一位历史人物，包括章节、完整的修订历史记录以及与维基百科相似的协作方式。",
+    "missionP2": "读者和编辑使用该网站获取内容；此页面介绍如何保持代码库健康——修复错误、添加新功能、提高可访问性、性能以及翻译界面。",
+    "helpHeading": "您可以提供帮助的方式",
+    "helpIntro": "源代码是公开的。以下是一些支持维护的实用方法：",
+    "helpBulletGithub": "在 GitHub 上打开问题以提出 bug 或想法，讨论更改并提交拉取请求。",
+    "helpBulletLocal": "克隆存储库，运行 npm install，将 .env.example 复制到 .env（设置 DATABASE_URL 和 AUTH_SECRET），应用迁移（例如 npm run db:migrate），然后运行 npm run dev。请参阅存储库 README 以获取详细信息。",
+    "helpBulletLint": "在打开 PR 前运行 npm run lint，以便 CI 风格的检查保持绿色状态。",
+    "helpBulletTranslations": "UI 复制内容位于 messages/en.json 中。添加或更改键后，运行 npm run messages:sync 以使其他语言文件保持有效（请参阅 README）。",
+    "githubLinkLabel": "存储库：github.com/ifryed/openBook",
+    "backHome": "← 返回浏览"
   },
   "Home": {
     "title": "历史人物书籍",

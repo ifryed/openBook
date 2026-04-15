@@ -37,6 +37,7 @@
   "SiteHeader": {
     "brand": "OpenBook",
     "browse": "Browse",
+    "contribute": "Contribute to the code",
     "addBook": "Add book",
     "signUp": "Sign up",
     "signIn": "Sign in",
@@ -56,6 +57,23 @@
   "LanguageSwitcher": {
     "label": "Language",
     "ariaLabel": "Site language"
+  },
+  "Contribute": {
+    "metaTitle": "Contribute",
+    "metaDescription": "Mission of OpenBook and how to help maintain the project: GitHub, local development, linting, and UI translations.",
+    "title": "Contribute to OpenBook",
+    "subtitle": "For developers and maintainers who want to improve the app and documentation.",
+    "missionHeading": "Mission",
+    "missionP1": "OpenBook is a wiki-style library for biographies: each book follows one historical figure, with sections, full revision history, and collaboration similar to Wikipedia.",
+    "missionP2": "Readers and editors use the site for content; this page is about keeping the codebase healthy—bug fixes, features, accessibility, performance, and translations of the interface.",
+    "helpHeading": "How you can help",
+    "helpIntro": "The source code is public. Here are practical ways to support maintenance:",
+    "helpBulletGithub": "Open issues for bugs or ideas, discuss changes, and submit pull requests on GitHub.",
+    "helpBulletLocal": "Clone the repo, run npm install, copy .env.example to .env (set DATABASE_URL and AUTH_SECRET), apply migrations (e.g. npm run db:migrate), then npm run dev. See the repository README for details.",
+    "helpBulletLint": "Run npm run lint before opening a PR so CI-style checks stay green.",
+    "helpBulletTranslations": "UI copy lives in messages/en.json. After adding or changing keys, run npm run messages:sync so other locale files stay valid (see README).",
+    "githubLinkLabel": "Repository: github.com/ifryed/openBook",
+    "backHome": "← Back to browse"
   },
   "Home": {
     "title": "Historical figure books",

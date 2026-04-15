@@ -37,6 +37,7 @@
   "SiteHeader": {
     "brand": "OpenBook",
     "browse": "Stöbern",
+    "contribute": "Trage zum Code bei",
     "addBook": "Buch hinzufügen",
     "signUp": "Registrieren",
     "signIn": "Anmelden",
@@ -56,6 +57,23 @@
   "LanguageSwitcher": {
     "label": "Sprache",
     "ariaLabel": "Websitesprache"
+  },
+  "Contribute": {
+    "metaTitle": "Beitrag leisten",
+    "metaDescription": "Mission von OpenBook und wie Sie zum Aufrechterhaltung des Projekts beitragen können: GitHub, lokale Entwicklung, Linting und UI-Übersetzungen.",
+    "title": "Leistet Beiträge zu OpenBook",
+    "subtitle": "Für Entwickler und Betreuer, die die App und Dokumentation verbessern möchten.",
+    "missionHeading": "Mission",
+    "missionP1": "OpenBook ist eine wikiartige Bibliothek für Biografien: Jedes Buch behandelt eine historische Persönlichkeit mit Abschnitten, vollständigem Revisionsverlauf und Zusammenarbeit ähnlich wie Wikipedia. ",
+    "missionP2": "Leser und Redakteure nutzen die Website für Inhalte; diese Seite handelt von der Pflege des Code-Bases – Fehlerbehebungen, Funktionen, Barrierefreiheit, Leistung und Übersetzungen der Benutzeroberfläche.",
+    "helpHeading": "Wie Sie helfen können",
+    "helpIntro": "Der Quellcode ist öffentlich zugänglich. Hier sind praktische Möglichkeiten, die Wartung zu unterstützen: ",
+    "helpBulletGithub": "Öffnen Sie Probleme für Bugs oder Ideen, diskutieren Sie Änderungen und reichen Sie Pull-Requests auf GitHub ein.",
+    "helpBulletLocal": "Klonen Sie das Repository, führen Sie npm install aus, kopieren Sie .env.example in .env (setzen Sie DATABASE_URL und AUTH_SECRET), wenden Sie Migrationsänderungen an (z. B. npm run db:migrate) und führen Sie dann npm run dev aus. Weitere Details finden Sie im Lesesummary des Repositorys.",
+    "helpBulletLint": "Führen Sie npm run lint aus, bevor Sie einen PR öffnen, damit die CI-Style-Kontrollen grün bleiben. ",
+    "helpBulletTranslations": "UI-Text befindet sich in messages/en.json. Nachdem Sie Schlüssel hinzugefügt oder geändert haben, führen Sie npm run messages:sync aus, damit andere Lokalisierungsdateien gültig bleiben (siehe README).",
+    "githubLinkLabel": "Repository: github.com/ifryed/openBook",
+    "backHome": "← Zurück zum Browsen"
   },
   "Home": {
     "title": "Bücher über historische Persönlichkeiten",

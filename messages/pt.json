@@ -37,6 +37,7 @@
   "SiteHeader": {
     "brand": "LivroAberto",
     "browse": "Explorar",
+    "contribute": "Contribua para o código",
     "addBook": "Adicionar livro",
     "signUp": "Cadastrar-se",
     "signIn": "Entrar",
@@ -56,6 +57,23 @@
   "LanguageSwitcher": {
     "label": "Idioma",
     "ariaLabel": "Idioma do site"
+  },
+  "Contribute": {
+    "metaTitle": "Contribua",
+    "metaDescription": "Missão do OpenBook e como ajudar a manter o projeto: GitHub, desenvolvimento local, verificação de código e traduções de interface.",
+    "title": "Contrib uia para o OpenBook",
+    "subtitle": "Para desenvolvedores e mantenedores que querem melhorar o aplicativo e a documentação.",
+    "missionHeading": "Missão",
+    "missionP1": "O OpenBook é uma biblioteca estilo wiki para biografias: cada livro acompanha uma figura histórica, com seções, histórico de revisões completo e colaboração semelhante ao Wikipedia.",
+    "missionP2": "Leitores e editores usam o site para conteúdo; esta página trata de manter a base de código saudável - correção de bugs, recursos, acessibilidade, desempenho e traduções da interface.",
+    "helpHeading": "Como você pode ajudar",
+    "helpIntro": "O código-fonte é público. Aqui estão maneiras práticas de apoiar a manutenção:",
+    "helpBulletGithub": "Abrir questões para bugs ou ideias, discutir alterações e enviar solicitações de pull no GitHub.",
+    "helpBulletLocal": "Clonar o repositório, executar npm install, copiar .env.example para .env (definir DATABASE_URL e AUTH_SECRET), aplicar migrações (por exemplo, npm run db:migrate) e depois npm run dev. Consulte o README do repositório para detalhes.",
+    "helpBulletLint": "Execute npm run lint antes de abrir uma solicitação de pull para manter as verificações estilo CI verdes.",
+    "helpBulletTranslations": "O texto da interface está em messages/en.json. Após adicionar ou alterar chaves, execute npm run messages:sync para que os outros arquivos de locale permaneçam válidos (consulte o README).",
+    "githubLinkLabel": "Repositório: github.com/ifryed/openBook",
+    "backHome": "← Voltar ao navegador"
   },
   "Home": {
     "title": "Livros sobre figuras históricas",

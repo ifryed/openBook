@@ -37,6 +37,7 @@
   "SiteHeader": {
     "brand": "",
     "browse": "تصفح",
+    "contribute": "ساهم في الكود",
     "addBook": "إضافة كتاب",
     "signUp": "إنشاء حساب",
     "signIn": "تسجيل الدخول",
@@ -56,6 +57,23 @@
   "LanguageSwitcher": {
     "label": "اللغة",
     "ariaLabel": "لغة الموقع"
+  },
+  "Contribute": {
+    "metaTitle": "ساهم",
+    "metaDescription": "رسالة مشروع OpenBook وكيفية مساعدة الصيانة المشروع: GitHub، التطوير المحلي، تحليل الأخطاء، وترجمة واجهة المستخدم.",
+    "title": "ساهم في OpenBook",
+    "subtitle": "للمطورين وصانعي المحتوى الذين يرغبون في تحسين التطبيق والمdocs.",
+    "missionHeading": "الرسالة",
+    "missionP1": "OpenBook هو مكتبة على غرار ويكيبيديا للBiographies: لكل كتاب شخصية تاريخية، مع أقسام وتاريخ مراجعات كامل ومشروع مماثل ل ويكيبيديا.",
+    "missionP2": "يُستخدم الموقع من قِبل القراء والمحررون للمحتوى؛ هذه الصفحة تُعنى بِصحة قاعدة البيانات - إصلاح الأخطاء، الميزات، سهولة الوصول، الأداء، وترجمة واجهة المستخدم.",
+    "helpHeading": "كيف يمكنك المساعدة",
+    "helpIntro": "مصدر الكود هو علني. إليك طرق عملية لدعم الصيانة:",
+    "helpBulletGithub": "فتح القضايا حول الأخطاء أو الأفكار، وتبادل المناقشات وارسال طلبات pull على GitHub.",
+    "helpBulletLocal": "نسخ repository، قم بتشغيل npm install، نسخ .env.example إلى .env (قم بترحيل DATABASE_URL و AUTH_SECRET)، تطبيق التحولات (على سبيل المثال، npm run db:migrate) ، ثم npm run dev. انظر الوثيقة داخل repository for details.",
+    "helpBulletLint": "أعد تشغيل npm run lint قبل فتح طلب pull لضمان بقاء الفحصات أسلوب CI خضراء.",
+    "helpBulletTranslations": "نص واجهة المستخدم موجود في messages/en.json. بعد إضافة أو تغيير المفتاح، قم بتشغيل npm run messages:sync حتى يتم الحفاظ على صحة ملفات الترجمة الأخرى (انظر الوثيقة).",
+    "githubLinkLabel": "المخزن: github.com/ifryed/openBook",
+    "backHome": "← الرجوع إلى تصفح"
   },
   "Home": {
     "title": "كتب عن شخصيات تاريخية",
