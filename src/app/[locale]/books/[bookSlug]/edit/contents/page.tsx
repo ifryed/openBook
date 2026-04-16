@@ -1,5 +1,6 @@
 import { Link } from "@/i18n/navigation";
 import { notFound } from "next/navigation";
+import { auth } from "@/auth";
 import { BookLangSwitcher } from "@/components/book-lang-switcher";
 import { ContentsOrderPanel } from "@/components/contents-order-panel";
 import { LocalLlmTocPanel } from "@/components/local-llm-toc-panel";
@@ -9,6 +10,8 @@ import {
   withLangQuery,
 } from "@/lib/book-locales";
 import { prisma } from "@/lib/db";
+import { canViewBook } from "@/lib/book-visibility";
+import { getTranslations } from "next-intl/server";
 import { resolveSectionTitle } from "@/lib/section-localization";
 import { resolveBookTitle } from "@/lib/book-title-localization";
 import { AddSectionForm } from "../../add-section-form";
@@ -24,6 +27,8 @@ export default async function BookEditContentsPage({
 }: Props) {
   const { bookSlug } = await params;
   const { lang } = await searchParams;
+  const session = await auth();
+  const tDrafts = await getTranslations("Drafts");
 
   const book = await prisma.book.findUnique({
     where: { slug: bookSlug },
@@ -40,6 +45,14 @@ export default async function BookEditContentsPage({
   });
 
   if (!book) notFound();
+  if (
+    !canViewBook(
+      { isDraft: book.isDraft, createdById: book.createdById },
+      session,
+    )
+  ) {
+    notFound();
+  }
 
   const bookLocales = book.languages.map((l) => l.locale);
   const activeLocale = normalizeActiveLocale(
@@ -85,6 +98,18 @@ export default async function BookEditContentsPage({
           Chapter text is edited from each section’s page.
         </p>
       </div>
+
+      {book.isDraft ? (
+        <p className="rounded-md border border-border bg-muted/20 px-3 py-2 text-sm text-muted">
+          {tDrafts("draftBookContentsHint")}{" "}
+          <Link
+            href={`/books/${book.slug}/edit`}
+            className="text-accent underline-offset-2 hover:underline"
+          >
+            {tDrafts("draftBookDetailsLink")}
+          </Link>
+        </p>
+      ) : null}
 
       <ContentsOrderPanel
         bookSlug={book.slug}

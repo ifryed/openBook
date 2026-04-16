@@ -25,8 +25,23 @@ export async function submitReport(
     return { error: t("reportTooShort") };
   }
 
-  const book = await prisma.book.findUnique({ where: { slug: bookSlug ?? "" } });
+  const book = await prisma.book.findUnique({
+    where: { slug: bookSlug ?? "" },
+    select: {
+      id: true,
+      slug: true,
+      isDraft: true,
+      createdById: true,
+    },
+  });
   if (!book) return { error: t("bookNotFound") };
+  if (
+    book.isDraft &&
+    book.createdById !== session.user.id &&
+    !session.user.isAdmin
+  ) {
+    return { error: t("bookNotFound") };
+  }
 
   let sectionId: string | null = null;
   if (sectionSlug) {

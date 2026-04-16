@@ -31,6 +31,13 @@ export function SiteHeaderAccountMenu(props: {
       >
         {t("settings")}
       </Link>
+      <Link
+        href="/drafts"
+        className="block px-3 py-2 text-foreground no-underline hover:bg-background"
+        role="menuitem"
+      >
+        {t("drafts")}
+      </Link>
       <div className="my-1 border-t border-border" aria-hidden />
       <LanguageSwitcher variant="menu" />
       <div className="my-1 border-t border-border" aria-hidden />

@@ -24,13 +24,13 @@ export default async function ProfilePage({ params }: Props) {
 
   const userId = session.user.id;
   const [core, privateExtras, sectionCounts, reportLabels] = await Promise.all([
-    loadUserProfileCore(userId, PROFILE_PREVIEW_LIMIT),
+    loadUserProfileCore(userId, PROFILE_PREVIEW_LIMIT, userId),
     loadUserProfilePrivate(
       userId,
       PROFILE_PREVIEW_LIMIT,
       PROFILE_PREVIEW_LIMIT,
     ),
-    getProfileSectionCounts(userId),
+    getProfileSectionCounts(userId, userId),
     loadReportProfileLabels(),
   ]);
 

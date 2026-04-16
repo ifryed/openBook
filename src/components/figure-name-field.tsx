@@ -22,6 +22,8 @@ type Props = {
   required?: boolean;
   placeholder?: string;
   exemptMatch?: string;
+  /** When set, the figure name text cannot be edited (verification pick still runs). */
+  readOnly?: boolean;
   onValidityChange?: (valid: boolean) => void;
 };
 
@@ -41,6 +43,7 @@ export function FigureNameField({
   required = true,
   placeholder,
   exemptMatch,
+  readOnly = false,
   onValidityChange,
 }: Props) {
   const [value, setValue] = useState(defaultValue);
@@ -139,10 +142,11 @@ export function FigureNameField({
           name={name}
           required={required}
           value={value}
-          onChange={onChange}
+          onChange={readOnly ? undefined : onChange}
+          readOnly={readOnly}
           placeholder={placeholder}
           autoComplete="off"
-          className="min-w-0 flex-1 rounded-md border border-border bg-card px-3 py-2 text-sm"
+          className="min-w-0 flex-1 rounded-md border border-border bg-card px-3 py-2 text-sm read-only:bg-muted/30"
         />
         {showCheck ? (
           <span

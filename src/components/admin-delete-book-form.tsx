@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
+import { useTranslations } from "next-intl";
 import {
   deleteBookAsAdmin,
   type DeleteBookAdminState,
@@ -29,6 +30,7 @@ export function AdminDeleteBookForm({
   bookSlug: string;
   bookTitle: string;
 }) {
+  const t = useTranslations("Drafts");
   const [state, formAction] = useActionState(deleteBookAsAdmin, initial);
   const [confirmTitle, setConfirmTitle] = useState("");
   const titleMatches = confirmTitle.trim() === bookTitle.trim();
@@ -40,7 +42,19 @@ export function AdminDeleteBookForm({
         Remove this book, all chapters, and revision history from the site. This
         cannot be undone.
       </p>
-      <form action={formAction} className="mt-3 space-y-3">
+      <form
+        action={formAction}
+        className="mt-3 space-y-3"
+        onSubmit={(e) => {
+          if (
+            !confirm(
+              t("confirmDeleteAdminBook", { title: bookTitle }),
+            )
+          ) {
+            e.preventDefault();
+          }
+        }}
+      >
         <input type="hidden" name="bookSlug" value={bookSlug} />
         <label className="block text-sm font-medium text-red-950">
           Type the book title to confirm

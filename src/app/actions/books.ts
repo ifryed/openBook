@@ -91,8 +91,14 @@ type ValidatedCreateBook = {
   includeIntroduction: boolean;
 };
 
+type ValidateCreateBookOptions = {
+  /** When true, figure Wikipedia/Wikidata verification is not required (draft book creation). */
+  skipFigureVerification?: boolean;
+};
+
 async function validateCreateBookForm(
   formData: FormData,
+  options?: ValidateCreateBookOptions,
 ): Promise<BookFormState | ValidatedCreateBook> {
   const t = await getTranslations("Errors");
   const title = formData.get("title")?.toString().trim() ?? "";
@@ -125,12 +131,14 @@ async function validateCreateBookForm(
     return { error: t("intendedAgesInvalid") };
   }
 
-  const pickErr = await requireVerifiedFigurePick(
-    figureName,
-    formData.get("figureVerifiedKind")?.toString() ?? null,
-    formData.get("figureVerifiedKey")?.toString() ?? null,
-  );
-  if (pickErr) return pickErr;
+  if (!options?.skipFigureVerification) {
+    const pickErr = await requireVerifiedFigurePick(
+      figureName,
+      formData.get("figureVerifiedKind")?.toString() ?? null,
+      formData.get("figureVerifiedKey")?.toString() ?? null,
+    );
+    if (pickErr) return pickErr;
+  }
 
   const tags = parseTags(tagsRaw);
   const defaultLocaleRaw =
@@ -162,11 +170,15 @@ function isValidatedCreateBook(
   return "slug" in v && typeof (v as ValidatedCreateBook).slug === "string";
 }
 
+type InsertNewBookOptions = { isDraft?: boolean };
+
 async function insertNewBook(
   userId: string,
   v: ValidatedCreateBook,
+  options?: InsertNewBookOptions,
 ): Promise<BookFormState> {
   const t = await getTranslations("Errors");
+  const isDraft = options?.isDraft ?? false;
   try {
     await prisma.$transaction(async (tx) => {
       const book = await tx.book.create({
@@ -179,6 +191,7 @@ async function insertNewBook(
           summary: v.summary,
           defaultLocale: v.defaultLocale,
           createdById: userId,
+          isDraft,
           languages: {
             create: v.languages.map((locale) => ({ locale })),
           },
@@ -234,12 +247,14 @@ async function insertNewBook(
         refRevisionId = introRevision.id;
       }
 
-      await awardReputationTx(tx, userId, "BOOK_CREATED", {
-        refBookId: book.id,
-        refSectionId,
-        refRevisionId,
-      });
-      await notifyNewBookDigestTx(tx, book.id, userId);
+      if (!isDraft) {
+        await awardReputationTx(tx, userId, "BOOK_CREATED", {
+          refBookId: book.id,
+          refSectionId,
+          refRevisionId,
+        });
+        await notifyNewBookDigestTx(tx, book.id, userId);
+      }
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : t("couldNotCreateBook");
@@ -282,6 +297,56 @@ export async function createBook(
     `/${uiLocale}${withLangQuery(`/books/${validated.slug}`, validated.defaultLocale)}`,
   );
   return {};
+}
+
+/**
+ * Creates a real book row in draft mode (no figure verification, no public catalog listing).
+ * Redirects to the book edit screen so the author can use TOC, chapters, and normal flows.
+ */
+export async function createDraftBook(
+  _prev: BookFormState,
+  formData: FormData,
+): Promise<BookFormState> {
+  const t = await getTranslations("Errors");
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { error: t("signInRequired") };
+  }
+
+  const validated = await validateCreateBookForm(formData, {
+    skipFigureVerification: true,
+  });
+  if (!isValidatedCreateBook(validated)) {
+    return validated;
+  }
+
+  try {
+    await assertCanCreateBook(session.user.id);
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : t("rateLimited") };
+  }
+
+  const err = await insertNewBook(session.user.id, validated, {
+    isDraft: true,
+  });
+  if (err.error) return err;
+
+  revalidatePathLocalized("/drafts");
+  const uiLocale = await getLocale();
+  const afterSave = formData.get("draftAfterSave")?.toString().trim();
+  const suffix =
+    afterSave === "contents" ? "/edit/contents" : "/edit";
+  redirect(`/${uiLocale}/books/${validated.slug}${suffix}`);
+  return {};
+}
+
+function userMayEditDraftBook(
+  book: { isDraft: boolean; createdById: string },
+  userId: string,
+  isAdmin: boolean,
+): boolean {
+  if (!book.isDraft) return true;
+  return isAdmin || userId === book.createdById;
 }
 
 type WizardPublishChapterRow = { slug: string; title: string; body: string };
@@ -522,6 +587,352 @@ export async function publishAutoWizardBook(
   };
 }
 
+export type PublishBookFromDraftInputResult =
+  | { ok: true; slug: string; defaultLocale: string }
+  | { error: string };
+
+/**
+ * Validates full create-book rules (including figure pick) and publishes either a
+ * plain book (`insertNewBook`) or book + wizard chapters (`insertPublishedAutoWizardBook`).
+ * Caller handles draft row deletion and redirects.
+ */
+export async function publishBookFromDraftInput(
+  userId: string,
+  formData: FormData,
+  chaptersJson: string | null,
+): Promise<PublishBookFromDraftInputResult> {
+  const t = await getTranslations("Errors");
+  const validated = await validateCreateBookForm(formData);
+  if (!isValidatedCreateBook(validated)) {
+    return { error: validated.error ?? t("invalidForm") };
+  }
+
+  let chaptersPayload: string | null = chaptersJson?.trim() ?? null;
+  if (chaptersPayload === "" || chaptersPayload === "[]") {
+    chaptersPayload = null;
+  }
+
+  if (chaptersPayload) {
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(chaptersPayload) as unknown;
+    } catch {
+      return { error: t("invalidChapterData") };
+    }
+    const normalized = await normalizeWizardPublishChapters(parsed);
+    if ("error" in normalized) {
+      return { error: normalized.error };
+    }
+    const pre = await assertAutoWizardPublishPreconditions(
+      normalized.chapters.length,
+    );
+    if ("error" in pre) {
+      return { error: pre.error };
+    }
+    const err = await insertPublishedAutoWizardBook(
+      userId,
+      validated,
+      normalized.chapters,
+    );
+    if (err.error) {
+      return { error: err.error };
+    }
+  } else {
+    try {
+      await assertCanCreateBook(userId);
+    } catch (e) {
+      return { error: e instanceof Error ? e.message : t("rateLimited") };
+    }
+    const err = await insertNewBook(userId, validated);
+    if (err.error) {
+      return { error: err.error };
+    }
+  }
+
+  revalidatePathLocalized("/");
+  revalidatePathLocalized(`/books/${validated.slug}`);
+  return {
+    ok: true,
+    slug: validated.slug,
+    defaultLocale: validated.defaultLocale,
+  };
+}
+
+/**
+ * Publishes a draft book (sets `isDraft` false) after verifying the figure pick.
+ * Awards book creation reputation and digest notification if not already recorded.
+ */
+export async function publishDraftBook(
+  _prev: BookFormState,
+  formData: FormData,
+): Promise<BookFormState> {
+  const t = await getTranslations("Errors");
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { error: t("signInRequired") };
+  }
+
+  const bookSlug = formData.get("bookSlug")?.toString().trim() ?? "";
+  if (!bookSlug) {
+    return { error: t("invalidForm") };
+  }
+
+  const book = await prisma.book.findUnique({
+    where: { slug: bookSlug },
+    select: {
+      id: true,
+      isDraft: true,
+      createdById: true,
+      figureName: true,
+      defaultLocale: true,
+    },
+  });
+  if (!book) {
+    return { error: t("bookNotFound") };
+  }
+  if (
+    !userMayEditDraftBook(book, session.user.id, Boolean(session.user.isAdmin))
+  ) {
+    return { error: t("onlyCreatorWizard") };
+  }
+  if (!book.isDraft) {
+    return { error: t("bookNotDraft") };
+  }
+
+  const pickErr = await requireVerifiedFigurePick(
+    book.figureName,
+    formData.get("figureVerifiedKind")?.toString() ?? null,
+    formData.get("figureVerifiedKey")?.toString() ?? null,
+  );
+  if (pickErr) return pickErr;
+
+  try {
+    await prisma.$transaction(async (tx) => {
+      await tx.book.update({
+        where: { id: book.id },
+        data: { isDraft: false },
+      });
+
+      const already = await tx.reputationEvent.findFirst({
+        where: {
+          userId: session.user.id,
+          kind: "BOOK_CREATED",
+          refBookId: book.id,
+        },
+      });
+      if (!already) {
+        const firstSection = await tx.section.findFirst({
+          where: { bookId: book.id },
+          orderBy: { orderIndex: "asc" },
+          select: { id: true },
+        });
+        let refSectionId: string | null = null;
+        let refRevisionId: string | null = null;
+        if (firstSection) {
+          refSectionId = firstSection.id;
+          const latest = await getLatestRevision(
+            firstSection.id,
+            book.defaultLocale,
+            tx,
+          );
+          refRevisionId = latest?.id ?? null;
+        }
+        await awardReputationTx(tx, session.user.id, "BOOK_CREATED", {
+          refBookId: book.id,
+          refSectionId,
+          refRevisionId,
+        });
+      }
+      await notifyNewBookDigestTx(tx, book.id, session.user.id);
+    });
+  } catch (e) {
+    return {
+      error: e instanceof Error ? e.message : t("couldNotUpdateBook"),
+    };
+  }
+
+  revalidatePathLocalized("/");
+  revalidatePathLocalized("/drafts");
+  revalidatePathLocalized(`/books/${bookSlug}`, "layout");
+  const uiLocale = await getLocale();
+  redirect(
+    `/${uiLocale}${withLangQuery(`/books/${bookSlug}`, book.defaultLocale)}`,
+  );
+  return {};
+}
+
+export type DeleteDraftBookState = { error?: string };
+
+/** Permanently deletes a draft book owned by the signed-in user (or admin). */
+export async function deleteDraftBookAsOwner(
+  _prev: DeleteDraftBookState,
+  formData: FormData,
+): Promise<DeleteDraftBookState> {
+  void _prev;
+  const t = await getTranslations("Errors");
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { error: t("signInRequired") };
+  }
+
+  const bookSlug = formData.get("bookSlug")?.toString().trim() ?? "";
+  if (!bookSlug) {
+    return { error: t("missingBook") };
+  }
+
+  const book = await prisma.book.findUnique({
+    where: { slug: bookSlug },
+    select: { id: true, title: true, isDraft: true, createdById: true },
+  });
+  if (!book) {
+    return { error: t("bookNotFound") };
+  }
+  if (!book.isDraft) {
+    return { error: t("bookNotDraft") };
+  }
+  if (
+    book.createdById !== session.user.id &&
+    !session.user.isAdmin
+  ) {
+    return { error: t("onlyCreatorWizard") };
+  }
+
+  const typedTitle = formData.get("confirmTitle")?.toString().trim() ?? "";
+  if (typedTitle !== book.title.trim()) {
+    return { error: t("deleteTitleMismatch") };
+  }
+
+  await prisma.book.delete({ where: { id: book.id } });
+
+  revalidatePathLocalized("/");
+  revalidatePathLocalized("/drafts");
+  revalidatePathLocalized(`/books/${bookSlug}`, "layout");
+  const uiLocale = await getLocale();
+  redirect(`/${uiLocale}/drafts`);
+  return {};
+}
+
+export type CreateSectionFromChapterDraftResult =
+  | { ok: true; bookSlug: string; sectionSlug: string }
+  | { error: string };
+
+/** Creates a new section with the given Markdown body (used by content drafts publish). */
+export async function createSectionFromChapterDraft(
+  userId: string,
+  bookSlug: string,
+  title: string,
+  slugRaw: string,
+  body: string,
+  localeRaw: string,
+): Promise<CreateSectionFromChapterDraftResult> {
+  const t = await getTranslations("Errors");
+  const trimmedBody = body.trim();
+  if (!trimmedBody) {
+    return { error: t("contentEmpty") };
+  }
+
+  const slug = slugRaw.trim() ? slugify(slugRaw.trim()) : slugify(title);
+  if (!title.trim() || !slug) {
+    return { error: t("sectionTitleRequired") };
+  }
+  if (isReservedSlug(slug)) {
+    return { error: t("sectionSlugReserved") };
+  }
+
+  const book = await prisma.book.findUnique({
+    where: { slug: bookSlug },
+    select: {
+      id: true,
+      defaultLocale: true,
+      isDraft: true,
+      createdById: true,
+      languages: { select: { locale: true } },
+      sections: {
+        orderBy: { orderIndex: "desc" },
+        take: 1,
+        select: { orderIndex: true },
+      },
+    },
+  });
+  if (!book) {
+    return { error: t("bookNotFound") };
+  }
+
+  const actor = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { isAdmin: true },
+  });
+  if (
+    !userMayEditDraftBook(
+      book,
+      userId,
+      Boolean(actor?.isAdmin),
+    )
+  ) {
+    return { error: t("onlyCreatorWizard") };
+  }
+
+  const allowed = book.languages.map((l) => l.locale);
+  const locale = normalizeActiveLocale(
+    localeRaw,
+    allowed,
+    book.defaultLocale,
+  );
+
+  try {
+    await assertCanCreateRevision(userId);
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : t("rateLimited") };
+  }
+
+  try {
+    await prisma.$transaction(async (tx) => {
+      const section = await tx.section.create({
+        data: {
+          bookId: book.id,
+          slug,
+          orderIndex: (book.sections[0]?.orderIndex ?? -1) + 1,
+          localizations: {
+            create: { locale, title: title.trim() },
+          },
+        },
+      });
+      const rev = await tx.revision.create({
+        data: {
+          sectionId: section.id,
+          authorId: userId,
+          locale,
+          body: trimmedBody,
+          summaryComment: "Published from draft",
+        },
+      });
+      await awardReputationTx(tx, userId, "SECTION_ADDED", {
+        refBookId: book.id,
+        refSectionId: section.id,
+        refRevisionId: rev.id,
+      });
+      await notifyBookActivityTx(tx, {
+        bookId: book.id,
+        actorId: userId,
+        type: "NEW_SECTION",
+        sectionId: section.id,
+        revisionId: rev.id,
+      });
+    });
+  } catch (e) {
+    if (
+      e instanceof Error &&
+      e.message.includes("Unique constraint")
+    ) {
+      return { error: t("sectionExists") };
+    }
+    return { error: e instanceof Error ? e.message : t("addSectionFailed") };
+  }
+
+  revalidatePathLocalized(`/books/${bookSlug}`);
+  return { ok: true, bookSlug, sectionSlug: slug };
+}
+
 /**
  * Update book metadata and tags. `currentSlug` is the book’s slug when the form was loaded.
  */
@@ -538,10 +949,31 @@ export async function updateBook(
 
   const book = await prisma.book.findUnique({
     where: { slug: currentSlug },
-    include: { languages: { select: { locale: true } } },
+    select: {
+      id: true,
+      slug: true,
+      title: true,
+      figureName: true,
+      intendedAges: true,
+      country: true,
+      summary: true,
+      defaultLocale: true,
+      isDraft: true,
+      createdById: true,
+      languages: { select: { locale: true } },
+    },
   });
   if (!book) {
     return { error: t("bookNotFound") };
+  }
+  if (
+    !userMayEditDraftBook(
+      book,
+      session.user.id,
+      Boolean(session.user.isAdmin),
+    )
+  ) {
+    return { error: t("onlyCreatorWizard") };
   }
 
   const title = formData.get("title")?.toString().trim() ?? "";
@@ -660,6 +1092,9 @@ export async function updateBook(
   revalidatePathLocalized("/");
   revalidatePathLocalized(`/books/${currentSlug}`, "layout");
   revalidatePathLocalized(`/books/${newSlug}`, "layout");
+  if (book.isDraft) {
+    revalidatePathLocalized("/drafts");
+  }
   const uiLocale = await getLocale();
   redirect(`/${uiLocale}/books/${newSlug}`);
   return {};
@@ -685,10 +1120,24 @@ export async function addBookLanguage(
 
   const book = await prisma.book.findUnique({
     where: { slug: bookSlug },
-    include: { languages: { select: { locale: true } } },
+    select: {
+      id: true,
+      isDraft: true,
+      createdById: true,
+      languages: { select: { locale: true } },
+    },
   });
   if (!book) {
     return { error: t("bookNotFound") };
+  }
+  if (
+    !userMayEditDraftBook(
+      book,
+      session.user.id,
+      Boolean(session.user.isAdmin),
+    )
+  ) {
+    return { error: t("onlyCreatorWizard") };
   }
   if (book.languages.some((l) => l.locale === loc)) {
     return { error: t("languageAlreadyOnBook") };
@@ -706,6 +1155,9 @@ export async function addBookLanguage(
   revalidatePathLocalized(`/books/${bookSlug}`);
   revalidatePathLocalized(`/books/${bookSlug}`, "layout");
   revalidatePathLocalized(`/books/${bookSlug}/edit`);
+  if (book.isDraft) {
+    revalidatePathLocalized("/drafts");
+  }
   return { ok: true };
 }
 
@@ -735,11 +1187,28 @@ export async function addSectionToBook(
 
   const book = await prisma.book.findUnique({
     where: { slug: bookSlug },
-    include: {
-      sections: { orderBy: { orderIndex: "desc" }, take: 1 },
+    select: {
+      id: true,
+      defaultLocale: true,
+      isDraft: true,
+      createdById: true,
+      sections: {
+        orderBy: { orderIndex: "desc" },
+        take: 1,
+        select: { orderIndex: true },
+      },
     },
   });
   if (!book) return { error: t("bookNotFound") };
+  if (
+    !userMayEditDraftBook(
+      book,
+      session.user.id,
+      Boolean(session.user.isAdmin),
+    )
+  ) {
+    return { error: t("onlyCreatorWizard") };
+  }
 
   const nextOrder = (book.sections[0]?.orderIndex ?? -1) + 1;
   const loc = book.defaultLocale;
@@ -795,6 +1264,9 @@ export async function addSectionToBook(
   }
 
   revalidatePathLocalized(`/books/${bookSlug}`);
+  if (book.isDraft) {
+    revalidatePathLocalized("/drafts");
+  }
   const uiLocale = await getLocale();
   redirect(
     `/${uiLocale}${withLangQuery(`/books/${bookSlug}/${slug}/edit`, loc)}`,
@@ -818,9 +1290,23 @@ export async function reorderBookSections(
 
   const book = await prisma.book.findUnique({
     where: { slug: bookSlug },
-    include: { sections: { select: { id: true } } },
+    select: {
+      id: true,
+      isDraft: true,
+      createdById: true,
+      sections: { select: { id: true } },
+    },
   });
   if (!book) return { error: t("bookNotFound") };
+  if (
+    !userMayEditDraftBook(
+      book,
+      session.user.id,
+      Boolean(session.user.isAdmin),
+    )
+  ) {
+    return { error: t("onlyCreatorWizard") };
+  }
 
   const validIds = new Set(book.sections.map((s) => s.id));
   if (orderedSectionIds.length !== validIds.size) {
@@ -845,6 +1331,9 @@ export async function reorderBookSections(
 
   revalidatePathLocalized(`/books/${bookSlug}`);
   revalidatePathLocalized(`/books/${bookSlug}/edit/contents`);
+  if (book.isDraft) {
+    revalidatePathLocalized("/drafts");
+  }
   return {};
 }
 
@@ -866,10 +1355,25 @@ export async function updateBookLocalizedTitle(
 
   const book = await prisma.book.findUnique({
     where: { slug: bookSlug },
-    include: { languages: { select: { locale: true } } },
+    select: {
+      id: true,
+      defaultLocale: true,
+      isDraft: true,
+      createdById: true,
+      languages: { select: { locale: true } },
+    },
   });
   if (!book) {
     return { error: t("bookNotFound") };
+  }
+  if (
+    !userMayEditDraftBook(
+      book,
+      session.user.id,
+      Boolean(session.user.isAdmin),
+    )
+  ) {
+    return { error: t("onlyCreatorWizard") };
   }
   const allowed = book.languages.map((l) => l.locale);
   if (!allowed.includes(locale)) {
@@ -930,11 +1434,26 @@ export async function updateSectionTitle(
       book: { slug: bookSlug },
     },
     include: {
-      book: { select: { languages: { select: { locale: true } } } },
+      book: {
+        select: {
+          isDraft: true,
+          createdById: true,
+          languages: { select: { locale: true } },
+        },
+      },
     },
   });
   if (!section) {
     return { error: t("sectionNotFound") };
+  }
+  if (
+    !userMayEditDraftBook(
+      section.book,
+      session.user.id,
+      Boolean(session.user.isAdmin),
+    )
+  ) {
+    return { error: t("onlyCreatorWizard") };
   }
   const allowed = section.book.languages.map((l) => l.locale);
   if (!allowed.includes(locale)) {
@@ -1025,6 +1544,7 @@ export async function saveSectionRevision(
       book: {
         select: {
           defaultLocale: true,
+          isDraft: true,
           languages: { select: { locale: true } },
         },
       },
@@ -1087,6 +1607,9 @@ export async function saveSectionRevision(
   revalidatePathLocalized(`/books/${bookSlug}/${sectionSlug}/history`);
   revalidatePathLocalized(`/books/${bookSlug}/${sectionSlug}/edit`);
   revalidatePathLocalized(`/books/${bookSlug}`);
+  if (section.book.isDraft) {
+    revalidatePathLocalized("/drafts");
+  }
   const uiLocale = await getLocale();
   redirect(
     `/${uiLocale}${withLangQuery(`/books/${bookSlug}/${sectionSlug}`, locale)}`,
@@ -1125,6 +1648,7 @@ export async function saveSectionRevisionInline(
         select: {
           createdById: true,
           defaultLocale: true,
+          isDraft: true,
           languages: { select: { locale: true } },
         },
       },
@@ -1190,6 +1714,9 @@ export async function saveSectionRevisionInline(
   revalidatePathLocalized(`/books/${bookSlug}/${sectionSlug}/history`);
   revalidatePathLocalized(`/books/${bookSlug}/${sectionSlug}/edit`);
   revalidatePathLocalized(`/books/${bookSlug}`);
+  if (section.book.isDraft) {
+    revalidatePathLocalized("/drafts");
+  }
   return { ok: true };
 }
 
@@ -1528,9 +2055,23 @@ export async function deleteSectionFromBook(
 
   const book = await prisma.book.findUnique({
     where: { slug: bookSlug },
-    include: { sections: { select: { id: true, slug: true } } },
+    select: {
+      id: true,
+      isDraft: true,
+      createdById: true,
+      sections: { select: { id: true, slug: true } },
+    },
   });
   if (!book) return { error: t("bookNotFound") };
+  if (
+    !userMayEditDraftBook(
+      book,
+      session.user.id,
+      Boolean(session.user.isAdmin),
+    )
+  ) {
+    return { error: t("onlyCreatorWizard") };
+  }
   if (book.sections.length <= 1) {
     return { error: t("cannotDeleteOnlySection") };
   }
@@ -1544,6 +2085,9 @@ export async function deleteSectionFromBook(
   revalidatePathLocalized(`/books/${bookSlug}/${sectionSlug}`);
   revalidatePathLocalized(`/books/${bookSlug}/${sectionSlug}/edit`);
   revalidatePathLocalized(`/books/${bookSlug}/${sectionSlug}/history`);
+  if (book.isDraft) {
+    revalidatePathLocalized("/drafts");
+  }
 
   const uiLocale = await getLocale();
   redirect(`/${uiLocale}/books/${bookSlug}`);

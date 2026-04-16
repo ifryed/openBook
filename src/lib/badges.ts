@@ -172,7 +172,9 @@ export async function computeUserBadgeState(
     sectionAddEvents,
     user,
   ] = await Promise.all([
-    prisma.book.count({ where: { createdById: userId } }),
+    prisma.book.count({
+      where: { createdById: userId, isDraft: false },
+    }),
     prisma.revision.count({ where: { authorId: userId } }),
     prisma.report.count({
       where: { resolvedById: userId, status: "RESOLVED" },

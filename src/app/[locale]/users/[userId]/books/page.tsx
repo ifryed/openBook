@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Link } from "@/i18n/navigation";
 import { notFound } from "next/navigation";
+import { auth } from "@/auth";
 import { ProfileBooksList } from "@/components/profile-list-sections";
 import { prisma } from "@/lib/db";
 import {
@@ -29,7 +30,12 @@ export default async function UserBooksListPage({ params }: Props) {
   });
   if (!user) notFound();
 
-  const books = await loadProfileBooks(userId, PROFILE_LIST_LIMIT);
+  const session = await auth();
+  const books = await loadProfileBooks(
+    userId,
+    PROFILE_LIST_LIMIT,
+    session?.user?.id,
+  );
   const displayName = publicProfileDisplayName(user.name);
 
   return (
@@ -52,7 +58,7 @@ export default async function UserBooksListPage({ params }: Props) {
         <p className="text-sm text-muted">No books yet.</p>
       ) : (
         <>
-          <ProfileBooksList books={books} />
+          {await ProfileBooksList({ books })}
           {books.length >= PROFILE_LIST_LIMIT ? (
             <p className="text-xs text-muted">
               Showing the {PROFILE_LIST_LIMIT} most recently updated books.

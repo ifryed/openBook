@@ -16,8 +16,18 @@ export async function toggleBookWatch(
     return { error: t("signInToWatch") };
   }
 
-  const book = await prisma.book.findUnique({ where: { slug: bookSlug } });
+  const book = await prisma.book.findUnique({
+    where: { slug: bookSlug },
+    select: { id: true, isDraft: true, createdById: true },
+  });
   if (!book) return { error: t("bookNotFound") };
+  if (
+    book.isDraft &&
+    book.createdById !== session.user.id &&
+    !session.user.isAdmin
+  ) {
+    return { error: t("bookNotFound") };
+  }
 
   const existing = await prisma.bookWatch.findUnique({
     where: {

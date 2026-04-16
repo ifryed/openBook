@@ -45,6 +45,11 @@ enum ReputationKind {
   REPORT_RESOLVED
 }
 
+enum ContentDraftKind {
+  BOOK
+  CHAPTER
+}
+
 model User {
   id               String    @id @default(cuid())
   name             String?
@@ -67,6 +72,7 @@ model User {
   notifications     Notification[]
   reputationEvents            ReputationEvent[]
   reportModerationLogEntries  ReportModerationLogEntry[]
+  contentDrafts               ContentDraft[]
 }
 
 model Account {
@@ -119,6 +125,8 @@ model Book {
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
   createdById    String   @map("created_by_id")
+  /** Hidden from the public catalog until published; only the creator (and admins) may view or edit. */
+  isDraft        Boolean  @default(false) @map("is_draft")
 
   createdBy     User               @relation(fields: [createdById], references: [id])
   sections      Section[]
@@ -128,6 +136,8 @@ model Book {
   reports       Report[]
   watchers      BookWatch[]
   notifications Notification[]
+
+  @@index([createdById, isDraft])
 }
 
 model BookLanguage {
@@ -294,4 +304,19 @@ model ReportModerationLogEntry {
   @@index([reportId, createdAt])
   @@index([createdAt])
   @@map("report_moderation_log_entries")
+}
+
+model ContentDraft {
+  id        String           @id @default(cuid())
+  userId    String           @map("user_id")
+  kind      ContentDraftKind
+  label     String           @db.VarChar(512)
+  payload   Json
+  createdAt DateTime         @default(now()) @map("created_at")
+  updatedAt DateTime         @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, updatedAt(sort: Desc)])
+  @@map("content_drafts")
 }

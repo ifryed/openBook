@@ -1,5 +1,6 @@
 import { Link } from "@/i18n/navigation";
 import { notFound } from "next/navigation";
+import { auth } from "@/auth";
 import { buildBookContextMarkdown } from "@/lib/book-context";
 import {
   bookLocaleHtmlAttributes,
@@ -7,6 +8,7 @@ import {
   withLangQuery,
 } from "@/lib/book-locales";
 import { prisma } from "@/lib/db";
+import { canViewBook } from "@/lib/book-visibility";
 import { getLatestRevision } from "@/lib/revisions";
 import {
   hasLocalizationTitleForLocale,
@@ -26,6 +28,7 @@ type Props = {
 export default async function SectionEditPage({ params, searchParams }: Props) {
   const { bookSlug, sectionSlug } = await params;
   const { lang } = await searchParams;
+  const session = await auth();
 
   const section = await prisma.section.findFirst({
     where: {
@@ -39,6 +42,8 @@ export default async function SectionEditPage({ params, searchParams }: Props) {
           slug: true,
           title: true,
           defaultLocale: true,
+          isDraft: true,
+          createdById: true,
           languages: { select: { locale: true } },
           titleLocales: { select: { locale: true, title: true } },
         },
@@ -47,6 +52,17 @@ export default async function SectionEditPage({ params, searchParams }: Props) {
   });
 
   if (!section) notFound();
+  if (
+    !canViewBook(
+      {
+        isDraft: section.book.isDraft,
+        createdById: section.book.createdById,
+      },
+      session,
+    )
+  ) {
+    notFound();
+  }
 
   const bookLocales = section.book.languages.map((l) => l.locale);
   const activeLocale = normalizeActiveLocale(
@@ -181,6 +197,7 @@ export default async function SectionEditPage({ params, searchParams }: Props) {
         intendedAges={bookMeta?.intendedAges ?? ""}
         bookContextMarkdown={bookContextMarkdown}
         translateFromPrimary={translateFromPrimary}
+        bookIsDraft={section.book.isDraft}
       />
     </div>
   );

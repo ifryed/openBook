@@ -12,6 +12,7 @@ import {
   withLangQuery,
 } from "@/lib/book-locales";
 import { prisma } from "@/lib/db";
+import { canViewBook } from "@/lib/book-visibility";
 import { EditPencilLink } from "@/components/edit-pencil-link";
 import { ReportForm } from "@/components/report-form";
 import { bookWatchFormAction } from "@/app/actions/book-watch";
@@ -54,6 +55,14 @@ export default async function BookPage({ params, searchParams }: Props) {
   });
 
   if (!book) notFound();
+  if (
+    !canViewBook(
+      { isDraft: book.isDraft, createdById: book.createdById },
+      session,
+    )
+  ) {
+    notFound();
+  }
 
   const bookLocales = book.languages.map((l) => l.locale);
   const activeLocale = normalizeActiveLocale(

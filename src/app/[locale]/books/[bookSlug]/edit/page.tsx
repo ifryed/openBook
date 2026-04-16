@@ -2,15 +2,20 @@ import { Link } from "@/i18n/navigation";
 import { notFound } from "next/navigation";
 import { auth } from "@/auth";
 import { AdminDeleteBookForm } from "@/components/admin-delete-book-form";
+import { DeleteDraftBookForm } from "@/components/delete-draft-book-form";
+import { PublishDraftBookPanel } from "@/components/publish-draft-book-panel";
 import { prisma } from "@/lib/db";
+import { canViewBook } from "@/lib/book-visibility";
 import { BookLanguagesManager } from "@/components/book-languages-manager";
 import { EditBookForm } from "./edit-book-form";
+import { getTranslations } from "next-intl/server";
 
 type Props = { params: Promise<{ bookSlug: string }> };
 
 export default async function BookEditPage({ params }: Props) {
   const { bookSlug } = await params;
   const session = await auth();
+  const tDrafts = await getTranslations("Drafts");
 
   const book = await prisma.book.findUnique({
     where: { slug: bookSlug },
@@ -21,8 +26,20 @@ export default async function BookEditPage({ params }: Props) {
   });
 
   if (!book) notFound();
+  if (
+    !canViewBook(
+      { isDraft: book.isDraft, createdById: book.createdById },
+      session,
+    )
+  ) {
+    notFound();
+  }
 
   const tagsDisplay = book.tags.map((bt) => bt.tag.name).join(", ");
+  const showDraftTools =
+    book.isDraft &&
+    session?.user?.id &&
+    (session.user.id === book.createdById || session.user.isAdmin);
 
   return (
     <div className="space-y-6">
@@ -54,6 +71,18 @@ export default async function BookEditPage({ params }: Props) {
         bookLanguages={book.languages.map((l) => l.locale)}
         bookDefaultLocale={book.defaultLocale}
       />
+      {showDraftTools ? (
+        <section
+          className="space-y-6 border-t border-border pt-6"
+          aria-label={tDrafts("draftBookActionsAriaLabel")}
+        >
+          <PublishDraftBookPanel
+            bookSlug={book.slug}
+            figureName={book.figureName}
+          />
+          <DeleteDraftBookForm bookSlug={book.slug} bookTitle={book.title} />
+        </section>
+      ) : null}
       {session?.user?.isAdmin ? (
         <AdminDeleteBookForm bookSlug={book.slug} bookTitle={book.title} />
       ) : null}

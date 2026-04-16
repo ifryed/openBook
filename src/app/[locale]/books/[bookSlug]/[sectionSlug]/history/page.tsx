@@ -10,6 +10,7 @@ import {
   withLangQuery,
 } from "@/lib/book-locales";
 import { prisma } from "@/lib/db";
+import { canViewBook } from "@/lib/book-visibility";
 import { listRevisions } from "@/lib/revisions";
 import { resolveSectionTitle } from "@/lib/section-localization";
 import { resolveBookTitle } from "@/lib/book-title-localization";
@@ -39,6 +40,8 @@ export default async function SectionHistoryPage({
           slug: true,
           title: true,
           defaultLocale: true,
+          isDraft: true,
+          createdById: true,
           languages: { select: { locale: true } },
           titleLocales: { select: { locale: true, title: true } },
         },
@@ -47,6 +50,17 @@ export default async function SectionHistoryPage({
   });
 
   if (!section) notFound();
+  if (
+    !canViewBook(
+      {
+        isDraft: section.book.isDraft,
+        createdById: section.book.createdById,
+      },
+      session,
+    )
+  ) {
+    notFound();
+  }
 
   const bookLocales = section.book.languages.map((l) => l.locale);
   const activeLocale = normalizeActiveLocale(

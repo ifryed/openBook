@@ -3,13 +3,14 @@ import { prisma } from "@/lib/db";
 
 export async function getBookCatalogFilterOptions() {
   const countryRows = await prisma.book.findMany({
-    where: { country: { not: "" } },
+    where: { country: { not: "" }, isDraft: false },
     select: { country: true },
     distinct: ["country"],
     orderBy: { country: "asc" },
   });
 
   const langRows = await prisma.bookLanguage.findMany({
+    where: { book: { isDraft: false } },
     select: { locale: true },
     distinct: ["locale"],
     orderBy: { locale: "asc" },
@@ -56,7 +57,7 @@ export function buildBookCatalogWhere(input: {
       }
     : null;
 
-  const filters: Prisma.BookWhereInput[] = [];
+  const filters: Prisma.BookWhereInput[] = [{ isDraft: false }];
   if (figureF) {
     filters.push({ figureName: { equals: figureF, mode: "insensitive" } });
   }
@@ -72,8 +73,6 @@ export function buildBookCatalogWhere(input: {
     });
   }
 
-  if (filters.length === 0 && !searchWhere) return undefined;
-  if (filters.length === 0 && searchWhere) return searchWhere;
   if (!searchWhere) {
     return filters.length === 1 ? filters[0]! : { AND: filters };
   }

@@ -1,33 +1,96 @@
 "use client";
 
-import { useActionState, useState } from "react";
-import { useFormStatus } from "react-dom";
+import { createBookDraftAction } from "@/app/actions/content-drafts";
 import { createBook, type BookFormState } from "@/app/actions/books";
 import { BookPrimaryLanguageSelect } from "@/components/book-primary-language-select";
 import { FigureNameField } from "@/components/figure-name-field";
 import { IntendedAudienceSelect } from "@/components/intended-audience-select";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
+import { useTranslations } from "next-intl";
+import { useActionState, useRef, useState, useTransition } from "react";
+import { useFormStatus } from "react-dom";
 
 const initial: BookFormState = {};
 
-function SubmitButton({ blockSubmit }: { blockSubmit: boolean }) {
+function CreateBookSubmitButton({ blockSubmit }: { blockSubmit: boolean }) {
   const { pending } = useFormStatus();
+  const t = useTranslations("NewBook");
   return (
     <button
       type="submit"
       disabled={pending || blockSubmit}
       className="rounded-md bg-accent px-4 py-2 text-sm text-white hover:opacity-90 disabled:opacity-50"
     >
-      {pending ? "Creating…" : "Create book"}
+      {pending ? t("creatingBook") : t("createBook")}
     </button>
   );
 }
 
+function NewBookDraftActions({
+  draftPending,
+  onSaveDraft,
+}: {
+  draftPending: boolean;
+  onSaveDraft: (after: "details" | "contents") => void;
+}) {
+  const { pending: createPending } = useFormStatus();
+  const t = useTranslations("Drafts");
+  const pending = createPending || draftPending;
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <button
+        type="button"
+        disabled={pending}
+        onClick={() => onSaveDraft("details")}
+        className="rounded-md bg-accent px-4 py-2 text-sm text-white hover:opacity-90 disabled:opacity-50"
+      >
+        {draftPending ? t("savingDraft") : t("saveAsDraft")}
+      </button>
+      <button
+        type="button"
+        disabled={pending}
+        onClick={() => onSaveDraft("contents")}
+        className="rounded-md border border-border bg-card px-4 py-2 text-sm hover:bg-muted/40 disabled:opacity-50"
+        title={t("editContentHint")}
+      >
+        {draftPending ? t("savingDraft") : t("editContent")}
+      </button>
+    </div>
+  );
+}
+
 export function CreateBookForm() {
+  const t = useTranslations("NewBook");
+  const formRef = useRef<HTMLFormElement>(null);
   const [state, formAction] = useActionState(createBook, initial);
   const [figureOk, setFigureOk] = useState(false);
+  const [draftError, setDraftError] = useState<string | null>(null);
+  const [draftPending, startDraftSave] = useTransition();
+
+  function onSaveDraft(after: "details" | "contents") {
+    const form = formRef.current;
+    if (!form) return;
+    setDraftError(null);
+    startDraftSave(async () => {
+      const fd = new FormData(form);
+      fd.set("draftAfterSave", after);
+      try {
+        const res = await createBookDraftAction({}, fd);
+        if (res?.error) {
+          setDraftError(res.error);
+        }
+      } catch (e) {
+        if (isRedirectError(e)) throw e;
+      }
+    });
+  }
 
   return (
-    <form action={formAction} className="max-w-xl space-y-4">
+    <form
+      ref={formRef}
+      action={formAction as unknown as (formData: FormData) => void}
+      className="max-w-xl space-y-4"
+    >
       <label className="block text-sm font-medium">
         Book title
         <input
@@ -109,13 +172,21 @@ export function CreateBookForm() {
           {state.error}
         </p>
       ) : null}
-      {!figureOk ? (
-        <p className="text-xs text-muted">
-          Create is disabled until you see ✓ next to the figure name (after Check
-          name → pick a person → Use selected person).
+      {draftError ? (
+        <p className="text-sm text-red-700" role="alert">
+          {draftError}
         </p>
       ) : null}
-      <SubmitButton blockSubmit={!figureOk} />
+      {!figureOk ? (
+        <p className="text-xs text-muted">{t("figureCreateHint")}</p>
+      ) : null}
+      <div className="flex flex-wrap items-center gap-2">
+        <CreateBookSubmitButton blockSubmit={!figureOk} />
+        <NewBookDraftActions
+          draftPending={draftPending}
+          onSaveDraft={onSaveDraft}
+        />
+      </div>
     </form>
   );
 }

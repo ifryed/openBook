@@ -1,4 +1,5 @@
 import { Link } from "@/i18n/navigation";
+import { getTranslations } from "next-intl/server";
 import type {
   ProfileBookRow,
   ProfileFiledReportRow,
@@ -14,7 +15,12 @@ function truncate(s: string, max: number): string {
   return `${t.slice(0, max - 1)}…`;
 }
 
-export function ProfileBooksList({ books }: { books: ProfileBookRow[] }) {
+export async function ProfileBooksList({
+  books,
+}: {
+  books: ProfileBookRow[];
+}) {
+  const t = await getTranslations("Drafts");
   return (
     <ul className="space-y-2">
       {books.map((b) => (
@@ -27,6 +33,11 @@ export function ProfileBooksList({ books }: { books: ProfileBookRow[] }) {
             className="font-medium text-foreground no-underline hover:underline"
           >
             {b.title}
+            {b.isDraft ? (
+              <span className="ms-2 rounded border border-border px-1.5 py-0.5 text-xs font-normal text-muted">
+                {t("draftBadge")}
+              </span>
+            ) : null}
           </Link>
           <span className="mt-0.5 block text-xs text-muted">
             Updated {b.updatedAt.toLocaleDateString()}

@@ -25,6 +25,12 @@ function isProtectedPath(pathWithoutLocale: string): boolean {
     return true;
   }
   if (pathWithoutLocale.startsWith("/profile")) return true;
+  if (
+    pathWithoutLocale === "/drafts" ||
+    pathWithoutLocale.startsWith("/drafts/")
+  ) {
+    return true;
+  }
   if (pathWithoutLocale.startsWith("/moderation")) return true;
   if (pathWithoutLocale.startsWith("/admin")) return true;
   const parts = pathWithoutLocale.split("/").filter(Boolean);

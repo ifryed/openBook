@@ -9,6 +9,7 @@ import {
   withLangQuery,
 } from "@/lib/book-locales";
 import { prisma } from "@/lib/db";
+import { canViewBook } from "@/lib/book-visibility";
 import { getLatestRevision } from "@/lib/revisions";
 import {
   isSectionCompleteForLocale,
@@ -49,6 +50,8 @@ export default async function SectionReadPage({ params, searchParams }: Props) {
           figureName: true,
           intendedAges: true,
           defaultLocale: true,
+          isDraft: true,
+          createdById: true,
           languages: { select: { locale: true } },
           titleLocales: { select: { locale: true, title: true } },
           sections: {
@@ -65,6 +68,17 @@ export default async function SectionReadPage({ params, searchParams }: Props) {
   });
 
   if (!section) notFound();
+  if (
+    !canViewBook(
+      {
+        isDraft: section.book.isDraft,
+        createdById: section.book.createdById,
+      },
+      session,
+    )
+  ) {
+    notFound();
+  }
 
   const bookLocales = section.book.languages.map((l) => l.locale);
   const activeLocale = normalizeActiveLocale(

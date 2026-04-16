@@ -28,6 +28,7 @@ export type ProfileBookRow = {
   slug: string;
   title: string;
   updatedAt: Date;
+  isDraft: boolean;
 };
 
 export type ProfileRevisionRow = {
@@ -53,12 +54,23 @@ export type ProfileCoreData = {
 export async function loadProfileBooks(
   userId: string,
   limit: number,
+  viewerUserId?: string | null,
 ): Promise<ProfileBookRow[]> {
+  const ownerView = viewerUserId != null && viewerUserId === userId;
   return prisma.book.findMany({
-    where: { createdById: userId },
+    where: {
+      createdById: userId,
+      ...(ownerView ? {} : { isDraft: false }),
+    },
     orderBy: { updatedAt: "desc" },
     take: limit,
-    select: { id: true, slug: true, title: true, updatedAt: true },
+    select: {
+      id: true,
+      slug: true,
+      title: true,
+      updatedAt: true,
+      isDraft: true,
+    },
   });
 }
 
@@ -163,10 +175,11 @@ export async function loadProfileContributionRows(
 export async function loadUserProfileCore(
   userId: string,
   listLimit: number = PROFILE_LIST_LIMIT,
+  viewerUserId?: string | null,
 ): Promise<ProfileCoreData> {
   const [profile, books, revisions, contrib, earnedBadgeIds] = await Promise.all([
     getUserPointsAndTier(userId),
-    loadProfileBooks(userId, listLimit),
+    loadProfileBooks(userId, listLimit, viewerUserId),
     loadProfileRevisions(userId, listLimit),
     loadProfileContributionRows(userId, listLimit),
     computeUserEarnedBadgeIds(userId),
@@ -293,10 +306,17 @@ export type ProfileSectionCounts = {
 
 export async function getProfileSectionCounts(
   userId: string,
+  viewerUserId?: string | null,
 ): Promise<ProfileSectionCounts> {
+  const ownerView = viewerUserId != null && viewerUserId === userId;
   const [books, revisions, contributions, watches, reports] = await Promise.all(
     [
-      prisma.book.count({ where: { createdById: userId } }),
+      prisma.book.count({
+        where: {
+          createdById: userId,
+          ...(ownerView ? {} : { isDraft: false }),
+        },
+      }),
       prisma.revision.count({ where: { authorId: userId } }),
       prisma.reputationEvent.count({ where: { userId } }),
       prisma.bookWatch.count({ where: { userId } }),

@@ -56,7 +56,7 @@ function ViewAllLink({
   );
 }
 
-export function UserProfileContent({
+export async function UserProfileContent({
   variant,
   displayName,
   profile,
@@ -131,7 +131,7 @@ export function UserProfileContent({
           booksEmpty
         ) : (
           <>
-            <ProfileBooksList books={books} />
+            {await ProfileBooksList({ books })}
             {isPreview ? (
               <ViewAllLink
                 href={`${userBase}/books`}

@@ -7,6 +7,7 @@ import {
   withLangQuery,
 } from "@/lib/book-locales";
 import { prisma } from "@/lib/db";
+import { canViewBook } from "@/lib/book-visibility";
 import { latestRevisionBodiesForLocale } from "@/lib/section-locale-body";
 import {
   isSectionCompleteForLocale,
@@ -52,6 +53,14 @@ export default async function BookLanguageEditPage({ params }: Props) {
   });
 
   if (!book) notFound();
+  if (
+    !canViewBook(
+      { isDraft: book.isDraft, createdById: book.createdById },
+      session,
+    )
+  ) {
+    notFound();
+  }
   if (!book.languages.some((l) => l.locale === bookLang)) {
     notFound();
   }

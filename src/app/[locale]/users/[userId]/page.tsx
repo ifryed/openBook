@@ -36,8 +36,8 @@ export default async function PublicUserProfilePage({ params }: Props) {
   const isOwner = session?.user?.id === userId;
 
   const [core, sectionCounts, reportLabels] = await Promise.all([
-    loadUserProfileCore(userId, PROFILE_PREVIEW_LIMIT),
-    getProfileSectionCounts(userId),
+    loadUserProfileCore(userId, PROFILE_PREVIEW_LIMIT, session?.user?.id),
+    getProfileSectionCounts(userId, session?.user?.id),
     loadReportProfileLabels(),
   ]);
   const displayName = publicProfileDisplayName(user.name);

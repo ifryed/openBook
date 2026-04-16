@@ -1,10 +1,12 @@
 import { Link } from "@/i18n/navigation";
 import { notFound } from "next/navigation";
+import { auth } from "@/auth";
 import { setRequestLocale } from "next-intl/server";
 import { getTranslations } from "next-intl/server";
 import type { ReportDisposition } from "@prisma/client";
 import { PublicReportLogThreads } from "@/components/moderation/public-report-log-threads";
 import { prisma } from "@/lib/db";
+import { canViewBook } from "@/lib/book-visibility";
 import {
   loadPublicModerationLogThreads,
   PUBLIC_REPORT_LOG_PAGE_SIZE,
@@ -21,12 +23,27 @@ export default async function BookReportLogPage({ params, searchParams }: Props)
   setRequestLocale(locale);
   const { page: pageRaw } = await searchParams;
   const page = Math.max(1, Number.parseInt(pageRaw ?? "1", 10) || 1);
+  const session = await auth();
 
   const book = await prisma.book.findUnique({
     where: { slug: bookSlug },
-    select: { id: true, slug: true, title: true },
+    select: {
+      id: true,
+      slug: true,
+      title: true,
+      isDraft: true,
+      createdById: true,
+    },
   });
   if (!book) notFound();
+  if (
+    !canViewBook(
+      { isDraft: book.isDraft, createdById: book.createdById },
+      session,
+    )
+  ) {
+    notFound();
+  }
 
   const t = await getTranslations("BookReportLog");
   const tLog = await getTranslations("ModerationLog");

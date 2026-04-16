@@ -86,6 +86,7 @@ export async function getBookForExport(
     },
   });
   if (!book) return null;
+  if (book.isDraft) return null;
 
   const bookLocales = book.languages.map((l) => l.locale);
   const exportLocale = normalizeActiveLocale(
