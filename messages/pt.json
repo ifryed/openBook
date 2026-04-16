@@ -349,6 +349,19 @@
     "mobi": "MOBI (Kindle)",
     "azw3": "AZW3 (Kindle)"
   },
+  "BookExportColophon": {
+    "chapterTitle": "Criado com OpenBook",
+    "p1Before": "Este ebook foi gerado a partir de um manuscrito hospedado em ",
+    "p1Brand": "OpenBook",
+    "p1After": ", onde cada biografia é escrita e aprimorada em colaboração online.",
+    "p2BeforeLib": "Se quiser ajudar a ",
+    "p2Lib": "ampliar o acervo",
+    "p2Mid": " com novas figuras ou temas, ou a ",
+    "p2Mod": "moderar edições e denúncias",
+    "p2After": ", visite o site e crie uma conta — o projeto depende de leitores como você.",
+    "linkOpenBook": "OpenBook",
+    "linkThisBook": "Este livro na web"
+  },
   "Errors": {
     "signInRequired": "You must be signed in.",
     "rateLimited": "Rate limited.",

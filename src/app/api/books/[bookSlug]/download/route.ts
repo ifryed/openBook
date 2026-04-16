@@ -104,7 +104,9 @@ export async function GET(
       }
     }
 
-    const epubBuf = await buildEpubBuffer(book);
+    const epubBuf = await buildEpubBuffer(book, {
+      publicOrigin: req.nextUrl.origin,
+    });
 
     if (format === "epub") {
       return new Response(new Uint8Array(epubBuf), {

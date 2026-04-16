@@ -7,11 +7,13 @@ import remarkGfm from "remark-gfm";
 import remarkParse from "remark-parse";
 import remarkRehype from "remark-rehype";
 import rehypeStringify from "rehype-stringify";
+import { hasLocale } from "next-intl";
 import { unified } from "unified";
 import {
   normalizeActiveLocale,
   textDirectionForBookLocale,
 } from "@/lib/book-locales";
+import { routing } from "@/i18n/routing";
 import { prisma } from "@/lib/db";
 import { getLatestRevision } from "@/lib/revisions";
 import {
@@ -34,6 +36,7 @@ body { font-family: system-ui, sans-serif; line-height: 1.65; color: #1a1a1a; ma
 .prose-wiki code { font-family: ui-monospace, monospace; font-size: 0.9em; background: #f0eeea; padding: 0.1em 0.35em; border-radius: 4px; }
 .prose-wiki pre { background: #f0eeea; padding: 1em; border-radius: 8px; overflow-x: auto; margin-bottom: 0.75em; }
 .prose-wiki pre code { background: none; padding: 0; }
+.prose-wiki a { color: #1d4ed8; text-decoration: underline; }
 main h2 { font-size: 1.35rem; font-weight: 600; margin-top: 2rem; margin-bottom: 0.75rem; }
 `;
 
@@ -201,13 +204,81 @@ ${sectionBlocks}
 </html>`;
 }
 
-export async function buildEpubBuffer(book: BookForExport): Promise<Buffer> {
-  const content = await Promise.all(
+type BookExportColophonMessages = {
+  chapterTitle: string;
+  p1Before: string;
+  p1Brand: string;
+  p1After: string;
+  p2BeforeLib: string;
+  p2Lib: string;
+  p2Mid: string;
+  p2Mod: string;
+  p2After: string;
+  linkOpenBook: string;
+  linkThisBook: string;
+};
+
+async function loadBookExportColophonMessages(
+  bookLocale: string,
+): Promise<BookExportColophonMessages> {
+  const enMod = (await import("../../messages/en.json")) as {
+    default: { BookExportColophon: BookExportColophonMessages };
+  };
+  const base = enMod.default.BookExportColophon;
+  if (!hasLocale(routing.locales, bookLocale) || bookLocale === "en") {
+    return base;
+  }
+  const locMod = (await import(
+    `../../messages/${bookLocale}.json`
+  )) as {
+    default: { BookExportColophon?: Partial<BookExportColophonMessages> };
+  };
+  const overlay = locMod.default.BookExportColophon;
+  return overlay ? { ...base, ...overlay } : base;
+}
+
+function buildOpenBookEditionNoticeHtml(
+  strings: BookExportColophonMessages,
+  publicOrigin: string,
+  book: BookForExport,
+): string {
+  const base = publicOrigin.replace(/\/$/, "");
+  const openBookUrl = `${base}/${book.exportLocale}`;
+  const thisBookUrl = `${base}/${book.exportLocale}/books/${encodeURIComponent(book.slug)}`;
+  return `<div class="prose-wiki max-w-none">
+<p>${escapeHtml(strings.p1Before)}<strong>${escapeHtml(strings.p1Brand)}</strong>${escapeHtml(strings.p1After)}</p>
+<p>${escapeHtml(strings.p2BeforeLib)}<strong>${escapeHtml(strings.p2Lib)}</strong>${escapeHtml(strings.p2Mid)}<strong>${escapeHtml(strings.p2Mod)}</strong>${escapeHtml(strings.p2After)}</p>
+<p><a href="${escapeHtml(openBookUrl)}">${escapeHtml(strings.linkOpenBook)}</a> · <a href="${escapeHtml(thisBookUrl)}">${escapeHtml(strings.linkThisBook)}</a></p>
+</div>`;
+}
+
+export async function buildEpubBuffer(
+  book: BookForExport,
+  opts?: { publicOrigin?: string },
+): Promise<Buffer> {
+  const publicOrigin = (
+    opts?.publicOrigin ??
+    process.env.AUTH_URL ??
+    "http://localhost:3000"
+  ).replace(/\/$/, "");
+
+  const colophon = await loadBookExportColophonMessages(book.exportLocale);
+
+  const editionChapter = {
+    title: colophon.chapterTitle,
+    beforeToc: true,
+    excludeFromToc: true,
+    content: buildOpenBookEditionNoticeHtml(colophon, publicOrigin, book),
+  };
+
+  const sectionChapters = await Promise.all(
     book.sections.map(async (s) => ({
       title: s.title,
       content: await sectionBodyHtml(s),
     })),
   );
+
+  const content = [editionChapter, ...sectionChapters];
 
   return epub(
     {
@@ -219,6 +290,7 @@ export async function buildEpubBuffer(book: BookForExport): Promise<Buffer> {
       lang: book.exportLocale,
       verbose: false,
       css: BOOK_EXPORT_INLINE_CSS,
+      cover: `${publicOrigin}/branding/openbook-full-logo.png`,
     },
     content,
   );

@@ -349,6 +349,19 @@
     "mobi": "MOBI (Kindle)",
     "azw3": "AZW3 (Kindle)"
   },
+  "BookExportColophon": {
+    "chapterTitle": "נוצר באמצעות OpenBook",
+    "p1Before": "ספר אלקטרוני זה הופק מכתב יד המאוחסן ב־",
+    "p1Brand": "OpenBook",
+    "p1After": ", שם נכתבות ונערכות יחד באינטרנט הביוגרפיות.",
+    "p2BeforeLib": "אם תרצו לעזור ",
+    "p2Lib": "להרחיב את הספרייה",
+    "p2Mid": " בדמויות או נושאים חדשים, או ",
+    "p2Mod": "לסייע בניהול עריכות ודיווחים",
+    "p2After": ", בקרו באתר והירשמו — הפרויקט מבוסס על תורמים כמוכם.",
+    "linkOpenBook": "OpenBook",
+    "linkThisBook": "הספר באינטרנט"
+  },
   "Errors": {
     "signInRequired": "You must be signed in.",
     "rateLimited": "Rate limited.",

@@ -349,6 +349,19 @@
     "mobi": "MOBI (Kindle)",
     "azw3": "AZW3 (Kindle)"
   },
+  "BookExportColophon": {
+    "chapterTitle": "أُنشئ باستخدام OpenBook",
+    "p1Before": "صُدر هذا الكتاب الإلكتروني من مخطوطة مستضافة على ",
+    "p1Brand": "OpenBook",
+    "p1After": "، حيث تُكتب السير وتُنقح جماعيًا على الإنترنت.",
+    "p2BeforeLib": "إذا رغبت في المساعدة على ",
+    "p2Lib": "توسيع المكتبة",
+    "p2Mid": " بإضافة شخصيات أو مواضيع جديدة، أو في ",
+    "p2Mod": "ضبط التعديلات والبلاغات",
+    "p2After": "، تفضّل بزيارة الموقع وأنشئ حسابًا؛ المشروع يعتمد على مساهمات القراء.",
+    "linkOpenBook": "OpenBook",
+    "linkThisBook": "هذا الكتاب على الويب"
+  },
   "Errors": {
     "signInRequired": "",
     "rateLimited": "",

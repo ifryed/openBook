@@ -349,6 +349,19 @@
     "mobi": "MOBI (Kindle)",
     "azw3": "AZW3 (Kindle)"
   },
+  "BookExportColophon": {
+    "chapterTitle": "使用 OpenBook 制作",
+    "p1Before": "本电子书由托管于 ",
+    "p1Brand": "OpenBook",
+    "p1After": " 的文稿生成，每部传记均在线上协作撰写与修订。",
+    "p2BeforeLib": "若您愿意帮助",
+    "p2Lib": "扩充书库",
+    "p2Mid": "（新增人物或主题），或",
+    "p2Mod": "协助审核编辑与举报",
+    "p2After": "，请访问网站并注册账号——项目离不开读者的贡献。",
+    "linkOpenBook": "OpenBook",
+    "linkThisBook": "本书网页版"
+  },
   "Errors": {
     "signInRequired": "You must be signed in.",
     "rateLimited": "Rate limited.",
