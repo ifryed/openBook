@@ -304,6 +304,13 @@
     "linkFromBook": "内容举报日志",
     "linkFromSection": "此书的内容举报日志"
   },
+  "ChapterNav": {
+    "ariaLabelBefore": "章节导航（阅读前）",
+    "ariaLabelAfter": "章节导航（阅读后）",
+    "tableOfContents": "目录",
+    "previousChapter": "上一章",
+    "nextChapter": "下一章"
+  },
   "ReportDispositions": {
     "CONTENT_ADDRESSED": "内容已处理",
     "NO_ACTION_NEEDED": "无需采取行动",

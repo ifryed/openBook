@@ -15,9 +15,11 @@ import {
   resolveSectionTitle,
 } from "@/lib/section-localization";
 import { resolveBookTitle } from "@/lib/book-title-localization";
+import { ChapterNavigation } from "@/components/chapter-navigation";
 import { MarkdownBody } from "@/components/markdown-body";
 import { ReportForm } from "@/components/report-form";
 import { SharePageButton } from "@/components/share-page-button";
+import { latestRevisionBodiesForLocale } from "@/lib/section-locale-body";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 type Props = {
@@ -31,6 +33,7 @@ export default async function SectionReadPage({ params, searchParams }: Props) {
   const { lang } = await searchParams;
   const session = await auth();
   const tBookLog = await getTranslations("BookReportLog");
+  const tChapterNav = await getTranslations("ChapterNav");
 
   const section = await prisma.section.findFirst({
     where: {
@@ -48,6 +51,14 @@ export default async function SectionReadPage({ params, searchParams }: Props) {
           defaultLocale: true,
           languages: { select: { locale: true } },
           titleLocales: { select: { locale: true, title: true } },
+          sections: {
+            orderBy: { orderIndex: "asc" },
+            select: {
+              id: true,
+              slug: true,
+              localizations: { select: { locale: true, title: true } },
+            },
+          },
         },
       },
     },
@@ -75,12 +86,63 @@ export default async function SectionReadPage({ params, searchParams }: Props) {
     section.book.defaultLocale,
   );
 
-  const revision = await getLatestRevision(section.id, activeLocale);
+  const orderedSections = section.book.sections;
+  const [revision, bodiesBySection] = await Promise.all([
+    getLatestRevision(section.id, activeLocale),
+    latestRevisionBodiesForLocale(
+      orderedSections.map((s) => s.id),
+      activeLocale,
+    ),
+  ]);
   const completeForLocale = isSectionCompleteForLocale(
     section.localizations,
     activeLocale,
     revision?.body,
   );
+
+  const visibleSections = orderedSections.filter((s) =>
+    isSectionCompleteForLocale(
+      s.localizations,
+      activeLocale,
+      bodiesBySection.get(s.id),
+    ),
+  );
+  const neighborSource = completeForLocale
+    ? visibleSections
+    : orderedSections;
+  const neighborIdx = neighborSource.findIndex((s) => s.id === section.id);
+  const prevSection =
+    neighborIdx > 0 ? neighborSource[neighborIdx - 1]! : null;
+  const nextSection =
+    neighborIdx >= 0 && neighborIdx < neighborSource.length - 1
+      ? neighborSource[neighborIdx + 1]!
+      : null;
+
+  const tocHref = withLangQuery(`/books/${section.book.slug}`, activeLocale);
+  const sectionToNavLink = (s: (typeof orderedSections)[number] | null) =>
+    s
+      ? {
+          href: withLangQuery(
+            `/books/${section.book.slug}/${s.slug}`,
+            activeLocale,
+          ),
+          title: resolveSectionTitle(
+            s.slug,
+            s.localizations,
+            activeLocale,
+            section.book.defaultLocale,
+          ),
+        }
+      : null;
+
+  const chapterNavCommon = {
+    tocHref,
+    tocLabel: tChapterNav("tableOfContents"),
+    previousChapterLabel: tChapterNav("previousChapter"),
+    nextChapterLabel: tChapterNav("nextChapter"),
+    previous: sectionToNavLink(prevSection),
+    next: sectionToNavLink(nextSection),
+  };
 
   if (!completeForLocale) {
     if (!session?.user) {
@@ -118,6 +180,11 @@ export default async function SectionReadPage({ params, searchParams }: Props) {
           <span>{sectionTitle}</span>
         </nav>
 
+        <ChapterNavigation
+          {...chapterNavCommon}
+          ariaLabel={tChapterNav("ariaLabelBefore")}
+        />
+
         <div className="rounded-lg border border-border bg-card p-6">
           <h1 className="text-xl font-semibold leading-snug text-foreground">
             This chapter is not available in {bookLocaleLabel(activeLocale)} yet
@@ -153,6 +220,11 @@ export default async function SectionReadPage({ params, searchParams }: Props) {
             ) : null}
           </div>
         </div>
+
+        <ChapterNavigation
+          {...chapterNavCommon}
+          ariaLabel={tChapterNav("ariaLabelAfter")}
+        />
       </article>
     );
   }
@@ -244,7 +316,17 @@ export default async function SectionReadPage({ params, searchParams }: Props) {
         </div>
       </header>
 
+      <ChapterNavigation
+        {...chapterNavCommon}
+        ariaLabel={tChapterNav("ariaLabelBefore")}
+      />
+
       {revision ? <MarkdownBody content={revision.body} /> : null}
+
+      <ChapterNavigation
+        {...chapterNavCommon}
+        ariaLabel={tChapterNav("ariaLabelAfter")}
+      />
 
       <div className="flex flex-wrap gap-3 border-t border-border pt-6 text-sm">
         <Link

@@ -304,6 +304,13 @@
     "linkFromBook": "Log do relatório de conteúdo",
     "linkFromSection": "Log do relatório de conteúdo deste livro"
   },
+  "ChapterNav": {
+    "ariaLabelBefore": "Navegação por capítulos (antes de ler)",
+    "ariaLabelAfter": "Navegação por capítulos (depois de ler)",
+    "tableOfContents": "Sumário",
+    "previousChapter": "Capítulo anterior",
+    "nextChapter": "Próximo capítulo"
+  },
   "ReportDispositions": {
     "CONTENT_ADDRESSED": "Conteúdo abordado",
     "NO_ACTION_NEEDED": "Sem ação necessária",

@@ -304,6 +304,13 @@
     "linkFromBook": "Registro de informes de contenido",
     "linkFromSection": "Registro de informes de contenido de este libro"
   },
+  "ChapterNav": {
+    "ariaLabelBefore": "Navegación por capítulos (antes de leer)",
+    "ariaLabelAfter": "Navegación por capítulos (después de leer)",
+    "tableOfContents": "Tabla de contenidos",
+    "previousChapter": "Capítulo anterior",
+    "nextChapter": "Próximo capítulo"
+  },
   "ReportDispositions": {
     "CONTENT_ADDRESSED": "Contenido abordado",
     "NO_ACTION_NEEDED": "No se necesita ninguna acción",

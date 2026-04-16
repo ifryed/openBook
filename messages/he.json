@@ -304,6 +304,13 @@
     "linkFromBook": "רשימת דוחות תוכן",
     "linkFromSection": "רשימת דוחות תוכן של הספר הזה"
   },
+  "ChapterNav": {
+    "ariaLabelBefore": "ניווט פרקים (לפני הקריאה)",
+    "ariaLabelAfter": "ניווט פרקים (אחרי הקריאה)",
+    "tableOfContents": "רשימת תוכן",
+    "previousChapter": "הפרק הקודם",
+    "nextChapter": "הפרק הבא"
+  },
   "ReportDispositions": {
     "CONTENT_ADDRESSED": "תוכן מטופל",
     "NO_ACTION_NEEDED": "אין צורך בפעולה",

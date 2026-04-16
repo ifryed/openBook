@@ -304,6 +304,13 @@
     "linkFromBook": "Content report log",
     "linkFromSection": "This book’s content report log"
   },
+  "ChapterNav": {
+    "ariaLabelBefore": "Chapter navigation (before reading)",
+    "ariaLabelAfter": "Chapter navigation (after reading)",
+    "tableOfContents": "Table of contents",
+    "previousChapter": "Previous chapter",
+    "nextChapter": "Next chapter"
+  },
   "ReportDispositions": {
     "CONTENT_ADDRESSED": "Content addressed",
     "NO_ACTION_NEEDED": "No action needed",

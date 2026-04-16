@@ -304,6 +304,13 @@
     "linkFromBook": "سجل تقرير المحتوى",
     "linkFromSection": "سجل تقرير محتوى هذا الكتاب"
   },
+  "ChapterNav": {
+    "ariaLabelBefore": "تنقل بين الفصول (قبل القراءة)",
+    "ariaLabelAfter": "تنقل بين الفصول (بعد القراءة)",
+    "tableOfContents": "قائمة المحتويات",
+    "previousChapter": "الفصل السابق",
+    "nextChapter": "الفصل التالي"
+  },
   "ReportDispositions": {
     "CONTENT_ADDRESSED": "تم معالجة المحتوى",
     "NO_ACTION_NEEDED": "لا يلزم اتخاذ إجراء",

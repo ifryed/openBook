@@ -304,6 +304,13 @@
     "linkFromBook": "Journal des rapports de contenu",
     "linkFromSection": "Journal des rapports de contenu de ce livre"
   },
+  "ChapterNav": {
+    "ariaLabelBefore": "Navigation des chapitres (avant lecture)",
+    "ariaLabelAfter": "Navigation des chapitres (après lecture)",
+    "tableOfContents": "Table des matières",
+    "previousChapter": "Chapitre précédent",
+    "nextChapter": "Chapitre suivant"
+  },
   "ReportDispositions": {
     "CONTENT_ADDRESSED": "Contenu traité",
     "NO_ACTION_NEEDED": "Aucune action nécessaire",

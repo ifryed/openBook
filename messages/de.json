@@ -304,6 +304,13 @@
     "linkFromBook": "Berichtsprotokoll für Inhalte",
     "linkFromSection": "Berichtsprotokoll für Inhalte dieses Buches"
   },
+  "ChapterNav": {
+    "ariaLabelBefore": "Kapitelnavigation (vor dem Lesen)",
+    "ariaLabelAfter": "Kapitelnavigation (nach dem Lesen)",
+    "tableOfContents": "Inhaltsverzeichnis",
+    "previousChapter": "Vorheriges Kapitel",
+    "nextChapter": "Nächstes Kapitel"
+  },
   "ReportDispositions": {
     "CONTENT_ADDRESSED": "Inhalt wurde behandelt",
     "NO_ACTION_NEEDED": "Keine Handlung erforderlich",

@@ -484,7 +484,11 @@
     "Badges.ids.moderator.description": "5ca48edbb20e9cb3bdcd31974f9ae290cb0cb8b32775e404abd343dce1354dfb",
     "Badges.ids.trusted_resolver.title": "8a0934095141e1c77b70b5699cce1c06d6628985cfea2c56f8497af47f5f26d3",
     "Badges.ids.trusted_resolver.short": "b7aa270846c0acd9ba41ef5b5cb7446730774dc039c39dbb1d5db940461f5bd6",
-    "Badges.ids.trusted_resolver.description": "d8b82d98c18a7c59220f56d192db91dcbec7a4880f290f2d203cf816106638be"
+    "Badges.ids.trusted_resolver.description": "d8b82d98c18a7c59220f56d192db91dcbec7a4880f290f2d203cf816106638be",
+    "ChapterNav.ariaLabel": "4f08e757905350d182cec6398c081373a39a7d4e14ba879bc066fa4a6db3d5d8",
+    "ChapterNav.tableOfContents": "e331da0741fb6d0552bc27483ba0720778440c520b59be917613781679ede70f",
+    "ChapterNav.previousChapter": "2bebdca31f072fc7aa2a209bf921777cb9274925a48a3798735426bc4a7fcc75",
+    "ChapterNav.nextChapter": "4344dde797b69c1d7ffb3a1b9f1ec3d50ff2227fd29b43fcd5dafe652a75d5c6"
   },
   "es": {
     "Metadata.defaultTitle": "58ee0cf15b4d35dd1b39f16cb0f44b85197521d9ef9f0803acb5caeee5205343",
@@ -971,7 +975,11 @@
     "Badges.ids.moderator.description": "5ca48edbb20e9cb3bdcd31974f9ae290cb0cb8b32775e404abd343dce1354dfb",
     "Badges.ids.trusted_resolver.title": "8a0934095141e1c77b70b5699cce1c06d6628985cfea2c56f8497af47f5f26d3",
     "Badges.ids.trusted_resolver.short": "b7aa270846c0acd9ba41ef5b5cb7446730774dc039c39dbb1d5db940461f5bd6",
-    "Badges.ids.trusted_resolver.description": "d8b82d98c18a7c59220f56d192db91dcbec7a4880f290f2d203cf816106638be"
+    "Badges.ids.trusted_resolver.description": "d8b82d98c18a7c59220f56d192db91dcbec7a4880f290f2d203cf816106638be",
+    "ChapterNav.ariaLabel": "4f08e757905350d182cec6398c081373a39a7d4e14ba879bc066fa4a6db3d5d8",
+    "ChapterNav.tableOfContents": "e331da0741fb6d0552bc27483ba0720778440c520b59be917613781679ede70f",
+    "ChapterNav.previousChapter": "2bebdca31f072fc7aa2a209bf921777cb9274925a48a3798735426bc4a7fcc75",
+    "ChapterNav.nextChapter": "4344dde797b69c1d7ffb3a1b9f1ec3d50ff2227fd29b43fcd5dafe652a75d5c6"
   },
   "fr": {
     "Metadata.defaultTitle": "58ee0cf15b4d35dd1b39f16cb0f44b85197521d9ef9f0803acb5caeee5205343",
@@ -1458,7 +1466,11 @@
     "Badges.ids.moderator.description": "5ca48edbb20e9cb3bdcd31974f9ae290cb0cb8b32775e404abd343dce1354dfb",
     "Badges.ids.trusted_resolver.title": "8a0934095141e1c77b70b5699cce1c06d6628985cfea2c56f8497af47f5f26d3",
     "Badges.ids.trusted_resolver.short": "b7aa270846c0acd9ba41ef5b5cb7446730774dc039c39dbb1d5db940461f5bd6",
-    "Badges.ids.trusted_resolver.description": "d8b82d98c18a7c59220f56d192db91dcbec7a4880f290f2d203cf816106638be"
+    "Badges.ids.trusted_resolver.description": "d8b82d98c18a7c59220f56d192db91dcbec7a4880f290f2d203cf816106638be",
+    "ChapterNav.ariaLabel": "4f08e757905350d182cec6398c081373a39a7d4e14ba879bc066fa4a6db3d5d8",
+    "ChapterNav.tableOfContents": "e331da0741fb6d0552bc27483ba0720778440c520b59be917613781679ede70f",
+    "ChapterNav.previousChapter": "2bebdca31f072fc7aa2a209bf921777cb9274925a48a3798735426bc4a7fcc75",
+    "ChapterNav.nextChapter": "4344dde797b69c1d7ffb3a1b9f1ec3d50ff2227fd29b43fcd5dafe652a75d5c6"
   },
   "de": {
     "Metadata.defaultTitle": "58ee0cf15b4d35dd1b39f16cb0f44b85197521d9ef9f0803acb5caeee5205343",
@@ -1945,7 +1957,11 @@
     "Badges.ids.moderator.description": "5ca48edbb20e9cb3bdcd31974f9ae290cb0cb8b32775e404abd343dce1354dfb",
     "Badges.ids.trusted_resolver.title": "8a0934095141e1c77b70b5699cce1c06d6628985cfea2c56f8497af47f5f26d3",
     "Badges.ids.trusted_resolver.short": "b7aa270846c0acd9ba41ef5b5cb7446730774dc039c39dbb1d5db940461f5bd6",
-    "Badges.ids.trusted_resolver.description": "d8b82d98c18a7c59220f56d192db91dcbec7a4880f290f2d203cf816106638be"
+    "Badges.ids.trusted_resolver.description": "d8b82d98c18a7c59220f56d192db91dcbec7a4880f290f2d203cf816106638be",
+    "ChapterNav.ariaLabel": "4f08e757905350d182cec6398c081373a39a7d4e14ba879bc066fa4a6db3d5d8",
+    "ChapterNav.tableOfContents": "e331da0741fb6d0552bc27483ba0720778440c520b59be917613781679ede70f",
+    "ChapterNav.previousChapter": "2bebdca31f072fc7aa2a209bf921777cb9274925a48a3798735426bc4a7fcc75",
+    "ChapterNav.nextChapter": "4344dde797b69c1d7ffb3a1b9f1ec3d50ff2227fd29b43fcd5dafe652a75d5c6"
   },
   "pt": {
     "Metadata.defaultTitle": "58ee0cf15b4d35dd1b39f16cb0f44b85197521d9ef9f0803acb5caeee5205343",
@@ -2432,7 +2448,11 @@
     "Badges.ids.moderator.description": "5ca48edbb20e9cb3bdcd31974f9ae290cb0cb8b32775e404abd343dce1354dfb",
     "Badges.ids.trusted_resolver.title": "8a0934095141e1c77b70b5699cce1c06d6628985cfea2c56f8497af47f5f26d3",
     "Badges.ids.trusted_resolver.short": "b7aa270846c0acd9ba41ef5b5cb7446730774dc039c39dbb1d5db940461f5bd6",
-    "Badges.ids.trusted_resolver.description": "d8b82d98c18a7c59220f56d192db91dcbec7a4880f290f2d203cf816106638be"
+    "Badges.ids.trusted_resolver.description": "d8b82d98c18a7c59220f56d192db91dcbec7a4880f290f2d203cf816106638be",
+    "ChapterNav.ariaLabel": "4f08e757905350d182cec6398c081373a39a7d4e14ba879bc066fa4a6db3d5d8",
+    "ChapterNav.tableOfContents": "e331da0741fb6d0552bc27483ba0720778440c520b59be917613781679ede70f",
+    "ChapterNav.previousChapter": "2bebdca31f072fc7aa2a209bf921777cb9274925a48a3798735426bc4a7fcc75",
+    "ChapterNav.nextChapter": "4344dde797b69c1d7ffb3a1b9f1ec3d50ff2227fd29b43fcd5dafe652a75d5c6"
   },
   "ar": {
     "Metadata.defaultTitle": "58ee0cf15b4d35dd1b39f16cb0f44b85197521d9ef9f0803acb5caeee5205343",
@@ -2919,7 +2939,11 @@
     "Badges.ids.moderator.description": "5ca48edbb20e9cb3bdcd31974f9ae290cb0cb8b32775e404abd343dce1354dfb",
     "Badges.ids.trusted_resolver.title": "8a0934095141e1c77b70b5699cce1c06d6628985cfea2c56f8497af47f5f26d3",
     "Badges.ids.trusted_resolver.short": "b7aa270846c0acd9ba41ef5b5cb7446730774dc039c39dbb1d5db940461f5bd6",
-    "Badges.ids.trusted_resolver.description": "d8b82d98c18a7c59220f56d192db91dcbec7a4880f290f2d203cf816106638be"
+    "Badges.ids.trusted_resolver.description": "d8b82d98c18a7c59220f56d192db91dcbec7a4880f290f2d203cf816106638be",
+    "ChapterNav.ariaLabel": "4f08e757905350d182cec6398c081373a39a7d4e14ba879bc066fa4a6db3d5d8",
+    "ChapterNav.tableOfContents": "e331da0741fb6d0552bc27483ba0720778440c520b59be917613781679ede70f",
+    "ChapterNav.previousChapter": "2bebdca31f072fc7aa2a209bf921777cb9274925a48a3798735426bc4a7fcc75",
+    "ChapterNav.nextChapter": "4344dde797b69c1d7ffb3a1b9f1ec3d50ff2227fd29b43fcd5dafe652a75d5c6"
   },
   "he": {
     "Metadata.defaultTitle": "58ee0cf15b4d35dd1b39f16cb0f44b85197521d9ef9f0803acb5caeee5205343",
@@ -3406,6 +3430,10 @@
     "Badges.ids.moderator.description": "5ca48edbb20e9cb3bdcd31974f9ae290cb0cb8b32775e404abd343dce1354dfb",
     "Badges.ids.trusted_resolver.title": "8a0934095141e1c77b70b5699cce1c06d6628985cfea2c56f8497af47f5f26d3",
     "Badges.ids.trusted_resolver.short": "b7aa270846c0acd9ba41ef5b5cb7446730774dc039c39dbb1d5db940461f5bd6",
-    "Badges.ids.trusted_resolver.description": "d8b82d98c18a7c59220f56d192db91dcbec7a4880f290f2d203cf816106638be"
+    "Badges.ids.trusted_resolver.description": "d8b82d98c18a7c59220f56d192db91dcbec7a4880f290f2d203cf816106638be",
+    "ChapterNav.ariaLabel": "4f08e757905350d182cec6398c081373a39a7d4e14ba879bc066fa4a6db3d5d8",
+    "ChapterNav.tableOfContents": "e331da0741fb6d0552bc27483ba0720778440c520b59be917613781679ede70f",
+    "ChapterNav.previousChapter": "2bebdca31f072fc7aa2a209bf921777cb9274925a48a3798735426bc4a7fcc75",
+    "ChapterNav.nextChapter": "4344dde797b69c1d7ffb3a1b9f1ec3d50ff2227fd29b43fcd5dafe652a75d5c6"
   }
 }
