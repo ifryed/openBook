@@ -15,7 +15,7 @@ export function SiteHeaderAccountMenu(props: {
   return (
     <HeaderMenuDetails
       menuRole="menu"
-      menuClassName="absolute right-0 z-50 mt-1 min-w-[12rem] rounded-md border border-border bg-card py-1 text-sm shadow-md"
+      menuClassName="absolute end-0 z-50 mt-1 min-w-[12rem] rounded-md border border-border bg-card py-1 text-sm shadow-md"
     >
       <Link
         href="/profile"
@@ -85,7 +85,7 @@ export function SiteHeaderAccountMenu(props: {
       <form action={signOutAction} className="border-t border-border pt-1">
         <button
           type="submit"
-          className="w-full cursor-pointer px-3 py-2 text-left text-foreground hover:bg-background"
+          className="w-full cursor-pointer px-3 py-2 text-start text-foreground hover:bg-background"
           role="menuitem"
         >
           {t("signOut")}
@@ -99,7 +99,7 @@ export function SiteHeaderGuestMenu() {
   const t = useTranslations("SiteHeader");
 
   return (
-    <HeaderMenuDetails menuClassName="absolute right-0 z-50 mt-1 min-w-[12rem] rounded-md border border-border bg-card py-1 text-sm shadow-md">
+    <HeaderMenuDetails menuClassName="absolute end-0 z-50 mt-1 min-w-[12rem] rounded-md border border-border bg-card py-1 text-sm shadow-md">
       <LanguageSwitcher variant="menu" />
       <div className="my-1 border-t border-border" aria-hidden />
       <Link
