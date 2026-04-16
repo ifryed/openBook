@@ -21,6 +21,11 @@ import {
   resolveSectionTitle,
 } from "@/lib/section-localization";
 import { resolveBookTitle } from "@/lib/book-title-localization";
+import {
+  epub3ChapterXhtmlTemplate,
+  epub3ContentOpfTemplate,
+  epub3TocXhtmlTemplate,
+} from "@/lib/epub-templates";
 
 /** Inline styles aligned with `.prose-wiki` in globals.css (no CSS variables). */
 export const BOOK_EXPORT_INLINE_CSS = `
@@ -280,6 +285,9 @@ export async function buildEpubBuffer(
 
   const content = [editionChapter, ...sectionChapters];
 
+  const epubDir = textDirectionForBookLocale(book.exportLocale);
+  const epubIsRtl = epubDir === "rtl";
+
   return epub(
     {
       title: book.title,
@@ -291,6 +299,9 @@ export async function buildEpubBuffer(
       verbose: false,
       css: BOOK_EXPORT_INLINE_CSS,
       cover: `${publicOrigin}/branding/openbook-full-logo.png`,
+      chapterXHTML: epub3ChapterXhtmlTemplate(epubDir),
+      tocXHTML: epub3TocXhtmlTemplate(epubDir),
+      contentOPF: epub3ContentOpfTemplate(epubIsRtl),
     },
     content,
   );
