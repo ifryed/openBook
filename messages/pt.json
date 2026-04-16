@@ -36,6 +36,10 @@
     "share": "Compartilhar",
     "linkCopied": "Link copiado"
   },
+  "ShareDialog": {
+    "hoverSharePage": "Compartilhar página",
+    "hoverSendEbook": "Enviar e-book"
+  },
   "SiteHeader": {
     "brand": "LivroAberto",
     "contentReportLog": "Relatório de log",

@@ -33,8 +33,12 @@
     "working": "עובד…",
     "yes": "כן",
     "no": "לא",
-    "share": "공유",
-    "linkCopied": "링크 복사됨"
+    "share": "שיתוף",
+    "linkCopied": "הקישור הועתק"
+  },
+  "ShareDialog": {
+    "hoverSharePage": "שיתוף העמוד",
+    "hoverSendEbook": "שליחת ספר דיגיטלי"
   },
   "SiteHeader": {
     "brand": "OpenBook",

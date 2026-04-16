@@ -36,6 +36,10 @@
     "share": "شارك",
     "linkCopied": "تم نسخ الرابط"
   },
+  "ShareDialog": {
+    "hoverSharePage": "مشاركة الصفحة",
+    "hoverSendEbook": "إرسال الكتاب الإلكتروني"
+  },
   "SiteHeader": {
     "brand": "",
     "contentReportLog": "سجل التقارير المحتوى",

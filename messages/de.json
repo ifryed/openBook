@@ -36,6 +36,10 @@
     "share": "Teilen",
     "linkCopied": "Link kopiert"
   },
+  "ShareDialog": {
+    "hoverSharePage": "Seite teilen",
+    "hoverSendEbook": "E-Book senden"
+  },
   "SiteHeader": {
     "brand": "OpenBook",
     "contentReportLog": "Berichtsprotokoll",

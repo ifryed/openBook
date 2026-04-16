@@ -195,6 +195,8 @@ export default async function SectionReadPage({ params, searchParams }: Props) {
                 activeLocale,
               )}
               shareTitle={sectionTitle}
+              bookSlug={section.book.slug}
+              exportLang={activeLocale}
               className="ms-1"
             />
           </h1>
@@ -262,6 +264,8 @@ export default async function SectionReadPage({ params, searchParams }: Props) {
                 activeLocale,
               )}
               shareTitle={sectionTitle}
+              bookSlug={section.book.slug}
+              exportLang={activeLocale}
               className="ms-1"
             />
           </h1>

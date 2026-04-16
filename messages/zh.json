@@ -36,6 +36,10 @@
     "share": "分享",
     "linkCopied": "链接已复制"
   },
+  "ShareDialog": {
+    "hoverSharePage": "分享页面",
+    "hoverSendEbook": "发送电子书"
+  },
   "SiteHeader": {
     "brand": "子为机演",
     "contentReportLog": "内容举报日志",

@@ -1,3 +1,5 @@
+import { bookDownloadRelativeUrl } from "@/lib/book-download-url";
+
 type Props = {
   bookSlug: string;
   showCalibreFormats: boolean;
@@ -7,33 +9,19 @@ type Props = {
   summaryClassName?: string;
 };
 
-function downloadHref(
-  base: string,
-  format: string,
-  exportLang: string | undefined,
-): string {
-  const q = new URLSearchParams({ format });
-  const l = exportLang?.trim();
-  if (l) q.set("lang", l);
-  return `${base}?${q.toString()}`;
-}
-
 export function BookDownloadMenu({
   bookSlug,
   showCalibreFormats,
   exportLang,
   summaryClassName = "cursor-pointer text-sm text-accent underline-offset-2 hover:underline",
 }: Props) {
-  const enc = encodeURIComponent(bookSlug);
-  const base = `/api/books/${enc}/download`;
-
   return (
     <details className="text-sm">
       <summary className={summaryClassName}>Download</summary>
       <ul className="mt-2 space-y-1 border-l border-border pl-3 text-foreground">
         <li>
           <a
-            href={downloadHref(base, "html", exportLang)}
+            href={bookDownloadRelativeUrl(bookSlug, "html", exportLang)}
             className="text-accent no-underline hover:underline"
           >
             HTML
@@ -41,7 +29,7 @@ export function BookDownloadMenu({
         </li>
         <li>
           <a
-            href={downloadHref(base, "pdf", exportLang)}
+            href={bookDownloadRelativeUrl(bookSlug, "pdf", exportLang)}
             className="text-accent no-underline hover:underline"
           >
             PDF
@@ -49,7 +37,7 @@ export function BookDownloadMenu({
         </li>
         <li>
           <a
-            href={downloadHref(base, "epub", exportLang)}
+            href={bookDownloadRelativeUrl(bookSlug, "epub", exportLang)}
             className="text-accent no-underline hover:underline"
           >
             EPUB
@@ -59,7 +47,7 @@ export function BookDownloadMenu({
           <>
             <li>
               <a
-                href={downloadHref(base, "mobi", exportLang)}
+                href={bookDownloadRelativeUrl(bookSlug, "mobi", exportLang)}
                 className="text-accent no-underline hover:underline"
               >
                 MOBI (Kindle)
@@ -67,7 +55,7 @@ export function BookDownloadMenu({
             </li>
             <li>
               <a
-                href={downloadHref(base, "azw3", exportLang)}
+                href={bookDownloadRelativeUrl(bookSlug, "azw3", exportLang)}
                 className="text-accent no-underline hover:underline"
               >
                 AZW3 (Kindle)

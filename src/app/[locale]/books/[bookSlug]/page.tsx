@@ -103,6 +103,8 @@ export default async function BookPage({ params, searchParams }: Props) {
             uiLocale={locale}
             pathWithQuery={withLangQuery(`/books/${book.slug}`, activeLocale)}
             shareTitle={displayBookTitle}
+            bookSlug={book.slug}
+            exportLang={activeLocale}
             className="ms-1"
           />
         </h1>
