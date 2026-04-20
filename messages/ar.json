@@ -41,6 +41,13 @@
     "hoverSendEbook": "أرسل الكتاب الإلكتروني"
   },
   "NewBook": {
+    "pageTitle": "إضافة كتاب",
+    "autoGenLink": "إنشاء تلقائي للكتاب",
+    "autoGenDescription": "قائمة فهرس كاملة ومخططات فصل في تدفق موجه واحد (WebGPU).",
+    "importJsonLink": "استيراد مشروع كتاب (JSON)",
+    "importJsonDescription": "من أداة openbook-bookbuilder المحلية. يتم فتحه كمشروع أولي - تأكد من الصورة ثم نشرها من المشاريع الأولية.",
+    "figureFocusBlurb": "التركيز على شخصية تاريخية واحدة في الكتاب الواحد. أضف الأقسام من صفحة الكتاب أو قسم المحتوى باستخدام علامات تبويب Markdown للآن.",
+    "backBrowse": " ← الرجوع إلى التصفح",
     "createBook": "إنشاء كتاب",
     "creatingBook": "إنشاء…",
     "figureCreateHint": "تم تعطيل إنشاء الكتاب حتى ترى ✓ بجانب اسم الشكل (بعد التحقق من الاسم → اختيار شخص → استخدام الشخص المحدد). يمكنك دائمًا حفظ النسخة المخطط لها والانتهاء منها لاحقًا من المسودات."
@@ -350,15 +357,15 @@
     "azw3": "AZW3 (Kindle)"
   },
   "BookExportColophon": {
-    "chapterTitle": "أُنشئ باستخدام OpenBook",
-    "p1Before": "صُدر هذا الكتاب الإلكتروني من مخطوطة مستضافة على ",
+    "chapterTitle": "تم إنشاؤه بواسطة OpenBook",
+    "p1Before": " تم إنتاج هذا الكتاب الإلكتروني من نسخة مخطوطة مضيفة على ",
     "p1Brand": "OpenBook",
-    "p1After": "، حيث تُكتب السير وتُنقح جماعيًا على الإنترنت.",
-    "p2BeforeLib": "إذا رغبت في المساعدة على ",
+    "p1After": ", حيث يتم كتابة كل سيرة ذاتية وتعديلها بشكل جماعي عبر الإنترنت.",
+    "p2BeforeLib": "إذا كنت ترغب في المساعدة في ",
     "p2Lib": "توسيع المكتبة",
-    "p2Mid": " بإضافة شخصيات أو مواضيع جديدة، أو في ",
-    "p2Mod": "ضبط التعديلات والبلاغات",
-    "p2After": "، تفضّل بزيارة الموقع وأنشئ حسابًا؛ المشروع يعتمد على مساهمات القراء.",
+    "p2Mid": " بمحتوى جديد من الشخصيات أو المواضيع ، أو لمساعدة moderators",
+    "p2Mod": "المحرريين على تحرير التقارير",
+    "p2After": ", قم بزيارة الموقع وإنشاء حساب - تُساهم مساهمة القراء في الحفاظ على المشروع.",
     "linkOpenBook": "OpenBook",
     "linkThisBook": "هذا الكتاب على الويب"
   },
@@ -443,7 +450,9 @@
     "couldNotUpdateBook": "لم يتم تحديث الكتاب.",
     "draftNotFound": "لم يتم العثور على المسودة.",
     "deleteDraftTitleMismatch": "العنوان الذي كتبت لا يتطابق مع المسودة هذه. ادخل العنوان الدقيق من قائمة مسودتك لتأكيد الحذف.",
-    "invalidChapterJson": "يجب أن يكون JSON للفرق جملة نصية JSON من الكائنات مع العنوان والجسم وعنصر slug الاختياري."
+    "invalidChapterJson": "يجب أن يكون JSON للفرق جملة نصية JSON من الكائنات مع العنوان والجسم وعنصر slug الاختياري.",
+    "bookDraftImportInvalidJson": "لا يمكن تحليل JSON.",
+    "bookDraftImportInvalidPayload": "هذا الملف ليس مسودة كتاب صالحة (النسخة 1)."
   },
   "Drafts": {
     "title": "مسوداتك",
@@ -501,7 +510,16 @@
     "deleteDraftBookMustMatch": "يجب أن يتطابق تماماً:",
     "editContent": "تحرير المحتوى",
     "editContentHint": "احفظ كمسودة وافتح جدول المحتويات لإضافة أو إعادة ترتيب الفصول.",
-    "draftBookActionsAriaLabel": "نشر أو حذف هذا الكتاب المسود"
+    "draftBookActionsAriaLabel": "نشر أو حذف هذا الكتاب المسود",
+    "importBookJsonLink": "استيراد JSON للكتاب",
+    "importBookJsonLinkHint": "تحميل ملف مسودة كتاب من أداة openbook-bookbuilder المحلية (أو أي تصدير متوافق).",
+    "importBookJsonTitle": "استيراد مسودة كتاب (JSON)",
+    "importBookJsonIntro": "قم بلصق JSON أو اختر ملفًا .json. سيتم نقلك إلى محرر مسودة الكتاب للتحقق من الرقم ونشره.",
+    "importBookJsonFile": "ملف JSON",
+    "importBookJsonPaste": "أو لصق JSON",
+    "importBookJsonHint": " التنسيق: نسخة 1 مع البيانات المرفقة ب العنوان، اسم الشكل، الأعمار المستهدفة، اللغة الافتراضية، واختياري Chapters array.",
+    "importBookJsonSubmit": "استيراد مسودة",
+    "importBookJsonWorking": "يتم الاستيراد…"
   },
   "AutoWizard": {
     "confirmFigure": "تأكيد الشخص التاريخي مع تحديد الاسم ← اختيار ← استخدام الشخص المحدد.",

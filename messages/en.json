@@ -41,6 +41,13 @@
     "hoverSendEbook": "Send e-book"
   },
   "NewBook": {
+    "pageTitle": "Add book",
+    "autoGenLink": "Auto-Gen Book",
+    "autoGenDescription": "full TOC and chapter drafts in one guided flow (WebGPU).",
+    "importJsonLink": "Import book draft (JSON)",
+    "importJsonDescription": "From the local openbook-bookbuilder tool. Opens as a draft—verify the figure, then publish from Drafts.",
+    "figureFocusBlurb": "One book focuses on one historical figure. Add sections from the book page or split content with Markdown headings for now.",
+    "backBrowse": "← Back to browse",
     "createBook": "Create book",
     "creatingBook": "Creating…",
     "figureCreateHint": "Create book is disabled until you see ✓ next to the figure name (after Check name → pick a person → Use selected person). You can still Save as draft and finish later from Drafts."
@@ -443,7 +450,9 @@
     "couldNotUpdateBook": "Could not update book.",
     "draftNotFound": "Draft not found.",
     "deleteDraftTitleMismatch": "The title you typed does not match this draft. Enter the exact title from your drafts list to confirm deletion.",
-    "invalidChapterJson": "Chapters JSON must be a JSON array of objects with title, body, and optional slug."
+    "invalidChapterJson": "Chapters JSON must be a JSON array of objects with title, body, and optional slug.",
+    "bookDraftImportInvalidJson": "The JSON could not be parsed.",
+    "bookDraftImportInvalidPayload": "This file is not a valid book draft (version 1)."
   },
   "Drafts": {
     "title": "Your drafts",
@@ -501,7 +510,16 @@
     "deleteDraftBookMustMatch": "Must match exactly:",
     "editContent": "Edit content",
     "editContentHint": "Save as a draft and open the table of contents to add or reorder chapters.",
-    "draftBookActionsAriaLabel": "Publish or delete this draft book"
+    "draftBookActionsAriaLabel": "Publish or delete this draft book",
+    "importBookJsonLink": "Import book JSON",
+    "importBookJsonLinkHint": "Load a book draft file from the local openbook-bookbuilder tool (or any compatible export).",
+    "importBookJsonTitle": "Import book draft (JSON)",
+    "importBookJsonIntro": "Paste JSON or choose a .json file. You will be taken to the book draft editor to verify the figure and publish.",
+    "importBookJsonFile": "JSON file",
+    "importBookJsonPaste": "Or paste JSON",
+    "importBookJsonHint": "Format: version 1 payload with title, figureName, intendedAges, defaultLocale, and optional chapters array.",
+    "importBookJsonSubmit": "Import draft",
+    "importBookJsonWorking": "Importing…"
   },
   "AutoWizard": {
     "confirmFigure": "Confirm the historical figure with Check name → pick → Use selected person.",

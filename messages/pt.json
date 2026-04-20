@@ -41,6 +41,13 @@
     "hoverSendEbook": "Enviar e-book"
   },
   "NewBook": {
+    "pageTitle": "Adicionar Livro",
+    "autoGenLink": "Auto-Geração de Livro",
+    "autoGenDescription": "TOC completo e rascunhos de capítulos em um fluxo guiado (WebGPU).",
+    "importJsonLink": "Importar rascunho de livro (JSON)",
+    "importJsonDescription": "Do ferramenta local openbook-bookbuilder. Abre como rascunho - verifique a figura, então publique a partir dos Rascunhos.",
+    "figureFocusBlurb": "Um livro se concentra em uma figura histórica única. Adicione seções da página do livro ou divida o conteúdo com cabeçalhos Markdown por enquanto.",
+    "backBrowse": "← Voltar para navegar",
     "createBook": "Criar livro",
     "creatingBook": "Criando…",
     "figureCreateHint": "Criar livro é desabilitado até você ver ✓ ao lado do nome da figura (após Verificar nome → escolher uma pessoa → Usar pessoa selecionada). Você ainda pode Salvar como rascunho e finalizar mais tarde em Rascunhos."
@@ -351,14 +358,14 @@
   },
   "BookExportColophon": {
     "chapterTitle": "Criado com OpenBook",
-    "p1Before": "Este ebook foi gerado a partir de um manuscrito hospedado em ",
+    "p1Before": "Este ebook foi produzido a partir de um manuscrito hospedado em ",
     "p1Brand": "OpenBook",
-    "p1After": ", onde cada biografia é escrita e aprimorada em colaboração online.",
-    "p2BeforeLib": "Se quiser ajudar a ",
-    "p2Lib": "ampliar o acervo",
-    "p2Mid": " com novas figuras ou temas, ou a ",
-    "p2Mod": "moderar edições e denúncias",
-    "p2After": ", visite o site e crie uma conta — o projeto depende de leitores como você.",
+    "p1After": ", onde cada biografia é escrita e refinada colaborativamente online.",
+    "p2BeforeLib": "Se você gostaria de ajudar ",
+    "p2Lib": "a expandir a biblioteca",
+    "p2Mid": " com novas figuras ou tópicos, ou para ",
+    "p2Mod": "ajudar a moderar edições e relatórios",
+    "p2After": ", visite o site e crie uma conta—contribuições dos leitores mantém o projeto funcionando.",
     "linkOpenBook": "OpenBook",
     "linkThisBook": "Este livro na web"
   },
@@ -443,7 +450,9 @@
     "couldNotUpdateBook": "Não foi possível atualizar o livro.",
     "draftNotFound": "Rascunho não encontrado.",
     "deleteDraftTitleMismatch": "O título que você digitou não corresponde a este rascunho. Digite o título exato da sua lista de rascunhos para confirmar a exclusão.",
-    "invalidChapterJson": "JSON dos capítulos deve ser uma matriz JSON de objetos com título, corpo e slug opcional."
+    "invalidChapterJson": "JSON dos capítulos deve ser uma matriz JSON de objetos com título, corpo e slug opcional.",
+    "bookDraftImportInvalidJson": "O JSON não pôde ser analisado.",
+    "bookDraftImportInvalidPayload": "Este arquivo não é um rascunho de livro válido (versão 1)."
   },
   "Drafts": {
     "title": "Seus rascunhos",
@@ -501,7 +510,16 @@
     "deleteDraftBookMustMatch": "Deve corresponder exatamente:",
     "editContent": "Editar conteúdo",
     "editContentHint": "Salvar como rascunho e abrir a tabela de conteúdo para adicionar ou reordenar capítulos.",
-    "draftBookActionsAriaLabel": "Publicar ou excluir este rascunho de livro"
+    "draftBookActionsAriaLabel": "Publicar ou excluir este rascunho de livro",
+    "importBookJsonLink": "Importar JSON do livro",
+    "importBookJsonLinkHint": "Carregar um arquivo de rascunho de livro da ferramenta local openbook-bookbuilder (ou qualquer exportação compatível).",
+    "importBookJsonTitle": "Importar rascunho de livro (JSON)",
+    "importBookJsonIntro": "Cole JSON ou escolha um arquivo .json. Você será redirecionado para o editor de rascunho do livro para verificar a figura e publicar.",
+    "importBookJsonFile": "Arquivo JSON",
+    "importBookJsonPaste": "Ou cole JSON",
+    "importBookJsonHint": "Formato: versão 1 payload com título, nome da figura, faixas etárias pretendidas, locale padrão e array de capítulos opcional.",
+    "importBookJsonSubmit": "Importar rascunho",
+    "importBookJsonWorking": "Importando…"
   },
   "AutoWizard": {
     "confirmFigure": "Confirme a figura histórica com Verificar nome → Escolher → Utilize a pessoa selecionada.",

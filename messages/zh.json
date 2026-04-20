@@ -41,6 +41,13 @@
     "hoverSendEbook": "发送电子书"
   },
   "NewBook": {
+    "pageTitle": "添加书籍",
+    "autoGenLink": "自动生成书籍",
+    "autoGenDescription": "完整的目录和章节草稿，在一个引导流中 (WebGPU)。",
+    "importJsonLink": "导入书籍草稿 (JSON)",
+    "importJsonDescription": "来自本地 openbook-bookbuilder 工具。 作为草稿打开 - 验证图，然后从“草稿”发布。",
+    "figureFocusBlurb": "一本书籍专注于一位历史人物。 从书籍页面添加章节或使用 Markdown 标题拆分内容。",
+    "backBrowse": "← 返回浏览",
     "createBook": "创建书籍",
     "creatingBook": "正在创建…",
     "figureCreateHint": "创建书籍功能在您在人物名称旁边看到✓（检查名称→选择人物→使用选定人物）后才可用。 您仍然可以保存为草稿并在“草稿”中稍后再完成。"
@@ -350,17 +357,17 @@
     "azw3": "AZW3 (Kindle)"
   },
   "BookExportColophon": {
-    "chapterTitle": "使用 OpenBook 制作",
-    "p1Before": "本电子书由托管于 ",
+    "chapterTitle": "由OpenBook创建",
+    "p1Before": "此电子书来源于一个托管在 ",
     "p1Brand": "OpenBook",
-    "p1After": " 的文稿生成，每部传记均在线上协作撰写与修订。",
-    "p2BeforeLib": "若您愿意帮助",
-    "p2Lib": "扩充书库",
-    "p2Mid": "（新增人物或主题），或",
-    "p2Mod": "协助审核编辑与举报",
-    "p2After": "，请访问网站并注册账号——项目离不开读者的贡献。",
+    "p1After": ", 每个传记都可以在线协作编写和完善。",
+    "p2BeforeLib": "如果你想帮助 ",
+    "p2Lib": "扩大图书馆",
+    "p2Mid": "  添加新的人物或主题，或者 ",
+    "p2Mod": "帮助管理编辑和报告",
+    "p2After": ", 请访问该网站并创建一个帐户 - 阅读者的贡献使该项目得以继续。",
     "linkOpenBook": "OpenBook",
-    "linkThisBook": "本书网页版"
+    "linkThisBook": "这本书的网页"
   },
   "Errors": {
     "signInRequired": "You must be signed in.",
@@ -443,7 +450,9 @@
     "couldNotUpdateBook": "更新书籍失败。",
     "draftNotFound": "找不到草稿。",
     "deleteDraftTitleMismatch": "您输入的标题与该草稿不匹配。请输入您的草稿列表中的精确标题以确认删除。",
-    "invalidChapterJson": "章节 JSON 必须是包含 title、body 和可选 slug 的 JSON 对象数组。"
+    "invalidChapterJson": "章节 JSON 必须是包含 title、body 和可选 slug 的 JSON 对象数组。",
+    "bookDraftImportInvalidJson": "无法解析 JSON。",
+    "bookDraftImportInvalidPayload": "此文件不是有效的书稿 (版本 1)。"
   },
   "Drafts": {
     "title": "您的草稿",
@@ -501,7 +510,16 @@
     "deleteDraftBookMustMatch": "必须完全匹配：",
     "editContent": "编辑内容",
     "editContentHint": "保存为草稿并打开目录来添加或重新排序章节。",
-    "draftBookActionsAriaLabel": "发布或删除此草稿书籍"
+    "draftBookActionsAriaLabel": "发布或删除此草稿书籍",
+    "importBookJsonLink": "导入书籍 JSON",
+    "importBookJsonLinkHint": "从本地 openbook-bookbuilder 工具（或任何兼容的导出）加载书籍草稿文件。",
+    "importBookJsonTitle": "导入书籍草稿（JSON）",
+    "importBookJsonIntro": "粘贴 JSON 或选择一个 .json 文件。您将被带到书籍草稿编辑器中以验证内容并发布。",
+    "importBookJsonFile": "JSON 文件",
+    "importBookJsonPaste": "或粘贴JSON",
+    "importBookJsonHint": "格式：版本 1 的有效负载，包含标题、图名称、目标年龄段、默认语言以及可选的章节数组。",
+    "importBookJsonSubmit": "导入草稿",
+    "importBookJsonWorking": "正在导入…"
   },
   "AutoWizard": {
     "confirmFigure": "确认历史人物：检查名称→选择→使用选定的个人。",

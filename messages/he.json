@@ -41,6 +41,13 @@
     "hoverSendEbook": "שלח ספר אלקטרוני"
   },
   "NewBook": {
+    "pageTitle": "הוסף ספר",
+    "autoGenLink": "יצירת קישור אוטומטית",
+    "autoGenDescription": "תוכן עניינים מלא ורשימות פרקים בזרם עבודה מובנה (WebGPU).",
+    "importJsonLink": "הכנס גרסת ראשונה של ספר (JSON)",
+    "importJsonDescription": "מכליאת ה-openbook-bookbuilder המקומית. נפתח כגרסה ראשונית - אמת את התמונה, ואז פרסם מ-Drafts.",
+    "figureFocusBlurb": "ספר אחד מתמקד באיש היסטורי אחד. הוסף מקטעים מהדף של הספר או חלוק תוכן עם הכותרות של Markdown לרגע זה.",
+    "backBrowse": "← חזרה לצפייה",
     "createBook": "הצג ספר חדש",
     "creatingBook": "מתקבל…",
     "figureCreateHint": "הפעלת תכונת יצירת ספר מוגבלת עד שתראה ✓ ליד שם הדמות (לאחר הבדוק שם → בחר אדם → השתמש באדם שנבחר). עדיין ניתן לשמור כסこんな感じ ולבצע את השלמת היצירה מאוחר יותר מתוך התיקיות של טיוטות."
@@ -350,17 +357,17 @@
     "azw3": "AZW3 (Kindle)"
   },
   "BookExportColophon": {
-    "chapterTitle": "נוצר באמצעות OpenBook",
-    "p1Before": "ספר אלקטרוני זה הופק מכתב יד המאוחסן ב־",
+    "chapterTitle": "Created with OpenBook",
+    "p1Before": "This ebook was produced from a manuscript hosted on ",
     "p1Brand": "OpenBook",
-    "p1After": ", שם נכתבות ונערכות יחד באינטרנט הביוגרפיות.",
-    "p2BeforeLib": "אם תרצו לעזור ",
-    "p2Lib": "להרחיב את הספרייה",
-    "p2Mid": " בדמויות או נושאים חדשים, או ",
-    "p2Mod": "לסייע בניהול עריכות ודיווחים",
-    "p2After": ", בקרו באתר והירשמו — הפרויקט מבוסס על תורמים כמוכם.",
+    "p1After": ", where each biography is written and refined collaboratively online.",
+    "p2BeforeLib": "If you would like to help ",
+    "p2Lib": "expand the library",
+    "p2Mid": " with new figures or topics, or to ",
+    "p2Mod": "help moderate edits and reports",
+    "p2After": ", visit the site and create an account—contributions from readers keep the project going.",
     "linkOpenBook": "OpenBook",
-    "linkThisBook": "הספר באינטרנט"
+    "linkThisBook": "This book on the web"
   },
   "Errors": {
     "signInRequired": "You must be signed in.",
@@ -443,7 +450,9 @@
     "couldNotUpdateBook": "Could not update book.",
     "draftNotFound": "טיוטה לא נמצאה.",
     "deleteDraftTitleMismatch": "הכותרת שביטאת לא תואמת לדפוס זה. הזן את הכותרת המדויקת מרשימת הדגמים שלך כדי לאשר מחיקה.",
-    "invalidChapterJson": "JSON של הפרקים חייב להיות מערך JSON של עצמים עם תואר, תוכן וחובה אופציונלי."
+    "invalidChapterJson": "JSON של הפרקים חייב להיות מערך JSON של עצמים עם תואר, תוכן וחובה אופציונלי.",
+    "bookDraftImportInvalidJson": "The JSON could not be parsed.",
+    "bookDraftImportInvalidPayload": "This file is not a valid book draft (version 1)."
   },
   "Drafts": {
     "title": "תיקיות טיוטות שלך",
@@ -501,7 +510,16 @@
     "deleteDraftBookMustMatch": "צריך להתאים בדיוק:",
     "editContent": "ערוך תוכן",
     "editContentHint": "שמור כר草 ופתח את טבלא העמודים כדי להוסיף או לסדר פרקים.",
-    "draftBookActionsAriaLabel": "פרסם או למחוק ספר דגם זה"
+    "draftBookActionsAriaLabel": "פרסם או למחוק ספר דגם זה",
+    "importBookJsonLink": "Import book JSON",
+    "importBookJsonLinkHint": "Load a book draft file from the local openbook-bookbuilder tool (or any compatible export).",
+    "importBookJsonTitle": "Import book draft (JSON)",
+    "importBookJsonIntro": "Paste JSON or choose a .json file. You will be taken to the book draft editor to verify the figure and publish.",
+    "importBookJsonFile": "JSON file",
+    "importBookJsonPaste": "או הדבק קובץ JSON",
+    "importBookJsonHint": "פורמט: גרסת 1 עם לוכד תואר, שם דמות, גילאים מיועדים, שפה ברירת מחדל, ותבנית פרקים אופציונלית. ",
+    "importBookJsonSubmit": "הכנס סקיצה",
+    "importBookJsonWorking": "מעביר..."
   },
   "AutoWizard": {
     "confirmFigure": "Confirm the historical figure with Check name → pick → Use selected person.",

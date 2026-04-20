@@ -41,6 +41,13 @@
     "hoverSendEbook": "E-Book senden"
   },
   "NewBook": {
+    "pageTitle": "Buch hinzufügen",
+    "autoGenLink": "Auto-Generiertes Buch",
+    "autoGenDescription": "Vollständiges Inhaltsverzeichnis und Kapitelauftragsentwürfe in einem geführten Prozess (WebGPU).",
+    "importJsonLink": "Buchentwurf importieren (JSON)",
+    "importJsonDescription": "Aus dem lokalen openbook-bookbuilder Tool. Öffnet als Entwurf - Prüfe das Bild, dann publizieren Sie aus Entwürfen.",
+    "figureFocusBlurb": "Ein Buch konzentriert sich auf eine historische Figur. Füge Abschnitte von der Buchseite hinzu oder teile den Inhalt mit Markdown-Überschriften.",
+    "backBrowse": "← Zurück zum Browsen",
     "createBook": "Buch erstellen",
     "creatingBook": "Erstelle…",
     "figureCreateHint": "Bucherstellung ist deaktiviert, bis Sie ein ✓ neben dem Figurenname sehen (nach Name überprüfen → Person auswählen → Ausgewählte Person verwenden). Sie können trotzdem als Entwurf speichern und später aus den Entwürfen fertigstellen. "
@@ -351,14 +358,14 @@
   },
   "BookExportColophon": {
     "chapterTitle": "Erstellt mit OpenBook",
-    "p1Before": "Dieses E-Book entstand aus einem Manuskript auf ",
+    "p1Before": "Dieses Ebook wurde aus einem Manuskript erstellt, das auf ",
     "p1Brand": "OpenBook",
-    "p1After": ", wo Biografien gemeinsam online geschrieben und überarbeitet werden.",
-    "p2BeforeLib": "Wenn Sie dabei helfen möchten, ",
+    "p1After": ", wo jede Biografie online gemeinschaftlich geschrieben und überarbeitet wird.",
+    "p2BeforeLib": "Wenn Sie mithelfen möchten ",
     "p2Lib": "die Bibliothek zu erweitern",
-    "p2Mid": " mit neuen Persönlichkeiten oder Themen, oder ",
-    "p2Mod": "Bearbeitungen und Meldungen zu moderieren",
-    "p2After": ", besuchen Sie die Website und legen Sie ein Konto an – Leserinnen und Leser halten das Projekt am Laufen.",
+    "p2Mid": "mit neuen Figuren oder Themen, oder um ",
+    "p2Mod": "Bearbeitungen und Berichte zu moderieren",
+    "p2After": ", besuchen Sie die Website und erstellen Sie ein Konto—Beiträge von Lesern halten das Projekt am Laufen.",
     "linkOpenBook": "OpenBook",
     "linkThisBook": "Dieses Buch im Web"
   },
@@ -443,7 +450,9 @@
     "couldNotUpdateBook": "Konnte das Buch nicht aktualisieren.",
     "draftNotFound": "Entwurf nicht gefunden.",
     "deleteDraftTitleMismatch": "The title you typed does not match this draft. Enter the exact title from your drafts list to confirm deletion.",
-    "invalidChapterJson": "Chapters JSON muss ein JSON-Array von Objekten mit Titel, Inhalt und optionalem Slug sein."
+    "invalidChapterJson": "Chapters JSON muss ein JSON-Array von Objekten mit Titel, Inhalt und optionalem Slug sein.",
+    "bookDraftImportInvalidJson": "Die JSON-Datei konnte nicht verarbeitet werden.",
+    "bookDraftImportInvalidPayload": "Diese Datei ist keine gültige Buchfassung (Version 1)."
   },
   "Drafts": {
     "title": "Deine Entwürfe",
@@ -501,7 +510,16 @@
     "deleteDraftBookMustMatch": "Muss übereinstimmen:",
     "editContent": "Inhalt bearbeiten",
     "editContentHint": "Als Entwurf speichern und die Inhaltsübersicht öffnen, um Kapitel hinzuzufügen oder neu anzuordnen.",
-    "draftBookActionsAriaLabel": "Dieses Entwurfsbuch veröffentlichen oder löschen"
+    "draftBookActionsAriaLabel": "Dieses Entwurfsbuch veröffentlichen oder löschen",
+    "importBookJsonLink": "JSON-Buch importieren",
+    "importBookJsonLinkHint": "Laden Sie eine Buchfassung aus dem lokalen openbook-bookbuilder-Tool (oder einem kompatiblen Export) hoch.",
+    "importBookJsonTitle": "Buchfassung (JSON) importieren",
+    "importBookJsonIntro": "Fügen Sie JSON ein oder wählen Sie eine .json-Datei. Sie werden zum Buchfasser-Editor weitergeleitet, um die Figur zu überprüfen und zu veröffentlichen.",
+    "importBookJsonFile": "JSON-Datei",
+    "importBookJsonPaste": "Oder fügen Sie JSON ein",
+    "importBookJsonHint": "Format: Version 1 Payload mit Titel, FigureName, Zielaltergruppe, Standardsprache und optionalem Kapiteln-Array.",
+    "importBookJsonSubmit": "Entwurf importieren",
+    "importBookJsonWorking": "Importieren..."
   },
   "AutoWizard": {
     "confirmFigure": "Bewahren Sie die historische Person mit Überprüfen des Namens → wählen Sie aus → Verwenden Sie den ausgewählten Menschen.",

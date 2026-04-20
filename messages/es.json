@@ -41,6 +41,13 @@
     "hoverSendEbook": "Enviar libro electrónico"
   },
   "NewBook": {
+    "pageTitle": "Agregar libro",
+    "autoGenLink": "Generar libro automáticamente",
+    "autoGenDescription": "TOC completo y borradores de capítulos en un solo flujo guiado (WebGPU).",
+    "importJsonLink": "Importar borrador de libro (JSON)",
+    "importJsonDescription": "Desde la herramienta local openbook-bookbuilder. Se abre como un borrador—verifica la figura y luego publica desde Borradores.",
+    "figureFocusBlurb": "Un libro se centra en una sola figura histórica. Agregar secciones desde la página del libro o dividir el contenido con encabezados de Markdown por ahora.",
+    "backBrowse": "← Volver a navegar",
     "createBook": "Crear libro",
     "creatingBook": "Creando…",
     "figureCreateHint": "La creación de libros está deshabilitada hasta que ve✓ al lado del nombre de la figura (después de Comprueba el nombre → elige a una persona → Usa la persona seleccionada). Todavía puedes Guardar como borrador y terminar más tarde desde Borradores."
@@ -351,14 +358,14 @@
   },
   "BookExportColophon": {
     "chapterTitle": "Creado con OpenBook",
-    "p1Before": "Este libro electrónico se generó a partir de un manuscrito alojado en ",
+    "p1Before": "Este ebook fue producido a partir de un manuscrito alojado en ",
     "p1Brand": "OpenBook",
-    "p1After": ", donde cada biografía se escribe y mejora de forma colaborativa en línea.",
-    "p2BeforeLib": "Si deseas ayudar a ",
-    "p2Lib": "ampliar el acervo",
-    "p2Mid": " con nuevas figuras o temas, o a ",
-    "p2Mod": "moderar ediciones e informes",
-    "p2After": ", entra en el sitio y crea una cuenta: el proyecto sigue adelante gracias a lectores como tú.",
+    "p1After": ", donde cada biografía se escribe y refina de manera colaborativa en línea.",
+    "p2BeforeLib": "Si quieres ayudar ",
+    "p2Lib": "a ampliar la biblioteca",
+    "p2Mid": " con nuevas figuras o temas, o para ",
+    "p2Mod": "ayudar a moderar las ediciones e informes",
+    "p2After": ", visita el sitio y crea una cuenta—las contribuciones de los lectores mantienen el proyecto en marcha.",
     "linkOpenBook": "OpenBook",
     "linkThisBook": "Este libro en la web"
   },
@@ -443,7 +450,9 @@
     "couldNotUpdateBook": "No se pudo actualizar el libro.",
     "draftNotFound": "Borrador no encontrado.",
     "deleteDraftTitleMismatch": "El título que escribió no coincide con este borrador. Ingrese el título exacto de su lista de borradores para confirmar la eliminación.",
-    "invalidChapterJson": "El JSON de capítulos debe ser una matriz JSON de objetos con título, cuerpo y slug opcional."
+    "invalidChapterJson": "El JSON de capítulos debe ser una matriz JSON de objetos con título, cuerpo y slug opcional.",
+    "bookDraftImportInvalidJson": "El JSON no se pudo analizar.",
+    "bookDraftImportInvalidPayload": "Este archivo no es un borrador de libro válido (versión 1)."
   },
   "Drafts": {
     "title": "Tus borradores",
@@ -501,7 +510,16 @@
     "deleteDraftBookMustMatch": "Debe coincidir exactamente:",
     "editContent": "Editar contenido",
     "editContentHint": "Guardar como borrador y abrir la tabla de contenidos para agregar o reordenar capítulos.",
-    "draftBookActionsAriaLabel": "Publicar o eliminar este libro borrador"
+    "draftBookActionsAriaLabel": "Publicar o eliminar este libro borrador",
+    "importBookJsonLink": "Importar JSON del libro",
+    "importBookJsonLinkHint": "Cargar un archivo de borrador de libro desde la herramienta local openbook-bookbuilder (o cualquier exportación compatible).",
+    "importBookJsonTitle": "Importar borrador de libro (JSON)",
+    "importBookJsonIntro": "Pega JSON o selecciona un archivo .json. Te llevará al editor del borrador del libro para verificar la figura y publicar.",
+    "importBookJsonFile": "Archivo JSON",
+    "importBookJsonPaste": "O pega JSON",
+    "importBookJsonHint": "Formato: versión 1 con payload de título, nombre de figura, edades destinadas, locale predeterminado y opcionalmente un array de capítulos.",
+    "importBookJsonSubmit": "Importar borrador",
+    "importBookJsonWorking": "Importando…"
   },
   "AutoWizard": {
     "confirmFigure": "Confirmar la figura histórica con Ver nombre → Seleccionar → Utilizar persona seleccionada.",
