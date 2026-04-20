@@ -8,7 +8,8 @@ declare global {
   }
 }
 
-const MAX_PUSH_ATTEMPTS = 120;
+/** Wait for head `adsbygoogle.js` (async); can be slower than a few rAF ticks. */
+const PUSH_WAIT_MS = 20_000;
 
 export function AdSenseUnit() {
   const clientId = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID?.trim();
@@ -18,7 +19,7 @@ export function AdSenseUnit() {
   useEffect(() => {
     if (!clientId || !slotId || didPush.current) return;
 
-    let attempts = 0;
+    const started = performance.now();
     const tryPush = () => {
       if (didPush.current) return;
       if (window.adsbygoogle) {
@@ -26,7 +27,7 @@ export function AdSenseUnit() {
         window.adsbygoogle.push({});
         return;
       }
-      if (attempts++ >= MAX_PUSH_ATTEMPTS) return;
+      if (performance.now() - started >= PUSH_WAIT_MS) return;
       requestAnimationFrame(tryPush);
     };
 
@@ -36,7 +37,7 @@ export function AdSenseUnit() {
   if (!clientId || !slotId) return null;
 
   return (
-    <div className="mx-auto mt-8 flex max-h-32 justify-center overflow-hidden">
+    <div className="mx-auto mt-8 flex min-h-[90px] justify-center">
       <ins
         className="adsbygoogle"
         style={{ display: "block" }}

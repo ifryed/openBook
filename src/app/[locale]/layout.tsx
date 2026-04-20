@@ -87,12 +87,15 @@ export default async function LocaleLayout({ children, params }: Props) {
   const dir = isRtlLocale(locale) ? "rtl" : "ltr";
   const adsenseClientId = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID?.trim();
   const adsenseSlotId = process.env.NEXT_PUBLIC_ADSENSE_SLOT_ID?.trim();
-  const adsenseEnabled = Boolean(adsenseClientId && adsenseSlotId);
+  // Head script: Google’s onboarding snippet (publisher id only).
+  const adsenseHeadScript = Boolean(adsenseClientId);
+  // Visible unit: needs a display ad unit id from AdSense → Ads → By ad unit.
+  const adsenseDisplayUnit = Boolean(adsenseClientId && adsenseSlotId);
 
   return (
     <html lang={locale} dir={dir} suppressHydrationWarning>
       <head>
-        {adsenseEnabled ? (
+        {adsenseHeadScript ? (
           <script
             async
             src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseClientId}`}
@@ -108,7 +111,7 @@ export default async function LocaleLayout({ children, params }: Props) {
             <SiteHeader />
             <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-8">
               {children}
-              {adsenseEnabled ? <AdSenseUnit /> : null}
+              {adsenseDisplayUnit ? <AdSenseUnit /> : null}
             </main>
           </Providers>
         </NextIntlClientProvider>
