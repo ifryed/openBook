@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { normalizedAdsenseClientId } from "@/lib/adsense-client-id";
 
 declare global {
@@ -13,13 +13,18 @@ declare global {
 const PUSH_WAIT_MS = 20_000;
 
 export function AdSenseUnit() {
+  const [slotMounted, setSlotMounted] = useState(false);
   const clientId = normalizedAdsenseClientId();
   const slotId = process.env.NEXT_PUBLIC_ADSENSE_SLOT_ID?.trim();
   const didPush = useRef(false);
   const insRef = useRef<HTMLModElement | null>(null);
 
   useEffect(() => {
-    if (!clientId || !slotId || didPush.current) return;
+    setSlotMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!slotMounted || !clientId || !slotId || didPush.current) return;
 
     const started = performance.now();
     const tryPush = () => {
@@ -41,22 +46,24 @@ export function AdSenseUnit() {
     };
 
     tryPush();
-  }, [clientId, slotId]);
+  }, [slotMounted, clientId, slotId]);
 
   if (!clientId || !slotId) return null;
 
   return (
     <div className="mx-auto mt-8 flex min-h-[90px] w-full max-w-full justify-center">
-      <ins
-        ref={insRef}
-        className="adsbygoogle block w-full max-w-full min-w-0"
-        style={{ display: "block" }}
-        data-ad-client={clientId}
-        data-ad-slot={slotId}
-        data-ad-format="horizontal"
-        data-full-width-responsive="true"
-        aria-label="Advertisement"
-      />
+      {slotMounted ? (
+        <ins
+          ref={insRef}
+          className="adsbygoogle block w-full max-w-full min-w-0"
+          style={{ display: "block" }}
+          data-ad-client={clientId}
+          data-ad-slot={slotId}
+          data-ad-format="horizontal"
+          data-full-width-responsive="true"
+          aria-label="Advertisement"
+        />
+      ) : null}
     </div>
   );
 }
