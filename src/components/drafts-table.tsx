@@ -50,7 +50,7 @@ export function DraftsTable({
                 {row.kind === "draft_book"
                   ? t("kindDraftBook")
                   : row.contentKind === ContentDraftKind.BOOK
-                    ? t("kindLegacyBook")
+                    ? t("kindBook")
                     : t("kindChapter")}
               </td>
               <td className="px-3 py-2 font-medium text-foreground">

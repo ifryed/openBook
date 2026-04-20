@@ -1,0 +1,17 @@
+README.md
+pyproject.toml
+openbook_bookbuilder/__init__.py
+openbook_bookbuilder/app.py
+openbook_bookbuilder/book_context.py
+openbook_bookbuilder/cli.py
+openbook_bookbuilder/constants.py
+openbook_bookbuilder/llm_prompts.py
+openbook_bookbuilder/ollama_client.py
+openbook_bookbuilder/slugify.py
+openbook_bookbuilder/toc_parse.py
+openbook_bookbuilder.egg-info/PKG-INFO
+openbook_bookbuilder.egg-info/SOURCES.txt
+openbook_bookbuilder.egg-info/dependency_links.txt
+openbook_bookbuilder.egg-info/entry_points.txt
+openbook_bookbuilder.egg-info/requires.txt
+openbook_bookbuilder.egg-info/top_level.txt

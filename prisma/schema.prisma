@@ -127,6 +127,8 @@ model Book {
   createdById    String   @map("created_by_id")
   /** Hidden from the public catalog until published; only the creator (and admins) may view or edit. */
   isDraft        Boolean  @default(false) @map("is_draft")
+  /** Successful file exports via `/api/books/.../download` (per completed response). */
+  downloadCount  Int      @default(0) @map("download_count")
 
   createdBy     User               @relation(fields: [createdById], references: [id])
   sections      Section[]

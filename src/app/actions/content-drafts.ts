@@ -9,6 +9,7 @@ import {
   saveSectionRevision,
 } from "@/app/actions/books";
 import { auth } from "@/auth";
+import { MAX_AUTO_WIZARD_PUBLISH_SECTIONS } from "@/lib/book-limits";
 import {
   bookFormDataToPayload,
   bookPayloadChaptersToJson,
@@ -16,6 +17,7 @@ import {
   chapterFormDataToPayload,
   isBookDraftPayload,
   isChapterDraftPayload,
+  parseBookDraftJsonForImport,
   CHAPTER_DRAFT_PAYLOAD_VERSION,
   type ChapterDraftPayloadV1,
 } from "@/lib/content-draft-payload";
@@ -100,6 +102,45 @@ export async function createBookDraftAction(
   formData: FormData,
 ): Promise<ContentDraftFormState> {
   return createDraftBook(_prev, formData);
+}
+
+/** Create a BOOK content draft from JSON (e.g. openbook-bookbuilder export). */
+export async function importBookDraftJsonAction(
+  _prev: ContentDraftFormState,
+  formData: FormData,
+): Promise<ContentDraftFormState> {
+  const t = await getTranslations("Errors");
+  const userId = await requireUserId();
+  if (!userId) {
+    return { error: t("signInRequired") };
+  }
+
+  const jsonRaw = formData.get("json")?.toString() ?? "";
+  const res = parseBookDraftJsonForImport(jsonRaw);
+  if (!res.ok) {
+    if (res.errorKey === "maxWizardSections") {
+      return {
+        error: t("maxWizardSections", {
+          max: MAX_AUTO_WIZARD_PUBLISH_SECTIONS,
+        }),
+      };
+    }
+    return { error: t(res.errorKey) };
+  }
+
+  const draft = await prisma.contentDraft.create({
+    data: {
+      userId,
+      kind: ContentDraftKind.BOOK,
+      label: res.label,
+      payload: res.payload as unknown as Prisma.InputJsonValue,
+    },
+  });
+
+  revalidatePathLocalized("/drafts");
+  const uiLocale = await getLocale();
+  redirect(`/${uiLocale}/drafts/${draft.id}/edit`);
+  return {};
 }
 
 export async function updateBookDraftAction(

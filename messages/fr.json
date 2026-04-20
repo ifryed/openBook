@@ -34,7 +34,8 @@
     "yes": "Oui",
     "no": "Non",
     "share": "Partager",
-    "linkCopied": "Lien copié"
+    "linkCopied": "Lien copié",
+    "bookDownloadCount": "{count, plural, =0 {0 téléchargements} one {1 téléchargement} other {# téléchargements}}"
   },
   "ShareDialog": {
     "hoverSharePage": "Partager la page",

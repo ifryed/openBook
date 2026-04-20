@@ -63,6 +63,7 @@ export function escapeHtml(text: string): string {
 }
 
 export type BookForExport = {
+  id: string;
   slug: string;
   title: string;
   figureName: string;
@@ -135,6 +136,7 @@ export async function getBookForExport(
   );
 
   return {
+    id: book.id,
     slug: book.slug,
     title: exportTitle,
     figureName: book.figureName,

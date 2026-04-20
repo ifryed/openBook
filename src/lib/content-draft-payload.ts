@@ -1,4 +1,7 @@
-import { slugify } from "@/lib/slug";
+import { MAX_AUTO_WIZARD_PUBLISH_SECTIONS } from "@/lib/book-limits";
+import { isKnownBookLocale } from "@/lib/book-locales";
+import { isKnownIntendedAudience } from "@/lib/intended-audience";
+import { isReservedSlug, slugify } from "@/lib/slug";
 
 export const BOOK_DRAFT_PAYLOAD_VERSION = 1 as const;
 export const CHAPTER_DRAFT_PAYLOAD_VERSION = 1 as const;
@@ -171,4 +174,144 @@ export function bookPayloadChaptersToJson(
 ): string | null {
   if (!p.chapters?.length) return null;
   return JSON.stringify(p.chapters);
+}
+
+export type ParseBookDraftJsonForImportErrorKey =
+  | "bookDraftImportInvalidJson"
+  | "bookDraftImportInvalidPayload"
+  | "invalidChapterJson"
+  | "maxWizardSections"
+  | "intendedAgesInvalid"
+  | "primaryLanguageInvalid"
+  | "countryTooLong"
+  | "titleFigureRequired";
+
+export type ParseBookDraftJsonForImportResult =
+  | {
+      ok: true;
+      payload: BookDraftPayloadV1;
+      label: string;
+    }
+  | {
+      ok: false;
+      errorKey: ParseBookDraftJsonForImportErrorKey;
+    };
+
+function chaptersFromImportValue(ch: unknown):
+  | { ok: true; chapters: BookDraftPayloadV1["chapters"] }
+  | { ok: false; errorKey: "invalidChapterJson" | "maxWizardSections" } {
+  if (ch == null || (Array.isArray(ch) && ch.length === 0)) {
+    return { ok: true, chapters: null };
+  }
+  if (!Array.isArray(ch)) {
+    return { ok: false, errorKey: "invalidChapterJson" };
+  }
+  if (ch.length > MAX_AUTO_WIZARD_PUBLISH_SECTIONS) {
+    return { ok: false, errorKey: "maxWizardSections" };
+  }
+  const out: { slug: string; title: string; body: string }[] = [];
+  const seen = new Set<string>();
+  for (const row of ch) {
+    if (!row || typeof row !== "object") {
+      return { ok: false, errorKey: "invalidChapterJson" };
+    }
+    const r = row as Record<string, unknown>;
+    const title =
+      typeof r.title === "string" ? r.title.trim().slice(0, 120) : "";
+    const body = typeof r.body === "string" ? r.body.trim() : "";
+    const slugRaw = typeof r.slug === "string" ? r.slug.trim() : "";
+    const slug = slugify(slugRaw || title);
+    if (!title || !slug) {
+      return { ok: false, errorKey: "invalidChapterJson" };
+    }
+    if (isReservedSlug(slug)) {
+      return { ok: false, errorKey: "invalidChapterJson" };
+    }
+    const lower = slug.toLowerCase();
+    if (seen.has(lower)) {
+      return { ok: false, errorKey: "invalidChapterJson" };
+    }
+    seen.add(lower);
+    out.push({ slug, title, body });
+  }
+  return { ok: true, chapters: out.length ? out : null };
+}
+
+/**
+ * Parse and validate a JSON file produced by the local book builder (or compatible tools)
+ * before storing as a BOOK `ContentDraft` row.
+ */
+export function parseBookDraftJsonForImport(
+  rawText: string,
+): ParseBookDraftJsonForImportResult {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(rawText) as unknown;
+  } catch {
+    return { ok: false, errorKey: "bookDraftImportInvalidJson" };
+  }
+  if (!parsed || typeof parsed !== "object") {
+    return { ok: false, errorKey: "bookDraftImportInvalidPayload" };
+  }
+  const o = parsed as Record<string, unknown>;
+  if (o.v !== BOOK_DRAFT_PAYLOAD_VERSION) {
+    return { ok: false, errorKey: "bookDraftImportInvalidPayload" };
+  }
+  const title = typeof o.title === "string" ? o.title : "";
+  const figureName = typeof o.figureName === "string" ? o.figureName : "";
+  if (!title.trim() || !figureName.trim()) {
+    return { ok: false, errorKey: "titleFigureRequired" };
+  }
+  const intendedAges =
+    typeof o.intendedAges === "string" ? o.intendedAges.trim() : "";
+  if (!intendedAges || !isKnownIntendedAudience(intendedAges)) {
+    return { ok: false, errorKey: "intendedAgesInvalid" };
+  }
+  const defaultLocale =
+    typeof o.defaultLocale === "string" ? o.defaultLocale.trim() : "";
+  if (!defaultLocale || !isKnownBookLocale(defaultLocale)) {
+    return { ok: false, errorKey: "primaryLanguageInvalid" };
+  }
+  const country = typeof o.country === "string" ? o.country.trim() : "";
+  if (country.length > 255) {
+    return { ok: false, errorKey: "countryTooLong" };
+  }
+  const summary = typeof o.summary === "string" ? o.summary : "";
+  const slug = typeof o.slug === "string" ? o.slug.trim() : "";
+  const tags = typeof o.tags === "string" ? o.tags : "";
+  const includeIntroduction =
+    o.includeIntroduction === true || o.includeIntroduction === "true";
+  const figureVerifiedKind =
+    typeof o.figureVerifiedKind === "string"
+      ? o.figureVerifiedKind.trim()
+      : "";
+  const figureVerifiedKey =
+    typeof o.figureVerifiedKey === "string" ? o.figureVerifiedKey.trim() : "";
+
+  const chRes = chaptersFromImportValue(o.chapters ?? null);
+  if (!chRes.ok) {
+    return { ok: false, errorKey: chRes.errorKey };
+  }
+  const chapters = chRes.chapters;
+
+  const payload: BookDraftPayloadV1 = {
+    v: BOOK_DRAFT_PAYLOAD_VERSION,
+    title,
+    figureName,
+    intendedAges,
+    country,
+    summary,
+    slug,
+    tags,
+    defaultLocale,
+    includeIntroduction,
+    figureVerifiedKind,
+    figureVerifiedKey,
+    chapters,
+  };
+  const label = (title.trim() || figureName.trim() || "Untitled book draft").slice(
+    0,
+    512,
+  );
+  return { ok: true, payload, label };
 }

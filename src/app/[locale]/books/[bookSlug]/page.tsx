@@ -2,6 +2,7 @@ import { Link } from "@/i18n/navigation";
 import { notFound } from "next/navigation";
 import { auth } from "@/auth";
 import { AdminDeleteBookForm } from "@/components/admin-delete-book-form";
+import { BookDownloadCount } from "@/components/book-download-count";
 import { BookDownloadMenu } from "@/components/book-download-menu";
 import { BookLangSwitcher } from "@/components/book-lang-switcher";
 import { isCalibreExportEnabled } from "@/lib/book-export";
@@ -106,8 +107,9 @@ export default async function BookPage({ params, searchParams }: Props) {
       <BookLangSwitcher locales={bookLocales} activeLocale={activeLocale} />
 
       <div>
-        <h1 className="text-3xl font-semibold leading-snug">
-          {displayBookTitle}
+        <h1 className="flex flex-wrap items-baseline gap-x-1 text-3xl font-semibold leading-snug">
+          <span>{displayBookTitle}</span>
+          <BookDownloadCount count={book.downloadCount} />
           <SharePageButton
             uiLocale={locale}
             pathWithQuery={withLangQuery(`/books/${book.slug}`, activeLocale)}

@@ -34,7 +34,8 @@
     "yes": "نعم",
     "no": "لا",
     "share": "شارك",
-    "linkCopied": "تم نسخ الرابط"
+    "linkCopied": "تم نسخ الرابط",
+    "bookDownloadCount": "{count, plural, =0 {0 تنزيلات} one {تنزيل واحد} other {# تنزيلات}}"
   },
   "ShareDialog": {
     "hoverSharePage": "شارك الصفحة",

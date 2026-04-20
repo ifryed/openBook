@@ -1,3 +1,4 @@
+import { BookDownloadCount } from "@/components/book-download-count";
 import { BookDownloadMenu } from "@/components/book-download-menu";
 import { isCalibreExportEnabled } from "@/lib/book-export";
 import { IntendedAudienceSelect } from "@/components/intended-audience-select";
@@ -266,12 +267,15 @@ export default async function HomePage({ params, searchParams }: Props) {
                   className="flex flex-wrap items-start justify-between gap-3"
                   {...bookLocaleHtmlAttributes(catalogLocale)}
                 >
-                  <Link
-                    href={bookHref}
-                    className="min-w-0 flex-1 text-lg font-medium text-foreground no-underline hover:underline"
-                  >
-                    {displayTitle}
-                  </Link>
+                  <div className="min-w-0 flex-1 text-lg font-medium leading-snug text-foreground">
+                    <Link
+                      href={bookHref}
+                      className="text-foreground no-underline hover:underline"
+                    >
+                      {displayTitle}
+                    </Link>
+                    <BookDownloadCount count={book.downloadCount} />
+                  </div>
                   <BookDownloadMenu
                     bookSlug={book.slug}
                     showCalibreFormats={showCalibreFormats}

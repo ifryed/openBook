@@ -1,23 +1,31 @@
+import { IconDownload } from "@/components/site-header-icons";
 import { bookDownloadRelativeUrl } from "@/lib/book-download-url";
+import { getTranslations } from "next-intl/server";
 
 type Props = {
   bookSlug: string;
   showCalibreFormats: boolean;
   /** Export manuscript for this book language (BCP-47 code). */
   exportLang?: string;
-  /** e.g. "sm" for list rows */
+  /** Classes for the clickable summary control (icon). */
   summaryClassName?: string;
 };
 
-export function BookDownloadMenu({
+export async function BookDownloadMenu({
   bookSlug,
   showCalibreFormats,
   exportLang,
-  summaryClassName = "cursor-pointer text-sm text-accent underline-offset-2 hover:underline",
+  summaryClassName = "cursor-pointer rounded p-0.5 text-accent outline-offset-2 hover:bg-muted/60",
 }: Props) {
+  const t = await getTranslations("BookDownload");
   return (
     <details className="text-sm">
-      <summary className={summaryClassName}>Download</summary>
+      <summary
+        className={`${summaryClassName} inline-flex list-none items-center justify-center [&::-webkit-details-marker]:hidden`}
+        aria-label={t("label")}
+      >
+        <IconDownload className="h-5 w-5 shrink-0" />
+      </summary>
       <ul className="mt-2 space-y-1 border-l border-border pl-3 text-foreground">
         <li>
           <a

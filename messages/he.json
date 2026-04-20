@@ -34,7 +34,8 @@
     "yes": "כן",
     "no": "לא",
     "share": "שיתוף",
-    "linkCopied": "הקישור הועתק"
+    "linkCopied": "הקישור הועתק",
+    "bookDownloadCount": "{count, plural, =0 {0 הורדות} one {הורדה אחת} other {# הורדות}}"
   },
   "ShareDialog": {
     "hoverSharePage": "שתף עמוד",

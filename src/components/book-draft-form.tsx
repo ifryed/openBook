@@ -105,10 +105,23 @@ export type BookDraftFormProps =
       initial?: BookDraftPayloadV1 | null;
     };
 
+function draftHasStoredFigureVerification(
+  payload: BookDraftPayloadV1 | null | undefined,
+): boolean {
+  return Boolean(
+    payload?.figureVerifiedKind?.trim() && payload?.figureVerifiedKey?.trim(),
+  );
+}
+
 export function BookDraftForm(props: BookDraftFormProps) {
   const p = props.initial;
   const formRef = useRef<HTMLFormElement>(null);
   const tDrafts = useTranslations("Drafts");
+
+  const figureExemptMatch =
+    props.mode === "edit" && draftHasStoredFigureVerification(p)
+      ? p?.figureName
+      : undefined;
 
   const [saveState, saveAction] = useActionState(
     props.mode === "edit"
@@ -123,7 +136,10 @@ export function BookDraftForm(props: BookDraftFormProps) {
   const [publishPending, startPublish] = useTransition();
 
   const [figureOk, setFigureOk] = useState(
-    () => props.mode === "edit" && Boolean(p?.figureName?.trim()),
+    () =>
+      props.mode === "edit" &&
+      Boolean(p?.figureName?.trim()) &&
+      draftHasStoredFigureVerification(p),
   );
 
   const chaptersJsonDefault =
@@ -192,7 +208,7 @@ export function BookDraftForm(props: BookDraftFormProps) {
         name="figureName"
         required
         defaultValue={p?.figureName ?? ""}
-        exemptMatch={props.mode === "edit" ? p?.figureName : undefined}
+        exemptMatch={figureExemptMatch}
         onValidityChange={setFigureOk}
       />
       <label htmlFor="draft-intendedAges" className="block text-sm font-medium">

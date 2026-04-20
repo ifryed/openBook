@@ -40,6 +40,15 @@ export default async function DraftsNewPage({ params }: Props) {
           </Link>
           <p className="mt-0.5 text-muted">{t("newChapterHint")}</p>
         </li>
+        <li>
+          <Link
+            href="/drafts/import/book"
+            className="font-medium text-accent underline-offset-2 hover:underline"
+          >
+            {t("importBookJsonLink")}
+          </Link>
+          <p className="mt-0.5 text-muted">{t("importBookJsonLinkHint")}</p>
+        </li>
       </ul>
       <p className="text-sm">
         <Link href="/drafts" className="text-accent underline">

@@ -1,0 +1,2 @@
+[console_scripts]
+openbook-bookbuilder = openbook_bookbuilder.cli:main

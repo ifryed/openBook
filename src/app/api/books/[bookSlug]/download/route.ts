@@ -7,6 +7,7 @@ import {
   isCalibreExportEnabled,
   safeExportBasename,
 } from "@/lib/book-export";
+import { prisma } from "@/lib/db";
 import { resolvePuppeteerExecutablePath } from "@/lib/puppeteer-chrome-path";
 
 export const runtime = "nodejs";
@@ -26,6 +27,17 @@ function parseFormat(raw: string | null): ExportFormat | null {
     return raw;
   }
   return null;
+}
+
+async function recordBookDownload(bookId: string) {
+  try {
+    await prisma.book.updateMany({
+      where: { id: bookId },
+      data: { downloadCount: { increment: 1 } },
+    });
+  } catch (e) {
+    console.error("book download count update failed", e);
+  }
 }
 
 function attachmentHeaders(
@@ -74,6 +86,7 @@ export async function GET(
   try {
     if (format === "html") {
       const html = await buildFullHtmlExportDocument(book);
+      await recordBookDownload(book.id);
       return new Response(html, {
         headers: attachmentHeaders(`${base}.html`, "text/html; charset=utf-8"),
       });
@@ -96,6 +109,7 @@ export async function GET(
           printBackground: true,
           margin: { top: "16mm", bottom: "16mm", left: "14mm", right: "14mm" },
         });
+        await recordBookDownload(book.id);
         return new Response(Buffer.from(pdf), {
           headers: attachmentHeaders(`${base}.pdf`, "application/pdf"),
         });
@@ -109,6 +123,7 @@ export async function GET(
     });
 
     if (format === "epub") {
+      await recordBookDownload(book.id);
       return new Response(new Uint8Array(epubBuf), {
         headers: attachmentHeaders(
           `${base}.epub`,
@@ -122,6 +137,7 @@ export async function GET(
       format === "mobi"
         ? "application/x-mobipocket-ebook"
         : "application/vnd.amazon.ebook";
+    await recordBookDownload(book.id);
     return new Response(new Uint8Array(outBuf), {
       headers: attachmentHeaders(`${base}.${format}`, mime),
     });
