@@ -17,6 +17,7 @@ import {
 } from "@/lib/book-locales";
 import { prisma } from "@/lib/db";
 import { Link } from "@/i18n/navigation";
+import { isRtlLocale } from "@/i18n/routing";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 type Props = {
@@ -36,6 +37,7 @@ export default async function HomePage({ params, searchParams }: Props) {
 
   const t = await getTranslations("Home");
   const c = await getTranslations("Common");
+  const siteDir = isRtlLocale(locale) ? "rtl" : "ltr";
 
   const {
     q,
@@ -261,16 +263,15 @@ export default async function HomePage({ params, searchParams }: Props) {
             return (
               <li
                 key={book.id}
+                dir={siteDir}
                 className="rounded-lg border border-border bg-card p-4 shadow-sm"
               >
-                <div
-                  className="flex flex-wrap items-start justify-between gap-3"
-                  {...bookLocaleHtmlAttributes(catalogLocale)}
-                >
+                <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="min-w-0 flex-1 text-lg font-medium leading-snug text-foreground">
                     <Link
                       href={bookHref}
                       className="text-foreground no-underline hover:underline"
+                      {...bookLocaleHtmlAttributes(catalogLocale)}
                     >
                       {displayTitle}
                     </Link>
@@ -338,19 +339,17 @@ export default async function HomePage({ params, searchParams }: Props) {
                   </p>
                 ) : null}
                 {book.summary ? (
-                  <p
-                    className="mt-2 line-clamp-2 text-sm text-foreground"
-                    {...bookLocaleHtmlAttributes(catalogLocale)}
-                  >
-                    {book.summary}
+                  <p className="mt-2 line-clamp-2 text-sm text-foreground">
+                    <span {...bookLocaleHtmlAttributes(catalogLocale)}>
+                      {book.summary}
+                    </span>
                   </p>
                 ) : null}
                 {book.tags.length > 0 ? (
-                  <p
-                    className="mt-2 text-xs text-muted"
-                    {...bookLocaleHtmlAttributes(catalogLocale)}
-                  >
-                    {book.tags.map((bt) => bt.tag.name).join(" · ")}
+                  <p className="mt-2 text-xs text-muted">
+                    <span {...bookLocaleHtmlAttributes(catalogLocale)}>
+                      {book.tags.map((bt) => bt.tag.name).join(" · ")}
+                    </span>
                   </p>
                 ) : null}
               </li>
