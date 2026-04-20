@@ -710,5 +710,42 @@
         "description": "تم حل عشرة أو أكثر من تقارير المجتمع."
       }
     }
+  },
+  "BookForm": {
+    "bookTitle": "Book title",
+    "bookTitlePlaceholder": "e.g. The Life of Hypatia",
+    "figureLabel": "Historical figure (canonical name)",
+    "figurePlaceholder": "e.g. Hypatia of Alexandria",
+    "intendedAges": "Intended ages / audience",
+    "intendedAgesHint": "Used for browsing filters and for local AI (reading level and tone).",
+    "primaryLanguage": "Primary language",
+    "primaryLanguageHintCreate": "You can add more languages after the book is created (book settings).",
+    "primaryLanguageHintEdit": "Default for fallbacks and new chapters. Add or translate other languages in the list above the form.",
+    "country": "Country / region (optional)",
+    "countryPlaceholder": "e.g. India, France, United States",
+    "countryHintCreate": "Used for browsing filters on the home page.",
+    "countryHintEdit": "Shown on the book page and used for filters on the home screen.",
+    "slugCreate": "URL slug (optional — short figure name + title if empty)",
+    "slugEdit": "URL slug",
+    "slugPlaceholder": "hypatia",
+    "slugEditWarning": "Changing this moves the book to a new URL; links using the old address will stop working.",
+    "summary": "Short summary (optional)",
+    "tags": "Tags (optional, comma-separated)",
+    "tagsPlaceholderCreate": "philosophy, ancient-greece, mathematics",
+    "tagsPlaceholderEdit": "philosophy, ancient-greece",
+    "figureEditHint": "Save is disabled until ✓ appears next to the figure name, or you leave the name unchanged from when you opened this page."
+  },
+  "IntendedAudience": {
+    "any": "Any",
+    "selectPlaceholder": "Select age / audience…",
+    "otherLegacy": "Other (saved value): {value}",
+    "age0_3": "0–3",
+    "age3_8": "3–8",
+    "age5_9": "5–9",
+    "age6_10": "6–10",
+    "age8_12": "8–12",
+    "ageTeens": "Teens",
+    "ageYoungAdults": "Young adults",
+    "ageAdults": "Adults"
   }
 }

@@ -3,6 +3,7 @@
 import { useActionState, useState } from "react";
 import { Link } from "@/i18n/navigation";
 import { useFormStatus } from "react-dom";
+import { useTranslations } from "next-intl";
 import { updateBook, type BookFormState } from "@/app/actions/books";
 import { FigureNameField } from "@/components/figure-name-field";
 import { bookLocaleLabel } from "@/lib/book-locales";
@@ -12,13 +13,15 @@ const initial: BookFormState = {};
 
 function SubmitButton({ blockSubmit }: { blockSubmit: boolean }) {
   const { pending } = useFormStatus();
+  const c = useTranslations("Common");
+  const d = useTranslations("Drafts");
   return (
     <button
       type="submit"
       disabled={pending || blockSubmit}
       className="rounded-md bg-accent px-4 py-2 text-sm text-white hover:opacity-90 disabled:opacity-50"
     >
-      {pending ? "Saving…" : "Save changes"}
+      {pending ? c("saving") : d("saveChanges")}
     </button>
   );
 }
@@ -46,6 +49,8 @@ export function EditBookForm({
   bookLanguages: string[];
   bookDefaultLocale: string;
 }) {
+  const f = useTranslations("BookForm");
+  const c = useTranslations("Common");
   const [state, formAction] = useActionState(
     updateBook.bind(null, bookSlug),
     initial,
@@ -57,7 +62,7 @@ export function EditBookForm({
   return (
     <form action={formAction} className="max-w-xl space-y-4">
       <label className="block text-sm font-medium">
-        Book title
+        {f("bookTitle")}
         <input
           name="title"
           required
@@ -66,7 +71,7 @@ export function EditBookForm({
         />
       </label>
       <label htmlFor="edit-figureName" className="block text-sm font-medium">
-        Historical figure (canonical name)
+        {f("figureLabel")}
       </label>
       <FigureNameField
         id="edit-figureName"
@@ -77,7 +82,7 @@ export function EditBookForm({
         onValidityChange={setFigureOk}
       />
       <label htmlFor="edit-intendedAges" className="block text-sm font-medium">
-        Intended ages / audience
+        {f("intendedAges")}
       </label>
       <IntendedAudienceSelect
         id="edit-intendedAges"
@@ -87,10 +92,10 @@ export function EditBookForm({
         className="mt-1 w-full rounded-md border border-border bg-card px-3 py-2 text-sm"
       />
       <span className="mt-1 block text-xs text-muted">
-        Used for browsing filters and for local AI (reading level and tone).
+        {f("intendedAgesHint")}
       </span>
       <label htmlFor="edit-defaultLocale" className="block text-sm font-medium">
-        Primary language
+        {f("primaryLanguage")}
       </label>
       <select
         id="edit-defaultLocale"
@@ -106,24 +111,23 @@ export function EditBookForm({
         ))}
       </select>
       <p className="mt-1 text-xs text-muted">
-        Default for fallbacks and new chapters. Add or translate other languages
-        in the list above the form.
+        {f("primaryLanguageHintEdit")}
       </p>
       <label className="block text-sm font-medium">
-        Country / region (optional)
+        {f("country")}
         <input
           name="country"
           maxLength={255}
           defaultValue={initialCountry}
-          placeholder="e.g. India, France, United States"
+          placeholder={f("countryPlaceholder")}
           className="mt-1 w-full rounded-md border border-border bg-card px-3 py-2 text-sm"
         />
         <span className="mt-1 block text-xs font-normal text-muted">
-          Shown on the book page and used for filters on the home screen.
+          {f("countryHintEdit")}
         </span>
       </label>
       <label className="block text-sm font-medium">
-        URL slug
+        {f("slugEdit")}
         <input
           name="slug"
           required
@@ -131,12 +135,11 @@ export function EditBookForm({
           className="mt-1 w-full rounded-md border border-border bg-card px-3 py-2 font-mono text-xs"
         />
         <span className="mt-1 block text-xs font-normal text-muted">
-          Changing this moves the book to a new URL; links using the old address
-          will stop working.
+          {f("slugEditWarning")}
         </span>
       </label>
       <label className="block text-sm font-medium">
-        Short summary (optional)
+        {f("summary")}
         <textarea
           name="summary"
           rows={3}
@@ -145,11 +148,11 @@ export function EditBookForm({
         />
       </label>
       <label className="block text-sm font-medium">
-        Tags (optional, comma-separated)
+        {f("tags")}
         <input
           name="tags"
           defaultValue={tagsDisplay}
-          placeholder="philosophy, ancient-greece"
+          placeholder={f("tagsPlaceholderEdit")}
           className="mt-1 w-full rounded-md border border-border bg-card px-3 py-2 text-sm"
         />
       </label>
@@ -159,10 +162,7 @@ export function EditBookForm({
         </p>
       ) : null}
       {!figureOk ? (
-        <p className="text-xs text-muted">
-          Save is disabled until ✓ appears next to the figure name, or you leave the
-          name unchanged from when you opened this page.
-        </p>
+        <p className="text-xs text-muted">{f("figureEditHint")}</p>
       ) : null}
       <div className="flex flex-wrap items-center gap-3">
         <SubmitButton blockSubmit={!figureOk} />
@@ -170,7 +170,7 @@ export function EditBookForm({
           href={`/books/${bookSlug}`}
           className="text-sm text-muted no-underline hover:underline"
         >
-          Cancel
+          {c("cancel")}
         </Link>
       </div>
     </form>

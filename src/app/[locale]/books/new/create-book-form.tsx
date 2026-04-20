@@ -61,6 +61,7 @@ function NewBookDraftActions({
 
 export function CreateBookForm() {
   const t = useTranslations("NewBook");
+  const f = useTranslations("BookForm");
   const formRef = useRef<HTMLFormElement>(null);
   const [state, formAction] = useActionState(createBook, initial);
   const [figureOk, setFigureOk] = useState(false);
@@ -92,26 +93,26 @@ export function CreateBookForm() {
       className="max-w-xl space-y-4"
     >
       <label className="block text-sm font-medium">
-        Book title
+        {f("bookTitle")}
         <input
           name="title"
           required
-          placeholder="e.g. The Life of Hypatia"
+          placeholder={f("bookTitlePlaceholder")}
           className="mt-1 w-full rounded-md border border-border bg-card px-3 py-2 text-sm"
         />
       </label>
       <label htmlFor="create-figureName" className="block text-sm font-medium">
-        Historical figure (canonical name)
+        {f("figureLabel")}
       </label>
       <FigureNameField
         id="create-figureName"
         name="figureName"
         required
-        placeholder="e.g. Hypatia of Alexandria"
+        placeholder={f("figurePlaceholder")}
         onValidityChange={setFigureOk}
       />
       <label htmlFor="create-intendedAges" className="block text-sm font-medium">
-        Intended ages / audience
+        {f("intendedAges")}
       </label>
       <IntendedAudienceSelect
         id="create-intendedAges"
@@ -119,40 +120,40 @@ export function CreateBookForm() {
         className="mt-1 w-full rounded-md border border-border bg-card px-3 py-2 text-sm"
       />
       <span className="mt-1 block text-xs text-muted">
-        Used for browsing filters and for local AI (reading level and tone).
+        {f("intendedAgesHint")}
       </span>
       <label
         htmlFor="create-defaultLocale-search"
         className="block text-sm font-medium"
       >
-        Primary language
+        {f("primaryLanguage")}
       </label>
       <BookPrimaryLanguageSelect id="create-defaultLocale" />
       <p className="mt-1 text-xs text-muted">
-        You can add more languages after the book is created (book settings).
+        {f("primaryLanguageHintCreate")}
       </p>
       <label className="block text-sm font-medium">
-        Country / region (optional)
+        {f("country")}
         <input
           name="country"
           maxLength={255}
-          placeholder="e.g. India, France, United States"
+          placeholder={f("countryPlaceholder")}
           className="mt-1 w-full rounded-md border border-border bg-card px-3 py-2 text-sm"
         />
         <span className="mt-1 block text-xs font-normal text-muted">
-          Used for browsing filters on the home page.
+          {f("countryHintCreate")}
         </span>
       </label>
       <label className="block text-sm font-medium">
-        URL slug (optional — short figure name + title if empty)
+        {f("slugCreate")}
         <input
           name="slug"
-          placeholder="hypatia"
+          placeholder={f("slugPlaceholder")}
           className="mt-1 w-full rounded-md border border-border bg-card px-3 py-2 text-sm font-mono text-xs"
         />
       </label>
       <label className="block text-sm font-medium">
-        Short summary (optional)
+        {f("summary")}
         <textarea
           name="summary"
           rows={3}
@@ -160,10 +161,10 @@ export function CreateBookForm() {
         />
       </label>
       <label className="block text-sm font-medium">
-        Tags (optional, comma-separated)
+        {f("tags")}
         <input
           name="tags"
-          placeholder="philosophy, ancient-greece, mathematics"
+          placeholder={f("tagsPlaceholderCreate")}
           className="mt-1 w-full rounded-md border border-border bg-card px-3 py-2 text-sm"
         />
       </label>
