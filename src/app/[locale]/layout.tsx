@@ -8,6 +8,7 @@ import { IBM_Plex_Mono, Inter } from "next/font/google";
 import { hasLocale } from "next-intl";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { AdSenseUnit } from "@/components/adsense-unit";
 import { SiteHeader } from "@/components/site-header";
 import { isRtlLocale, routing } from "@/i18n/routing";
 import { Providers } from "./providers";
@@ -84,9 +85,21 @@ export default async function LocaleLayout({ children, params }: Props) {
   setRequestLocale(locale);
   const messages = await getMessages();
   const dir = isRtlLocale(locale) ? "rtl" : "ltr";
+  const adsenseClientId = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID?.trim();
+  const adsenseSlotId = process.env.NEXT_PUBLIC_ADSENSE_SLOT_ID?.trim();
+  const adsenseEnabled = Boolean(adsenseClientId && adsenseSlotId);
 
   return (
     <html lang={locale} dir={dir} suppressHydrationWarning>
+      <head>
+        {adsenseEnabled ? (
+          <script
+            async
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseClientId}`}
+            crossOrigin="anonymous"
+          />
+        ) : null}
+      </head>
       <body
         className={`${inter.variable} ${plexMono.variable} min-h-screen flex flex-col antialiased`}
       >
@@ -95,6 +108,7 @@ export default async function LocaleLayout({ children, params }: Props) {
             <SiteHeader />
             <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-8">
               {children}
+              {adsenseEnabled ? <AdSenseUnit /> : null}
             </main>
           </Providers>
         </NextIntlClientProvider>
