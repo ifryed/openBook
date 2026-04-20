@@ -10,6 +10,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { AdSenseUnit } from "@/components/adsense-unit";
 import { SiteHeader } from "@/components/site-header";
+import { normalizedAdsenseClientId } from "@/lib/adsense-client-id";
 import { isRtlLocale, routing } from "@/i18n/routing";
 import { Providers } from "./providers";
 
@@ -85,9 +86,9 @@ export default async function LocaleLayout({ children, params }: Props) {
   setRequestLocale(locale);
   const messages = await getMessages();
   const dir = isRtlLocale(locale) ? "rtl" : "ltr";
-  const adsenseClientId = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID?.trim();
+  const adsenseClientId = normalizedAdsenseClientId();
   const adsenseSlotId = process.env.NEXT_PUBLIC_ADSENSE_SLOT_ID?.trim();
-  // Head script: Google’s onboarding snippet (publisher id only).
+  // Head script: Google’s onboarding snippet (publisher id only; must be ca-pub-…).
   const adsenseHeadScript = Boolean(adsenseClientId);
   // Visible unit: needs a display ad unit id from AdSense → Ads → By ad unit.
   const adsenseDisplayUnit = Boolean(adsenseClientId && adsenseSlotId);

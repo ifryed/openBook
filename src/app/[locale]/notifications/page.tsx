@@ -41,8 +41,12 @@ export default async function NotificationsPage({ params }: Props) {
     },
   });
 
-  const watching = items.filter((n) => !n.viaDigest);
-  const digest = items.filter((n) => n.viaDigest);
+  const watching = items.filter(
+    (n) => !n.viaDigest && !n.fromBookOwnership && !n.reportId,
+  );
+  const digest = items.filter((n) => n.viaDigest && !n.reportId);
+  const yourBooks = items.filter((n) => n.fromBookOwnership && !n.reportId);
+  const reports = items.filter((n) => n.reportId);
 
   return (
     <div className="space-y-8">
@@ -50,8 +54,8 @@ export default async function NotificationsPage({ params }: Props) {
         <div>
           <h1 className="text-2xl font-semibold">Notifications</h1>
           <p className="mt-1 text-sm text-muted">
-            Watching: edits on books you follow. Digest: site-wide activity you
-            opted into in{" "}
+            Watching, digest, books you created, and updates on reports you
+            filed. Email delivery is optional — configure it in{" "}
             <Link href="/settings" className="text-accent no-underline hover:underline">
               settings
             </Link>
@@ -101,6 +105,38 @@ export default async function NotificationsPage({ params }: Props) {
           </ul>
         )}
       </section>
+
+      <section className="space-y-3">
+        <h2 className="text-sm font-medium text-muted">Your books</h2>
+        {yourBooks.length === 0 ? (
+          <p className="text-sm text-muted">
+            Nothing here yet. When someone edits a book you created (and you do
+            not watch it), it appears here.
+          </p>
+        ) : (
+          <ul className="space-y-2">
+            {yourBooks.map((n) => (
+              <NotificationRow key={n.id} n={n} />
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <section className="space-y-3">
+        <h2 className="text-sm font-medium text-muted">Your reports</h2>
+        {reports.length === 0 ? (
+          <p className="text-sm text-muted">
+            No report updates. When moderators comment or resolve a report you
+            filed, it shows here.
+          </p>
+        ) : (
+          <ul className="space-y-2">
+            {reports.map((n) => (
+              <NotificationRow key={n.id} n={n} />
+            ))}
+          </ul>
+        )}
+      </section>
     </div>
   );
 }
@@ -114,6 +150,8 @@ function NotificationRow({
     readAt: Date | null;
     createdAt: Date;
     viaDigest: boolean;
+    fromBookOwnership: boolean;
+    reportId: string | null;
     book: { slug: string; title: string } | null;
     section: {
       slug: string;
@@ -163,6 +201,16 @@ function NotificationRow({
           <Link href={href} className="font-medium text-foreground no-underline hover:underline">
             {title}
           </Link>
+          {n.reportId ? (
+            <span className="rounded bg-border px-1.5 py-0.5 text-xs text-muted">
+              Report
+            </span>
+          ) : null}
+          {n.fromBookOwnership ? (
+            <span className="rounded bg-border px-1.5 py-0.5 text-xs text-muted">
+              Your book
+            </span>
+          ) : null}
           {n.viaDigest ? (
             <span className="rounded bg-border px-1.5 py-0.5 text-xs text-muted">
               Digest

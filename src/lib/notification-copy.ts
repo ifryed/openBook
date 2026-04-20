@@ -21,6 +21,10 @@ export function notificationSummary(input: {
       return sectionTitle
         ? `Revision reverted in “${sectionTitle}” · ${bookTitle}`
         : `Revision reverted in ${bookTitle}`;
+    case "REPORT_PUBLIC_COMMENT":
+      return `New public comment on your report · ${bookTitle}`;
+    case "REPORT_RESOLVED":
+      return `Report resolved · ${bookTitle}`;
     default:
       return `Update · ${bookTitle}`;
   }
@@ -34,6 +38,9 @@ export function notificationHref(input: {
   const { bookSlug, sectionSlug, type } = input;
   if (type === "NEW_BOOK") {
     return `/books/${bookSlug}`;
+  }
+  if (type === "REPORT_PUBLIC_COMMENT" || type === "REPORT_RESOLVED") {
+    return `/books/${bookSlug}/reports`;
   }
   if (sectionSlug) {
     return `/books/${bookSlug}/${sectionSlug}/history`;

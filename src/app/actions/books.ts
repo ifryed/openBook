@@ -17,6 +17,7 @@ import {
   revertToRevision,
 } from "@/lib/revisions";
 import { resolveSectionTitle } from "@/lib/section-localization";
+import { dispatchNotificationEmails } from "@/lib/notification-email-dispatch";
 import { notifyBookActivityTx, notifyNewBookDigestTx } from "@/lib/notifications";
 import { awardReputationTx } from "@/lib/reputation";
 import { assertFigurePickInSearchResults } from "@/lib/figure-candidates";
@@ -180,7 +181,7 @@ async function insertNewBook(
   const t = await getTranslations("Errors");
   const isDraft = options?.isDraft ?? false;
   try {
-    await prisma.$transaction(async (tx) => {
+    const emailIds = await prisma.$transaction(async (tx) => {
       const book = await tx.book.create({
         data: {
           slug: v.slug,
@@ -253,9 +254,11 @@ async function insertNewBook(
           refSectionId,
           refRevisionId,
         });
-        await notifyNewBookDigestTx(tx, book.id, userId);
+        return await notifyNewBookDigestTx(tx, book.id, userId);
       }
+      return [] as string[];
     });
+    await dispatchNotificationEmails(emailIds);
   } catch (e) {
     const msg = e instanceof Error ? e.message : t("couldNotCreateBook");
     if (msg.includes("Unique constraint")) {
@@ -401,7 +404,7 @@ async function insertPublishedAutoWizardBook(
 ): Promise<BookFormState> {
   const t = await getTranslations("Errors");
   try {
-    await prisma.$transaction(async (tx) => {
+    const emailIds = await prisma.$transaction(async (tx) => {
       const book = await tx.book.create({
         data: {
           slug: v.slug,
@@ -439,6 +442,7 @@ async function insertPublishedAutoWizardBook(
 
       let firstSectionId: string | null = null;
       let firstRevisionId: string | null = null;
+      const revisionEmailIds: string[] = [];
 
       for (let i = 0; i < chapters.length; i++) {
         const ch = chapters[i]!;
@@ -473,13 +477,15 @@ async function insertPublishedAutoWizardBook(
           refSectionId: section.id,
           refRevisionId: rev.id,
         });
-        await notifyBookActivityTx(tx, {
-          bookId: book.id,
-          actorId: userId,
-          type: "NEW_REVISION",
-          sectionId: section.id,
-          revisionId: rev.id,
-        });
+        revisionEmailIds.push(
+          ...(await notifyBookActivityTx(tx, {
+            bookId: book.id,
+            actorId: userId,
+            type: "NEW_REVISION",
+            sectionId: section.id,
+            revisionId: rev.id,
+          })),
+        );
       }
 
       await awardReputationTx(tx, userId, "BOOK_CREATED", {
@@ -487,8 +493,10 @@ async function insertPublishedAutoWizardBook(
         refSectionId: firstSectionId,
         refRevisionId: firstRevisionId,
       });
-      await notifyNewBookDigestTx(tx, book.id, userId);
+      const digestIds = await notifyNewBookDigestTx(tx, book.id, userId);
+      return [...revisionEmailIds, ...digestIds];
     });
+    await dispatchNotificationEmails(emailIds);
   } catch (e) {
     const msg = e instanceof Error ? e.message : t("couldNotPublishBook");
     if (msg.includes("Unique constraint")) {
@@ -707,7 +715,7 @@ export async function publishDraftBook(
   if (pickErr) return pickErr;
 
   try {
-    await prisma.$transaction(async (tx) => {
+    const emailIds = await prisma.$transaction(async (tx) => {
       await tx.book.update({
         where: { id: book.id },
         data: { isDraft: false },
@@ -743,8 +751,9 @@ export async function publishDraftBook(
           refRevisionId,
         });
       }
-      await notifyNewBookDigestTx(tx, book.id, session.user.id);
+      return await notifyNewBookDigestTx(tx, book.id, session.user.id);
     });
+    await dispatchNotificationEmails(emailIds);
   } catch (e) {
     return {
       error: e instanceof Error ? e.message : t("couldNotUpdateBook"),
@@ -886,7 +895,7 @@ export async function createSectionFromChapterDraft(
   }
 
   try {
-    await prisma.$transaction(async (tx) => {
+    const emailIds = await prisma.$transaction(async (tx) => {
       const section = await tx.section.create({
         data: {
           bookId: book.id,
@@ -911,7 +920,7 @@ export async function createSectionFromChapterDraft(
         refSectionId: section.id,
         refRevisionId: rev.id,
       });
-      await notifyBookActivityTx(tx, {
+      return await notifyBookActivityTx(tx, {
         bookId: book.id,
         actorId: userId,
         type: "NEW_SECTION",
@@ -919,6 +928,7 @@ export async function createSectionFromChapterDraft(
         revisionId: rev.id,
       });
     });
+    await dispatchNotificationEmails(emailIds);
   } catch (e) {
     if (
       e instanceof Error &&
@@ -1220,7 +1230,7 @@ export async function addSectionToBook(
   }
 
   try {
-    await prisma.$transaction(async (tx) => {
+    const emailIds = await prisma.$transaction(async (tx) => {
       const section = await tx.section.create({
         data: {
           bookId: book.id,
@@ -1245,7 +1255,7 @@ export async function addSectionToBook(
         refSectionId: section.id,
         refRevisionId: rev.id,
       });
-      await notifyBookActivityTx(tx, {
+      return await notifyBookActivityTx(tx, {
         bookId: book.id,
         actorId: session.user!.id,
         type: "NEW_SECTION",
@@ -1253,6 +1263,7 @@ export async function addSectionToBook(
         revisionId: rev.id,
       });
     });
+    await dispatchNotificationEmails(emailIds);
   } catch (e) {
     if (
       e instanceof Error &&
@@ -1567,7 +1578,7 @@ export async function saveSectionRevision(
   }
 
   try {
-    await prisma.$transaction(async (tx) => {
+    const emailIds = await prisma.$transaction(async (tx) => {
       const latest = await getLatestRevision(section.id, locale, tx);
       const rev = await createRevision(
         {
@@ -1591,7 +1602,7 @@ export async function saveSectionRevision(
         refSectionId: section.id,
         refRevisionId: rev.id,
       });
-      await notifyBookActivityTx(tx, {
+      return await notifyBookActivityTx(tx, {
         bookId: section.bookId,
         actorId: session.user.id,
         type: "NEW_REVISION",
@@ -1599,6 +1610,7 @@ export async function saveSectionRevision(
         revisionId: rev.id,
       });
     });
+    await dispatchNotificationEmails(emailIds);
   } catch (e) {
     return { error: e instanceof Error ? e.message : t("saveFailed") };
   }
@@ -1674,7 +1686,7 @@ export async function saveSectionRevisionInline(
   }
 
   try {
-    await prisma.$transaction(async (tx) => {
+    const emailIds = await prisma.$transaction(async (tx) => {
       const latest = await getLatestRevision(section.id, loc, tx);
       const rev = await createRevision(
         {
@@ -1698,7 +1710,7 @@ export async function saveSectionRevisionInline(
         refSectionId: section.id,
         refRevisionId: rev.id,
       });
-      await notifyBookActivityTx(tx, {
+      return await notifyBookActivityTx(tx, {
         bookId: section.bookId,
         actorId: session.user.id,
         type: "NEW_REVISION",
@@ -1706,6 +1718,7 @@ export async function saveSectionRevisionInline(
         revisionId: rev.id,
       });
     });
+    await dispatchNotificationEmails(emailIds);
   } catch (e) {
     return { error: e instanceof Error ? e.message : t("saveFailed") };
   }
@@ -1864,7 +1877,7 @@ export async function revertSectionRevision(
     throw e instanceof Error ? e : new Error("Rate limited");
   }
 
-  await prisma.$transaction(async (tx) => {
+  const emailIds = await prisma.$transaction(async (tx) => {
     const rev = await revertToRevision(
       {
         sectionId: section.id,
@@ -1879,7 +1892,7 @@ export async function revertSectionRevision(
       refSectionId: section.id,
       refRevisionId: rev.id,
     });
-    await notifyBookActivityTx(tx, {
+    return await notifyBookActivityTx(tx, {
       bookId: section.bookId,
       actorId: session.user.id,
       type: "REVERT",
@@ -1887,6 +1900,7 @@ export async function revertSectionRevision(
       revisionId: rev.id,
     });
   });
+  await dispatchNotificationEmails(emailIds);
 
   revalidatePathLocalized(`/books/${bookSlug}/${sectionSlug}`);
   revalidatePathLocalized(`/books/${bookSlug}/${sectionSlug}/history`);
@@ -1991,7 +2005,7 @@ export async function addTocSectionsFromLlm(
 
   const defLoc = book.defaultLocale;
 
-  await prisma.$transaction(async (tx) => {
+  const emailIds = await prisma.$transaction(async (tx) => {
     let order = maxOrder;
     for (const row of normalized) {
       order += 1;
@@ -2023,7 +2037,7 @@ export async function addTocSectionsFromLlm(
       added += 1;
     }
     if (added > 0) {
-      await notifyBookActivityTx(tx, {
+      return await notifyBookActivityTx(tx, {
         bookId: book.id,
         actorId: session.user!.id,
         type: "NEW_SECTION",
@@ -2031,7 +2045,9 @@ export async function addTocSectionsFromLlm(
         revisionId: null,
       });
     }
+    return [] as string[];
   });
+  await dispatchNotificationEmails(emailIds);
 
   revalidatePathLocalized(`/books/${bookSlug}`);
   return { added, skipped };

@@ -12,6 +12,14 @@ enum NotificationType {
   NEW_BOOK
   NEW_SECTION
   REVERT
+  REPORT_PUBLIC_COMMENT
+  REPORT_RESOLVED
+}
+
+enum EmailNotifyMode {
+  OFF
+  ALL
+  CUSTOM
 }
 
 enum ReportStatus {
@@ -61,6 +69,18 @@ model User {
   isAdmin          Boolean   @default(false) @map("is_admin")
   reputationPoints Int       @default(0) @map("reputation_points")
   digestOptIn      Boolean   @default(false) @map("digest_opt_in")
+  emailNotifyMode  EmailNotifyMode @default(OFF) @map("email_notify_mode")
+  /** Used when emailNotifyMode is CUSTOM. */
+  emailFromWatch           Boolean @default(true) @map("email_from_watch")
+  emailFromDigest          Boolean @default(true) @map("email_from_digest")
+  emailFromOwnedBooks      Boolean @default(true) @map("email_from_owned_books")
+  emailReportUpdates       Boolean @default(true) @map("email_report_updates")
+  emailTypeNewRevision     Boolean @default(true) @map("email_type_new_revision")
+  emailTypeNewBook         Boolean @default(true) @map("email_type_new_book")
+  emailTypeNewSection      Boolean @default(true) @map("email_type_new_section")
+  emailTypeRevert          Boolean @default(true) @map("email_type_revert")
+  emailTypeReportPublicComment Boolean @default(true) @map("email_type_report_public_comment")
+  emailTypeReportResolved  Boolean @default(true) @map("email_type_report_resolved")
 
   accounts          Account[]
   sessions          Session[]
@@ -239,19 +259,24 @@ model Notification {
   userId     String           @map("user_id")
   type       NotificationType
   viaDigest  Boolean          @default(false) @map("via_digest")
+  /** True when the user is the book creator (not a watcher); used for email/source prefs. */
+  fromBookOwnership Boolean   @default(false) @map("from_book_ownership")
   readAt     DateTime?        @map("read_at")
   createdAt  DateTime         @default(now()) @map("created_at")
   bookId     String?          @map("book_id")
   sectionId  String?          @map("section_id")
   revisionId String?          @map("revision_id")
+  reportId   String?          @map("report_id")
   actorId    String?          @map("actor_id")
 
   user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   book     Book?     @relation(fields: [bookId], references: [id], onDelete: Cascade)
   section  Section?  @relation(fields: [sectionId], references: [id], onDelete: Cascade)
   revision Revision? @relation(fields: [revisionId], references: [id], onDelete: SetNull)
+  report   Report?   @relation(fields: [reportId], references: [id], onDelete: Cascade)
 
   @@index([userId, readAt, createdAt])
+  @@index([reportId])
 }
 
 model ReputationEvent {
@@ -288,6 +313,7 @@ model Report {
   resolvedBy   User?                     @relation("ReportResolver", fields: [resolvedById], references: [id])
   disposition  ReportDisposition?
   moderationLog ReportModerationLogEntry[]
+  notifications Notification[]
 }
 
 model ReportModerationLogEntry {

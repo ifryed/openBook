@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { normalizedAdsenseClientId } from "@/lib/adsense-client-id";
 
 declare global {
   interface Window {
@@ -12,9 +13,10 @@ declare global {
 const PUSH_WAIT_MS = 20_000;
 
 export function AdSenseUnit() {
-  const clientId = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID?.trim();
+  const clientId = normalizedAdsenseClientId();
   const slotId = process.env.NEXT_PUBLIC_ADSENSE_SLOT_ID?.trim();
   const didPush = useRef(false);
+  const insRef = useRef<HTMLModElement | null>(null);
 
   useEffect(() => {
     if (!clientId || !slotId || didPush.current) return;
@@ -22,6 +24,13 @@ export function AdSenseUnit() {
     const started = performance.now();
     const tryPush = () => {
       if (didPush.current) return;
+      const ins = insRef.current;
+      // AdSense needs a non-zero slot width; an empty <ins> as a flex item can be 0px wide.
+      if (!ins || ins.offsetWidth <= 0) {
+        if (performance.now() - started >= PUSH_WAIT_MS) return;
+        requestAnimationFrame(tryPush);
+        return;
+      }
       if (window.adsbygoogle) {
         didPush.current = true;
         window.adsbygoogle.push({});
@@ -37,9 +46,10 @@ export function AdSenseUnit() {
   if (!clientId || !slotId) return null;
 
   return (
-    <div className="mx-auto mt-8 flex min-h-[90px] justify-center">
+    <div className="mx-auto mt-8 flex min-h-[90px] w-full max-w-full justify-center">
       <ins
-        className="adsbygoogle"
+        ref={insRef}
+        className="adsbygoogle block w-full max-w-full min-w-0"
         style={{ display: "block" }}
         data-ad-client={clientId}
         data-ad-slot={slotId}

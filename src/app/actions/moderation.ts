@@ -14,6 +14,8 @@ import {
   REPORT_PUBLIC_SUMMARY_MIN,
 } from "@/lib/report-moderation";
 import { getTranslations } from "next-intl/server";
+import { dispatchNotificationEmails } from "@/lib/notification-email-dispatch";
+import { notifyReportActivityTx } from "@/lib/notifications";
 
 function revalidateReportPaths(bookSlug: string | null | undefined) {
   revalidatePathLocalized("/moderation/reports");
@@ -62,7 +64,13 @@ export async function closeReportWithDisposition(formData: FormData) {
 
   const report = await prisma.report.findUnique({
     where: { id: reportId },
-    include: { book: { select: { slug: true } } },
+    select: {
+      id: true,
+      status: true,
+      bookId: true,
+      sectionId: true,
+      book: { select: { slug: true } },
+    },
   });
   if (!report) throw new Error(t("reportNotFound"));
   if (report.status !== "OPEN") {
@@ -72,7 +80,7 @@ export async function closeReportWithDisposition(formData: FormData) {
   const now = new Date();
   const actorId = session.user.id;
 
-  await prisma.$transaction(async (tx) => {
+  const emailIds = await prisma.$transaction(async (tx) => {
     await tx.reportModerationLogEntry.create({
       data: {
         reportId,
@@ -109,7 +117,15 @@ export async function closeReportWithDisposition(formData: FormData) {
       refBookId: report.bookId,
       refSectionId: report.sectionId,
     });
+    return await notifyReportActivityTx(tx, {
+      reportId,
+      bookId: report.bookId,
+      sectionId: report.sectionId,
+      actorId,
+      type: "REPORT_RESOLVED",
+    });
   });
+  await dispatchNotificationEmails(emailIds);
 
   revalidateReportPaths(report.book?.slug);
 }
@@ -141,23 +157,39 @@ export async function addPublicReportComment(formData: FormData) {
 
   const report = await prisma.report.findUnique({
     where: { id: reportId },
-    include: { book: { select: { slug: true } } },
+    select: {
+      id: true,
+      status: true,
+      bookId: true,
+      sectionId: true,
+      book: { select: { slug: true } },
+    },
   });
   if (!report) throw new Error(t("reportNotFound"));
   if (report.status !== "OPEN") {
     throw new Error(t("reportPublicCommentOnlyOpen"));
   }
 
-  await prisma.reportModerationLogEntry.create({
-    data: {
+  const emailIds = await prisma.$transaction(async (tx) => {
+    await tx.reportModerationLogEntry.create({
+      data: {
+        reportId,
+        actorId: session.user.id,
+        kind: "PUBLIC_COMMENT",
+        visibility: "PUBLIC",
+        disposition: null,
+        body,
+      },
+    });
+    return await notifyReportActivityTx(tx, {
       reportId,
+      bookId: report.bookId,
+      sectionId: report.sectionId,
       actorId: session.user.id,
-      kind: "PUBLIC_COMMENT",
-      visibility: "PUBLIC",
-      disposition: null,
-      body,
-    },
+      type: "REPORT_PUBLIC_COMMENT",
+    });
   });
+  await dispatchNotificationEmails(emailIds);
 
   revalidateReportPaths(report.book?.slug);
 }
