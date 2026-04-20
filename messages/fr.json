@@ -42,6 +42,13 @@
     "hoverSendEbook": "Envoyer le livre électronique"
   },
   "NewBook": {
+    "pageTitle": "Ajouter un livre",
+    "autoGenLink": "Génération automatique du livre",
+    "autoGenDescription": "TOC complet et brouillons de chapitre dans un seul flux guidé (WebGPU).",
+    "importJsonLink": "Importer le brouillon d'un livre (JSON)",
+    "importJsonDescription": "Depuis l'outil local openbook-bookbuilder. S'ouvre comme un brouillon—vérifiez la figure, puis publiez depuis les Brouillons.",
+    "figureFocusBlurb": "Un livre se concentre sur une personnalité historique. Ajoutez des sections de la page du livre ou divisez le contenu avec les en-têtes Markdown pour l'instant.",
+    "backBrowse": "← Retour à la navigation",
     "createBook": "Créer un livre",
     "creatingBook": "Création…",
     "figureCreateHint": "La création de livres est désactivée jusqu'à ce que vous voyiez ✓ à côté du nom de l'image (après Vérifier le nom → choisir une personne → Utiliser la personne sélectionnée). Vous pouvez toujours enregistrer en brouillon et finir plus tard dans les Brouillons."
@@ -352,16 +359,16 @@
   },
   "BookExportColophon": {
     "chapterTitle": "Créé avec OpenBook",
-    "p1Before": "Ce livre numérique provient d’un manuscrit hébergé sur ",
+    "p1Before": "Ce livre numérique a été produit à partir d'un manuscrit hébergé sur ",
     "p1Brand": "OpenBook",
-    "p1After": ", où chaque biographie est rédigée et améliorée en collaboration en ligne.",
-    "p2BeforeLib": "Si vous souhaitez aider à ",
+    "p1After": ", où chaque biographie est écrite et affinée collaborativement en ligne.",
+    "p2BeforeLib": "Si vous souhaitez contribuer à ",
     "p2Lib": "enrichir la bibliothèque",
-    "p2Mid": " avec de nouvelles figures ou thèmes, ou à ",
-    "p2Mod": "modérer les modifications et les signalements",
-    "p2After": ", rendez-vous sur le site et créez un compte : le projet repose sur des lecteurs comme vous.",
+    "p2Mid": " avec de nouvelles figures ou sujets, ou pour ",
+    "p2Mod": "aider à modérer les modifications et les signalements",
+    "p2After": ", visitez le site et créez un compte—les contributions des lecteurs font vivre ce projet.",
     "linkOpenBook": "OpenBook",
-    "linkThisBook": "Ce livre sur le web"
+    "linkThisBook": "Ce livre sur le Web"
   },
   "Errors": {
     "signInRequired": "Vous devez être connecté.",
@@ -444,7 +451,9 @@
     "couldNotUpdateBook": "Impossible d'actualiser le livre.",
     "draftNotFound": "Brouillon introuvable.",
     "deleteDraftTitleMismatch": "Le titre que vous avez saisi ne correspond pas à cet ébauche. Entrez le titre exact de votre liste d'ébauches pour confirmer la suppression.",
-    "invalidChapterJson": "Les données JSON des chapitres doivent être un tableau JSON d'objets avec titre, corps et slug facultatif."
+    "invalidChapterJson": "Les données JSON des chapitres doivent être un tableau JSON d'objets avec titre, corps et slug facultatif.",
+    "bookDraftImportInvalidJson": "Le JSON n'a pas pu être analysé.",
+    "bookDraftImportInvalidPayload": "Ce fichier n'est pas un brouillon de livre valide (version 1)."
   },
   "Drafts": {
     "title": "Vos brouillons",
@@ -502,7 +511,16 @@
     "deleteDraftBookMustMatch": "Doit correspondre exactement :",
     "editContent": "Modifier le contenu",
     "editContentHint": "Enregistrer comme brouillon et ouvrir la table des matières pour ajouter ou réordonner les chapitres.",
-    "draftBookActionsAriaLabel": "Publier ou supprimer ce brouillon"
+    "draftBookActionsAriaLabel": "Publier ou supprimer ce brouillon",
+    "importBookJsonLink": "Importer un fichier JSON de livre",
+    "importBookJsonLinkHint": "Charger un fichier de brouillon de livre depuis l'outil openbook-bookbuilder local (ou tout export compatible).",
+    "importBookJsonTitle": "Importer un brouillon de livre (JSON)",
+    "importBookJsonIntro": "Coller du JSON ou choisir un fichier .json. Vous serez dirigé vers l'éditeur de brouillons de livres pour vérifier la figure et publier.",
+    "importBookJsonFile": "Fichier JSON",
+    "importBookJsonPaste": "Ou collez JSON",
+    "importBookJsonHint": "Format : version 1 payload avec titre, figureName, âges cibles, locale par défaut et tableau de chapitres facultatif.",
+    "importBookJsonSubmit": "Importer brouillon",
+    "importBookJsonWorking": "Importation en cours…"
   },
   "AutoWizard": {
     "confirmFigure": "Confirmer la figure historique avec Vérifiez le nom → choisissez → Utilisez la personne sélectionnée.",
