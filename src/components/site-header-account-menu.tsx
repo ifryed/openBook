@@ -42,6 +42,13 @@ export function SiteHeaderAccountMenu(props: {
       <LanguageSwitcher variant="menu" />
       <div className="my-1 border-t border-border" aria-hidden />
       <Link
+        href="/mission"
+        className="block px-3 py-2 text-foreground no-underline hover:bg-background"
+        role="menuitem"
+      >
+        {t("mission")}
+      </Link>
+      <Link
         href="/contribute"
         className="block px-3 py-2 text-foreground no-underline hover:bg-background"
         role="menuitem"
@@ -109,6 +116,12 @@ export function SiteHeaderGuestMenu() {
     <HeaderMenuDetails menuClassName="absolute end-0 z-50 mt-1 min-w-[12rem] rounded-md border border-border bg-card py-1 text-sm shadow-md">
       <LanguageSwitcher variant="menu" />
       <div className="my-1 border-t border-border" aria-hidden />
+      <Link
+        href="/mission"
+        className="block px-3 py-2 text-foreground no-underline hover:bg-background"
+      >
+        {t("mission")}
+      </Link>
       <Link
         href="/contribute"
         className="block px-3 py-2 text-foreground no-underline hover:bg-background"

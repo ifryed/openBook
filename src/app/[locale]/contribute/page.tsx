@@ -35,6 +35,14 @@ export default async function ContributePage({ params }: Props) {
         </h2>
         <p className="text-sm leading-relaxed text-muted">{t("missionP1")}</p>
         <p className="text-sm leading-relaxed text-muted">{t("missionP2")}</p>
+        <p>
+          <Link
+            href="/mission"
+            className="text-sm font-medium text-accent no-underline hover:underline"
+          >
+            {t("missionPersonalCta")}
+          </Link>
+        </p>
       </section>
 
       <section className="space-y-3">

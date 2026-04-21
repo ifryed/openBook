@@ -35,7 +35,7 @@
     "no": "No",
     "share": "Compartir",
     "linkCopied": "Enlace copiado",
-    "bookDownloadCount": "{count, plural, =0 {0 descargas} one {1 descarga} other {# descargas}}"
+    "bookDownloadCount": "{count, plural, =0 {0 downloads} one {1 download} other {# downloads}}"
   },
   "ShareDialog": {
     "hoverSharePage": "Compartir página",
@@ -65,6 +65,7 @@
     "brand": "LibroAbierto",
     "contentReportLog": "Registro de informes de contenido",
     "browse": "Explorar",
+    "mission": "Nuestra misión",
     "contribute": "Colabora en el código",
     "addBook": "Añadir libro",
     "signUp": "Registrarse",
@@ -102,11 +103,34 @@
     "helpBulletLint": "Ejecutar npm run lint antes de abrir una solicitud de extracción para que las comprobaciones de estilo CI se mantengan verdes.",
     "helpBulletTranslations": "El texto de interfaz de usuario vive en messages/en.json. Después de agregar o cambiar las claves, ejecute npm run messages:sync para que otros archivos de idioma sean válidos (consulte el README).",
     "githubLinkLabel": "Repositorios: github.com/ifryed/openBook",
-    "backHome": "← Volver a navegar"
+    "backHome": "← Volver a navegar",
+    "missionPersonalCta": "Lee la historia personal detrás del proyecto—nuestra misión."
+  },
+  "Mission": {
+    "metaTitle": "Nuestra misión",
+    "metaDescription": "La historia detrás de OpenBook: desde una visita a la biblioteca con un niño de cinco años hasta una biblioteca colaborativa de biografías en muchos idiomas.",
+    "title": "Nuestra misión",
+    "subtitle": "La historia detrás de OpenBook—y el mundo que esperamos ayudar a construir.",
+    "p1": "Un día, llevé a mi hijo a la biblioteca, esperando encontrar un buen cuento para mis hijos.",
+    "p2": "Mi hijo, quien tenía cinco años en ese momento, pidió un libro sobre Benjamin Franklin, a quien había aprendido recientemente en la escuela. Estaba seguro de que no lo encontraríamos—pero en cambio, había muchos: desde cómics simples para niños de cuatro y cinco años hasta libros más profundos para jóvenes adultos.",
+    "p3": "Me impactó cuánto de esa misma profundidad existe en mi idioma nativo, y cuántas figuras históricas que son más importantes para nosotros estaban completamente ausentes.",
+    "p4": "Comencé a imaginar un sitio al estilo de Wikipedia—donde las personas podrían escribir y editar entre sí—para poder construir una biblioteca compartida de historias sobre las personas que han moldeado nuestra historia.",
+    "p5": "Esa idea se convirtió en OpenBook: un proyecto para crear una rica colección de biografías sobre personas importantes, en tantos idiomas como sea posible.",
+    "contributeSectionHeading": "Te invitamos a ayudar",
+    "contributeSectionIntro": "Si esta misión te resuena, hay dos grandes maneras de participar: construir la biblioteca de historias o construir el software que la impulsa.",
+    "contributeStoriesHeading": "Haz crecer la colección de historias",
+    "contributeStoriesText": "Regístrate, empieza un libro sobre una figura histórica que te importe, edita secciones con otros o agrega traducciones y versiones en paralelo. Cada contribución reflexiva hace que la biblioteca sea más rica para lectores como tú.",
+    "contributeStoriesCtaSignUp": "Registrarse para contribuir",
+    "contributeStoriesCtaAddBook": "Iniciar un libro",
+    "contributeCodeHeading": "Contribuir al código",
+    "contributeCodeText": "Los desarrolladores y diseñadores pueden ayudar a mantener a OpenBook saludable: solucionar errores, agregar funciones, mejorar la accesibilidad y el rendimiento, y traducir la interfaz del sitio a más idiomas.",
+    "contributeCodeCta": "Cómo contribuir al código",
+    "backHome": "← Volver a buscar"
   },
   "Home": {
     "title": "Libros sobre figuras históricas",
     "intro": "OpenBook es una biblioteca estilo wiki: cualquiera puede registrarse, crear un libro sobre una figura histórica y colaborar con revisiones e historial—como Wikipedia, centrado en biografías.",
+    "missionCta": "Nuestra misión — por qué existe OpenBook",
     "searchPlaceholder": "Buscar por figura, título, etiquetas o URL…",
     "filterHint": "País e idioma provienen de los libros de la biblioteca. La edad/audiencia usa la lista estándar de cada libro.",
     "activeFiltersFigure": "Figura:",
@@ -201,6 +225,43 @@
     "title": "Nueva libro",
     "blurb": "Crear un libro de biografía en colaboración. Puede agregar secciones y revisiones después de guardar."
   },
+  "BookForm": {
+    "bookTitle": "Título del libro",
+    "bookTitlePlaceholder": "Por ejemplo: La vida de Hipatia",
+    "figureLabel": "Figura histórica (nombre canónico)",
+    "figurePlaceholder": "Por ejemplo: Hipatia de Alejandría",
+    "intendedAges": "Edades o público objetivo",
+    "intendedAgesHint": "Usado para filtros de navegación y para la IA local (nivel de lectura y tono).",
+    "primaryLanguage": "Idioma principal",
+    "primaryLanguageHintCreate": "Puedes agregar más idiomas después de crear el libro (ajustes del libro).",
+    "primaryLanguageHintEdit": "Por defecto para las alternativas y los nuevos capítulos. Agrega o traduce otros idiomas en la lista encima del formulario.",
+    "country": "País / región (opcional)",
+    "countryPlaceholder": "p. ej., India, Francia, Estados Unidos",
+    "countryHintCreate": "Utilizado para filtros de navegación en la página principal.",
+    "countryHintEdit": "Mostrado en la página del libro y utilizado para filtros en la pantalla principal.",
+    "slugCreate": "Guion URL (opcional — nombre corto figura + título si está vacío)",
+    "slugEdit": "Guion URL",
+    "slugPlaceholder": "hipatia",
+    "slugEditWarning": "Cambiar esto mueve el libro a una nueva URL; los enlaces que utilizan la dirección anterior dejarán de funcionar.",
+    "summary": "Resumen corto (opcional)",
+    "tags": "Etiquetas (opcional, separadas por comas)",
+    "tagsPlaceholderCreate": "filosofía, antigua-grecia, matemáticas",
+    "tagsPlaceholderEdit": "filosofía, antigua-grecia",
+    "figureEditHint": "Guardar está desactivado hasta que ✓ aparezca junto al nombre de la figura o dejes el nombre igual a como lo viste cuando abriste esta página."
+  },
+  "IntendedAudience": {
+    "any": "Cualquiera",
+    "selectPlaceholder": "Seleccionar edad/público…",
+    "otherLegacy": "Otro (valor guardado): {value}",
+    "age0_3": "0–3",
+    "age3_8": "3–8",
+    "age5_9": "5–9",
+    "age6_10": "6–10",
+    "age8_12": "8–12",
+    "ageTeens": "Adolescentes",
+    "ageYoungAdults": "Jóvenes adultos",
+    "ageAdults": "Adultos"
+  },
   "AutoBook": {
     "title": "Libro auto (AI local)",
     "blurb": "Genere un borrador de libro en su navegador con WebLLM. La publicación todavía se ejecuta en el servidor."
@@ -213,11 +274,32 @@
   },
   "Settings": {
     "title": "Configuración",
-    "intro": "Control cómo escucha sobre actividades en OpenBook.",
+    "intro": "Resumen dentro de la aplicación y correo electrónico opcional.",
     "notificationsHeading": "Notificaciones",
     "digestLabel": "Resumen de actividad global",
-    "digestHint": "Obtenga notificaciones en la aplicación para nuevos libros y ediciones de libros a los que no está vigilando. Siempre le notifica directamente si vigila un libro.",
-    "savePreferences": "Guardar preferencias"
+    "digestHint": "Elementos dentro de la aplicación para libros que no ves.",
+    "savePreferences": "Guardar preferencias",
+    "emailHeading": "Correo electrónico",
+    "emailIntro": "Opcional. Desactivado por defecto.",
+    "emailModeNone": "Ninguno",
+    "emailModeAll": "Todos",
+    "emailModeCustom": "Personalizado",
+    "emailSourcesHeading": "Fuentes",
+    "emailSourceWatch": "Libros vigilados",
+    "emailSourceWatchHint": "Libros que vigilas.",
+    "emailSourceDigest": "Resumen",
+    "emailSourceDigestHint": "Elementos de estilo resumen.",
+    "emailSourceOwned": "Mis libros",
+    "emailSourceOwnedHint": "Libros que creaste.",
+    "emailSourceReports": "Mis informes",
+    "emailSourceReportsHint": "Informes que presentaste.",
+    "emailTypesHeading": "Tipos",
+    "emailTypeNewRevision": "Editar",
+    "emailTypeNewBook": "Nuevos libros",
+    "emailTypeNewSection": "Nuevas secciones",
+    "emailTypeRevert": "Reversión",
+    "emailTypeReportPublicComment": "Comentarios del informe",
+    "emailTypeReportResolved": "Informe resuelto"
   },
   "Profile": {
     "title": "Su perfil",
@@ -690,12 +772,12 @@
         "description": "Se revertío contenido al menos cinco veces para restaurar la calidad."
       },
       "book_title_editor": {
-        "title": "Nombra-libros",
+        "title": "Editor de títulos de libro",
         "short": "Título del libro",
-        "description": "Actualizó el título de un libro (cualquier idioma o ajustes por defecto)."
+        "description": "Actualizó el título de un libro (en cualquier idioma o configuración predeterminada)."
       },
       "chapter_title_editor": {
-        "title": "Nombra-capítulos",
+        "title": "Nombredor de capítulos",
         "short": "Título del capítulo",
         "description": "Actualizó el título de un capítulo en al menos un idioma."
       },
@@ -720,42 +802,5 @@
         "description": "Se resolvieron diez o más informes de la comunidad."
       }
     }
-  },
-  "BookForm": {
-    "bookTitle": "Book title",
-    "bookTitlePlaceholder": "e.g. The Life of Hypatia",
-    "figureLabel": "Historical figure (canonical name)",
-    "figurePlaceholder": "e.g. Hypatia of Alexandria",
-    "intendedAges": "Intended ages / audience",
-    "intendedAgesHint": "Used for browsing filters and for local AI (reading level and tone).",
-    "primaryLanguage": "Primary language",
-    "primaryLanguageHintCreate": "You can add more languages after the book is created (book settings).",
-    "primaryLanguageHintEdit": "Default for fallbacks and new chapters. Add or translate other languages in the list above the form.",
-    "country": "Country / region (optional)",
-    "countryPlaceholder": "e.g. India, France, United States",
-    "countryHintCreate": "Used for browsing filters on the home page.",
-    "countryHintEdit": "Shown on the book page and used for filters on the home screen.",
-    "slugCreate": "URL slug (optional — short figure name + title if empty)",
-    "slugEdit": "URL slug",
-    "slugPlaceholder": "hypatia",
-    "slugEditWarning": "Changing this moves the book to a new URL; links using the old address will stop working.",
-    "summary": "Short summary (optional)",
-    "tags": "Tags (optional, comma-separated)",
-    "tagsPlaceholderCreate": "philosophy, ancient-greece, mathematics",
-    "tagsPlaceholderEdit": "philosophy, ancient-greece",
-    "figureEditHint": "Save is disabled until ✓ appears next to the figure name, or you leave the name unchanged from when you opened this page."
-  },
-  "IntendedAudience": {
-    "any": "Any",
-    "selectPlaceholder": "Select age / audience…",
-    "otherLegacy": "Other (saved value): {value}",
-    "age0_3": "0–3",
-    "age3_8": "3–8",
-    "age5_9": "5–9",
-    "age6_10": "6–10",
-    "age8_12": "8–12",
-    "ageTeens": "Teens",
-    "ageYoungAdults": "Young adults",
-    "ageAdults": "Adults"
   }
 }

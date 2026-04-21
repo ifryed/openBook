@@ -35,7 +35,7 @@
     "no": "否",
     "share": "分享",
     "linkCopied": "链接已复制",
-    "bookDownloadCount": "{count} 次下载"
+    "bookDownloadCount": "{count, plural, =0 {0 downloads} one {1 download} other {# downloads}}"
   },
   "ShareDialog": {
     "hoverSharePage": "分享页面",
@@ -65,6 +65,7 @@
     "brand": "子为机演",
     "contentReportLog": "内容举报日志",
     "browse": "浏览",
+    "mission": "我们的使命",
     "contribute": "贡献代码",
     "addBook": "添加书籍",
     "signUp": "注册",
@@ -102,11 +103,34 @@
     "helpBulletLint": "在打开 PR 前运行 npm run lint，以便 CI 风格的检查保持绿色状态。",
     "helpBulletTranslations": "UI 复制内容位于 messages/en.json 中。添加或更改键后，运行 npm run messages:sync 以使其他语言文件保持有效（请参阅 README）。",
     "githubLinkLabel": "存储库：github.com/ifryed/openBook",
+    "backHome": "← 返回浏览",
+    "missionPersonalCta": "阅读该项目的个人故事 - 我们的使命。"
+  },
+  "Mission": {
+    "metaTitle": "我们的使命",
+    "metaDescription": "开放书籍背后的故事：从带五岁孩子去图书馆的经历，到一个拥有许多语言传记协作图书馆。",
+    "title": "我们的使命",
+    "subtitle": "开放书籍背后的故事——以及我们希望帮助构建的世界。",
+    "p1": "有一天，我带着儿子去图书馆，希望能找到一本合适的童话故事书给孩子们阅读。",
+    "p2": "当时五岁的儿子要求找一本关于本杰明·富兰克林的书，因为他最近在学校里了解到这个人物。我肯定我们找不到这样的书——但实际上有很多：从适合四岁和五岁儿童的简单漫画到针对年轻成人的更深入的书籍。",
+    "p3": "我惊讶于这种深度在我的母语中很少存在，以及我们最关心的许多历史人物完全缺失。",
+    "p4": "我开始设想一个像维基百科的精神网站——人们可以在其中互相编写和编辑内容——以便我们可以建立一个关于塑造我们历史的人们故事的共享图书馆。",
+    "p5": "这个想法变成了开放书籍：一个创建有关重要人物丰富传记集的项目，并且尽可能多的语言",
+    "contributeSectionHeading": "您受邀参与其中",
+    "contributeSectionIntro": "如果您对这个任务感同身受，有两大方式可以参与——建设故事库或建设支撑它的软件。",
+    "contributeStoriesHeading": "扩大故事集合",
+    "contributeStoriesText": "注册、开始撰写关于您关注的历史人物的书籍，与他人编辑章节，添加翻译和平行语言版本。每一个周到的贡献都会使图书馆更丰富多彩，为像您这样的读者提供更多宝贵资源。",
+    "contributeStoriesCtaSignUp": "注册参与",
+    "contributeStoriesCtaAddBook": "开始一本",
+    "contributeCodeHeading": "为代码做出贡献",
+    "contributeCodeText": "开发人员和设计师可以帮助 OpenBook 保持健康状态：修复错误，添加功能，提高可访问性和性能，并将网站界面翻译成更多语言。",
+    "contributeCodeCta": "如何为代码库做出贡献",
     "backHome": "← 返回浏览"
   },
   "Home": {
     "title": "历史人物书籍",
     "intro": "OpenBook 是一个维基式图书馆：任何人都可以注册、创建关于历史人物的书籍，并通过修订与历史协作——类似维基百科，专注于传记。",
+    "missionCta": "我们的使命 - OpenBook 的存在理由",
     "searchPlaceholder": "按人物、标题、标签或网址搜索…",
     "filterHint": "国家与语言选项来自书库中的书籍。年龄/受众使用每本书的标准列表。",
     "activeFiltersFigure": "人物：",
@@ -201,6 +225,43 @@
     "title": "新书",
     "blurb": ""
   },
+  "BookForm": {
+    "bookTitle": "书籍标题",
+    "bookTitlePlaceholder": "例如： Hypatia 的生活",
+    "figureLabel": "历史人物（标准名称）",
+    "figurePlaceholder": "例如：亚历山大城的 Hypatia",
+    "intendedAges": "目标年龄/受众",
+    "intendedAgesHint": "用于浏览过滤器和本地 AI（阅读水平和语调）。",
+    "primaryLanguage": "主要语言",
+    "primaryLanguageHintCreate": "创建书籍后，可以在书本设置中添加更多语言。",
+    "primaryLanguageHintEdit": "默认值将用于备用和新章节。 在表单上方列表中添加或翻译其他语言。",
+    "country": "国家/地区（可选）",
+    "countryPlaceholder": "例如：印度、法国、美国",
+    "countryHintCreate": "用于主页的浏览过滤器。",
+    "countryHintEdit": "显示在书籍页面上，并用于主屏幕上的过滤器。",
+    "slugCreate": "URL 标记（可选——如果为空则为短名称+标题）",
+    "slugEdit": "URL 标记",
+    "slugPlaceholder": "hypatia",
+    "slugEditWarning": "更改此项将书籍移动到新 URL；使用旧地址的链接将停止工作。",
+    "summary": "简要摘要（可选）",
+    "tags": "标签（可选，逗号分隔）",
+    "tagsPlaceholderCreate": "哲学、古希腊、数学",
+    "tagsPlaceholderEdit": "哲学、古希腊",
+    "figureEditHint": "保存按钮直到 ✓ 出现在图形名称旁边或您从打开此页面时的名称不变时才能启用。"
+  },
+  "IntendedAudience": {
+    "any": "任何",
+    "selectPlaceholder": "选择年龄/受众...",
+    "otherLegacy": "其他（保存的值）：{value}",
+    "age0_3": "0-3岁",
+    "age3_8": "3-8岁",
+    "age5_9": "5-9岁",
+    "age6_10": "6-10岁",
+    "age8_12": "8-12岁",
+    "ageTeens": "青少年",
+    "ageYoungAdults": "青年成年人",
+    "ageAdults": "成年人"
+  },
   "AutoBook": {
     "title": "自动生成图书 (本地 AI)",
     "blurb": "使用 WebLLM 在浏览器中生成草稿图书。出版仍在服务器上发布。"
@@ -213,11 +274,32 @@
   },
   "Settings": {
     "title": "设置",
-    "intro": "控制您如何听到 OpenBook 中的活动。",
+    "intro": "应用内摘要和可选电子邮件。",
     "notificationsHeading": "通知",
     "digestLabel": "全球活动摘要",
-    "digestHint": "获取应用内通知，以便于新的图书和未在浏览器中监视的图书上的修改。您一直会直接收到所监视的图书的通知。",
-    "savePreferences": "保存首选项"
+    "digestHint": "未观看的书籍的应用内项目。",
+    "savePreferences": "保存首选项",
+    "emailHeading": "电子邮件",
+    "emailIntro": "可选，默认关闭。",
+    "emailModeNone": "无",
+    "emailModeAll": "全部",
+    "emailModeCustom": "自定义",
+    "emailSourcesHeading": "来源",
+    "emailSourceWatch": "关注书籍",
+    "emailSourceWatchHint": "您关注的书籍。",
+    "emailSourceDigest": "摘要",
+    "emailSourceDigestHint": "摘要式条目。",
+    "emailSourceOwned": "我的书籍",
+    "emailSourceOwnedHint": "您创建的书籍。",
+    "emailSourceReports": "我的报告",
+    "emailSourceReportsHint": "您提交的报告。",
+    "emailTypesHeading": "类型",
+    "emailTypeNewRevision": "编辑",
+    "emailTypeNewBook": "新书籍",
+    "emailTypeNewSection": "新章节",
+    "emailTypeRevert": "回滚",
+    "emailTypeReportPublicComment": "举报评论",
+    "emailTypeReportResolved": "举报已解决"
   },
   "Profile": {
     "title": "您的个人资料",
@@ -690,14 +772,14 @@
         "description": "至少五次回退内容以恢复质量。"
       },
       "book_title_editor": {
-        "title": "书名编辑者",
-        "short": "书名",
-        "description": "更新过图书标题（任意语言或默认设置）。"
+        "title": "书籍命名人",
+        "short": "书籍标题",
+        "description": "更新了书籍的标题（任何语言或默认设置）"
       },
       "chapter_title_editor": {
-        "title": "章节名编辑者",
+        "title": "章节命名",
         "short": "章节标题",
-        "description": "在至少一种语言中更新过章节标题。"
+        "description": "至少更新了一种语言中的章节标题。"
       },
       "contributor_tier": {
         "title": "贡献者层级",
@@ -720,42 +802,5 @@
         "description": "解决了十个或更多社区报告。"
       }
     }
-  },
-  "BookForm": {
-    "bookTitle": "Book title",
-    "bookTitlePlaceholder": "e.g. The Life of Hypatia",
-    "figureLabel": "Historical figure (canonical name)",
-    "figurePlaceholder": "e.g. Hypatia of Alexandria",
-    "intendedAges": "Intended ages / audience",
-    "intendedAgesHint": "Used for browsing filters and for local AI (reading level and tone).",
-    "primaryLanguage": "Primary language",
-    "primaryLanguageHintCreate": "You can add more languages after the book is created (book settings).",
-    "primaryLanguageHintEdit": "Default for fallbacks and new chapters. Add or translate other languages in the list above the form.",
-    "country": "Country / region (optional)",
-    "countryPlaceholder": "e.g. India, France, United States",
-    "countryHintCreate": "Used for browsing filters on the home page.",
-    "countryHintEdit": "Shown on the book page and used for filters on the home screen.",
-    "slugCreate": "URL slug (optional — short figure name + title if empty)",
-    "slugEdit": "URL slug",
-    "slugPlaceholder": "hypatia",
-    "slugEditWarning": "Changing this moves the book to a new URL; links using the old address will stop working.",
-    "summary": "Short summary (optional)",
-    "tags": "Tags (optional, comma-separated)",
-    "tagsPlaceholderCreate": "philosophy, ancient-greece, mathematics",
-    "tagsPlaceholderEdit": "philosophy, ancient-greece",
-    "figureEditHint": "Save is disabled until ✓ appears next to the figure name, or you leave the name unchanged from when you opened this page."
-  },
-  "IntendedAudience": {
-    "any": "Any",
-    "selectPlaceholder": "Select age / audience…",
-    "otherLegacy": "Other (saved value): {value}",
-    "age0_3": "0–3",
-    "age3_8": "3–8",
-    "age5_9": "5–9",
-    "age6_10": "6–10",
-    "age8_12": "8–12",
-    "ageTeens": "Teens",
-    "ageYoungAdults": "Young adults",
-    "ageAdults": "Adults"
   }
 }

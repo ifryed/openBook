@@ -67,6 +67,12 @@ export async function SiteHeader() {
           <Link href="/" className="text-muted no-underline hover:underline">
             {t("browse")}
           </Link>
+          <Link
+            href="/mission"
+            className="text-muted no-underline hover:underline"
+          >
+            {t("mission")}
+          </Link>
           {session?.user ? (
             <>
               <Link

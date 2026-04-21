@@ -82,6 +82,14 @@ export default async function HomePage({ params, searchParams }: Props) {
           {t("title")}
         </h1>
         <p className="mt-2 max-w-2xl text-muted">{t("intro")}</p>
+        <p className="mt-2 max-w-2xl">
+          <Link
+            href="/mission"
+            className="text-sm text-accent no-underline hover:underline"
+          >
+            {t("missionCta")}
+          </Link>
+        </p>
       </div>
 
       <form className="space-y-4" action={`/${locale}`} method="get">
