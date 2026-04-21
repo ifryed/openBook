@@ -5,6 +5,10 @@ services:
     image: postgres:16-alpine
     container_name: openbook-postgres
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 100M
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
