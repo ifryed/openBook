@@ -12,6 +12,7 @@ import {
 import { prisma } from "@/lib/db";
 import { canViewBook } from "@/lib/book-visibility";
 import { listRevisions } from "@/lib/revisions";
+import { revisionStructuralBadgeFlags } from "@/lib/revision-structural-badges";
 import { resolveSectionTitle } from "@/lib/section-localization";
 import { resolveBookTitle } from "@/lib/book-title-localization";
 
@@ -165,15 +166,42 @@ export default async function SectionHistoryPage({
         <ul className="mt-3 space-y-3">
           {revisions.map((r, i) => {
             const older = revisions[i + 1];
+            const { bookTitleEdit, chapterTitleEdit } =
+              revisionStructuralBadgeFlags(
+                r.labelDiffBefore,
+                r.labelDiffAfter,
+              );
             return (
               <li
                 key={r.id}
                 className="rounded-lg border border-border bg-card p-3 text-sm"
               >
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
-                  <span className="font-medium">
-                    {r.createdAt.toLocaleString()}
-                  </span>
+                  <div className="flex min-w-0 flex-wrap items-baseline gap-2">
+                    <span className="font-medium">
+                      {r.createdAt.toLocaleString()}
+                    </span>
+                    {bookTitleEdit || chapterTitleEdit ? (
+                      <span className="flex flex-wrap items-center gap-1.5">
+                        {bookTitleEdit ? (
+                          <span
+                            className="rounded border border-border bg-muted/40 px-1.5 py-0.5 text-[11px] font-medium leading-none text-muted"
+                            title="This revision includes a book title change"
+                          >
+                            Book title
+                          </span>
+                        ) : null}
+                        {chapterTitleEdit ? (
+                          <span
+                            className="rounded border border-border bg-muted/40 px-1.5 py-0.5 text-[11px] font-medium leading-none text-muted"
+                            title="This revision includes a chapter title change"
+                          >
+                            Chapter title
+                          </span>
+                        ) : null}
+                      </span>
+                    ) : null}
+                  </div>
                   <Link
                     href={`/users/${r.author.id}`}
                     className="text-muted no-underline hover:underline"

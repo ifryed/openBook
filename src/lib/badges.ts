@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { revisionStructuralBadgeFlags } from "@/lib/revision-structural-badges";
 
 export const BADGE_IDS = [
   "first_book",
@@ -8,6 +9,8 @@ export const BADGE_IDS = [
   "scribe",
   "historian",
   "curator",
+  "book_title_editor",
+  "chapter_title_editor",
   "contributor_tier",
   "steward_tier",
   "moderator",
@@ -33,6 +36,8 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
   { id: "scribe", sortOrder: 50, category: "edit" },
   { id: "historian", sortOrder: 60, category: "edit" },
   { id: "curator", sortOrder: 70, category: "edit" },
+  { id: "book_title_editor", sortOrder: 71, category: "edit" },
+  { id: "chapter_title_editor", sortOrder: 72, category: "edit" },
   { id: "contributor_tier", sortOrder: 80, category: "trust" },
   { id: "steward_tier", sortOrder: 90, category: "trust" },
   { id: "moderator", sortOrder: 100, category: "community" },
@@ -85,6 +90,16 @@ export const BADGE_VISUAL: Record<BadgeId, BadgeVisual> = {
     cardClass:
       "border-rose-400/45 bg-gradient-to-br from-rose-400/16 to-fuchsia-500/10 shadow-sm shadow-rose-500/12",
   },
+  book_title_editor: {
+    emoji: "🏷️",
+    cardClass:
+      "border-amber-500/40 bg-gradient-to-br from-amber-400/20 to-yellow-600/10 shadow-sm shadow-amber-500/12",
+  },
+  chapter_title_editor: {
+    emoji: "🔖",
+    cardClass:
+      "border-indigo-400/45 bg-gradient-to-br from-indigo-400/18 to-blue-600/10 shadow-sm shadow-indigo-500/12",
+  },
   contributor_tier: {
     emoji: "⭐",
     cardClass:
@@ -114,7 +129,25 @@ type Counts = {
   reverts: number;
   sectionAddEvents: number;
   points: number;
+  bookTitleEditRevisions: number;
+  chapterTitleEditRevisions: number;
 };
+
+/** Matches server-written `summaryComment` when label diff columns were absent. */
+function bookTitleEditFromSummary(summary: string | null): boolean {
+  if (!summary) return false;
+  if (summary.startsWith("Book title (")) return true;
+  // Book settings: `Title: old → new` in the parenthetical (see `updateBook` in books.ts).
+  return (
+    summary.startsWith("Book updated (") &&
+    summary.includes("Title:") &&
+    summary.includes(" → ")
+  );
+}
+
+function chapterTitleEditFromSummary(summary: string | null): boolean {
+  return summary != null && summary.startsWith("Chapter title (");
+}
 
 function isEarned(id: BadgeId, c: Counts): boolean {
   switch (id) {
@@ -138,6 +171,10 @@ function isEarned(id: BadgeId, c: Counts): boolean {
       return c.reportsResolved >= 10;
     case "curator":
       return c.reverts >= 5;
+    case "book_title_editor":
+      return c.bookTitleEditRevisions >= 1;
+    case "chapter_title_editor":
+      return c.chapterTitleEditRevisions >= 1;
     case "architect":
       return c.sectionAddEvents >= 1;
     default: {
@@ -171,6 +208,7 @@ export async function computeUserBadgeState(
     reverts,
     sectionAddEvents,
     user,
+    titleEditRevisionRows,
   ] = await Promise.all([
     prisma.book.count({
       where: { createdById: userId, isDraft: false },
@@ -189,7 +227,53 @@ export async function computeUserBadgeState(
       where: { id: userId },
       select: { reputationPoints: true },
     }),
+    prisma.revision.findMany({
+      where: {
+        authorId: userId,
+        OR: [
+          { labelDiffBefore: { contains: "Book title (" } },
+          { labelDiffAfter: { contains: "Book title (" } },
+          { labelDiffBefore: { contains: "Chapter title (" } },
+          { labelDiffAfter: { contains: "Chapter title (" } },
+          { labelDiffBefore: { startsWith: "Title:" } },
+          { labelDiffAfter: { startsWith: "Title:" } },
+          { labelDiffBefore: { contains: "\nTitle:" } },
+          { labelDiffAfter: { contains: "\nTitle:" } },
+          { summaryComment: { startsWith: "Book title (" } },
+          { summaryComment: { startsWith: "Chapter title (" } },
+          {
+            AND: [
+              { summaryComment: { startsWith: "Book updated (" } },
+              { summaryComment: { contains: "Title:" } },
+            ],
+          },
+        ],
+      },
+      select: {
+        labelDiffBefore: true,
+        labelDiffAfter: true,
+        summaryComment: true,
+      },
+    }),
   ]);
+
+  let bookTitleEditRevisions = 0;
+  let chapterTitleEditRevisions = 0;
+  for (const row of titleEditRevisionRows) {
+    const flags = revisionStructuralBadgeFlags(
+      row.labelDiffBefore,
+      row.labelDiffAfter,
+    );
+    if (flags.bookTitleEdit || bookTitleEditFromSummary(row.summaryComment)) {
+      bookTitleEditRevisions += 1;
+    }
+    if (
+      flags.chapterTitleEdit ||
+      chapterTitleEditFromSummary(row.summaryComment)
+    ) {
+      chapterTitleEditRevisions += 1;
+    }
+  }
 
   const points = user?.reputationPoints ?? 0;
   const counts: Counts = {
@@ -199,6 +283,8 @@ export async function computeUserBadgeState(
     reverts,
     sectionAddEvents,
     points,
+    bookTitleEditRevisions,
+    chapterTitleEditRevisions,
   };
 
   const byId = {} as Record<BadgeId, boolean>;

@@ -689,6 +689,16 @@
         "short": "Rückgängigmachen",
         "description": "Inhalt mindestens fünfmal rückgängig gemacht, um die Qualität wiederherzustellen."
       },
+      "book_title_editor": {
+        "title": "Buchtitel-Pfleger",
+        "short": "Buchtitel",
+        "description": "Hat den Titel eines Buches aktualisiert (beliebige Sprache oder Standardeinstellungen)."
+      },
+      "chapter_title_editor": {
+        "title": "Kapiteltitel-Pfleger",
+        "short": "Kapiteltitel",
+        "description": "Hat den Titel eines Kapitels in mindestens einer Sprache aktualisiert."
+      },
       "contributor_tier": {
         "title": "Contributor-Ebene",
         "short": "100+ Punkte",

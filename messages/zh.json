@@ -689,6 +689,16 @@
         "short": "回退",
         "description": "至少五次回退内容以恢复质量。"
       },
+      "book_title_editor": {
+        "title": "书名编辑者",
+        "short": "书名",
+        "description": "更新过图书标题（任意语言或默认设置）。"
+      },
+      "chapter_title_editor": {
+        "title": "章节名编辑者",
+        "short": "章节标题",
+        "description": "在至少一种语言中更新过章节标题。"
+      },
       "contributor_tier": {
         "title": "贡献者层级",
         "short": "100+ 分",

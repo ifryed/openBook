@@ -689,6 +689,16 @@
         "short": "Revertir",
         "description": "Se revertío contenido al menos cinco veces para restaurar la calidad."
       },
+      "book_title_editor": {
+        "title": "Nombra-libros",
+        "short": "Título del libro",
+        "description": "Actualizó el título de un libro (cualquier idioma o ajustes por defecto)."
+      },
+      "chapter_title_editor": {
+        "title": "Nombra-capítulos",
+        "short": "Título del capítulo",
+        "description": "Actualizó el título de un capítulo en al menos un idioma."
+      },
       "contributor_tier": {
         "title": "Nivel colaborador",
         "short": "100+ pts",

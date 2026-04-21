@@ -689,6 +689,16 @@
         "short": "Reverts",
         "description": "Reverted content at least five times to restore quality."
       },
+      "book_title_editor": {
+        "title": "Nommeur de livre",
+        "short": "Titre du livre",
+        "description": "A mis à jour le titre d’un livre (langue ou réglages par défaut)."
+      },
+      "chapter_title_editor": {
+        "title": "Nommeur de chapitre",
+        "short": "Titre du chapitre",
+        "description": "A mis à jour le titre d’un chapitre dans au moins une langue."
+      },
       "contributor_tier": {
         "title": "Contributor tier",
         "short": "100+ pts",

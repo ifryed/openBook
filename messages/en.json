@@ -747,6 +747,16 @@
         "short": "Reverts",
         "description": "Reverted content at least five times to restore quality."
       },
+      "book_title_editor": {
+        "title": "Book namer",
+        "short": "Book title",
+        "description": "Updated a book's title (any language or default settings)."
+      },
+      "chapter_title_editor": {
+        "title": "Chapter namer",
+        "short": "Chapter title",
+        "description": "Updated a chapter's title in at least one language."
+      },
       "contributor_tier": {
         "title": "Contributor tier",
         "short": "100+ pts",

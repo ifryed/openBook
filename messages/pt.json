@@ -689,6 +689,16 @@
         "short": "Revert",
         "description": "Revertente pelo menos cinco vezes para restaurar a qualidade."
       },
+      "book_title_editor": {
+        "title": "Nomeador de livros",
+        "short": "Título do livro",
+        "description": "Atualizou o título de um livro (qualquer idioma ou definições padrão)."
+      },
+      "chapter_title_editor": {
+        "title": "Nomeador de capítulos",
+        "short": "Título do capítulo",
+        "description": "Atualizou o título de um capítulo em pelo menos um idioma."
+      },
       "contributor_tier": {
         "title": "Nível Contribuidor",
         "short": "100+ pontos",

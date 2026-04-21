@@ -726,6 +726,16 @@
         "short": "שחזורים",
         "description": "שחזר תוכן לפחות חמש פעמים לשיפור האיכות."
       },
+      "book_title_editor": {
+        "title": "עורך שם הספר",
+        "short": "שם ספר",
+        "description": "עדכן את כותרת ספר (בכל שפה או בהגדרות ברירת המחדל)."
+      },
+      "chapter_title_editor": {
+        "title": "עורך שם הפרק",
+        "short": "שם פרק",
+        "description": "עדכן את כותרת פרק לפחות בשפה אחת."
+      },
       "contributor_tier": {
         "title": "רמת תורם",
         "short": "100+ נק׳",
