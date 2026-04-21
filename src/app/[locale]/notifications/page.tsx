@@ -3,7 +3,7 @@ import { Link } from "@/i18n/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db";
 import { redirectToLogin } from "@/lib/auth-redirect";
-import { setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import {
   markAllNotificationsRead,
   markNotificationRead,
@@ -19,6 +19,7 @@ type Props = { params: Promise<{ locale: string }> };
 export default async function NotificationsPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
+  const t = await getTranslations("Notifications");
 
   const session = await auth();
   if (!session?.user?.id) {
@@ -68,7 +69,7 @@ export default async function NotificationsPage({ params }: Props) {
               type="submit"
               className="cursor-pointer rounded-md border border-border bg-card px-3 py-1.5 text-sm text-foreground hover:bg-background"
             >
-              Mark all read
+              {t("markAllRead")}
             </button>
           </form>
         ) : null}

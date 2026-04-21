@@ -87,11 +87,7 @@ export async function SiteHeader() {
               <div className="flex items-center gap-0.5">
                 <Link
                   href="/notifications"
-                  className={`relative inline-flex items-center justify-center rounded-md p-2 no-underline transition-colors ${
-                    unread > 0
-                      ? "bg-accent text-white hover:opacity-90 hover:!text-white"
-                      : "bg-transparent text-muted hover:bg-background hover:text-foreground"
-                  }`}
+                  className="relative inline-flex items-center justify-center rounded-md bg-transparent p-2 text-muted no-underline transition-colors hover:bg-background hover:text-foreground"
                   aria-label={
                     unread > 0
                       ? t("notificationsUnread", {
@@ -101,6 +97,12 @@ export async function SiteHeader() {
                   }
                 >
                   <IconEnvelope className="h-5 w-5 shrink-0" />
+                  {unread > 0 ? (
+                    <span
+                      className="absolute end-1 top-1 h-2 w-2 rounded-full bg-green-500 ring-2 ring-card"
+                      aria-hidden
+                    />
+                  ) : null}
                 </Link>
                 <SiteHeaderAccountMenu
                   canResolveReports={canResolveReports}

@@ -244,7 +244,7 @@
   },
   "Notifications": {
     "title": "Notifications",
-    "markAllRead": "Mark all read",
+    "markAllRead": "Mark all as read",
     "empty": "No notifications yet.",
     "openBook": "Open book"
   },
