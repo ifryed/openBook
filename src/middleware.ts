@@ -16,6 +16,16 @@ function stripLocalePrefix(pathname: string): string {
   return "/" + parts.join("/") || "/";
 }
 
+function isTermsAllowlistedPath(pathWithoutLocale: string): boolean {
+  return (
+    pathWithoutLocale === "/terms" ||
+    pathWithoutLocale === "/privacy" ||
+    pathWithoutLocale === "/accept-terms" ||
+    pathWithoutLocale === "/login" ||
+    pathWithoutLocale === "/signup"
+  );
+}
+
 function isProtectedPath(pathWithoutLocale: string): boolean {
   if (pathWithoutLocale === "/books/new") return true;
   if (
@@ -85,6 +95,18 @@ export default async function middleware(request: NextRequest) {
     const login = new URL(`/${locale}/login`, request.nextUrl.origin);
     login.searchParams.set("callbackUrl", pathname + request.nextUrl.search);
     return NextResponse.redirect(login);
+  }
+
+  if (
+    token &&
+    isProtectedPath(pathNoLocale) &&
+    token.termsAccepted !== true &&
+    !isTermsAllowlistedPath(pathNoLocale)
+  ) {
+    const locale = localeFromPathname(pathname);
+    const accept = new URL(`/${locale}/accept-terms`, request.nextUrl.origin);
+    accept.searchParams.set("callbackUrl", pathname + request.nextUrl.search);
+    return NextResponse.redirect(accept);
   }
 
   return intlResponse;

@@ -9,6 +9,7 @@ import { hasLocale } from "next-intl";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { AdSenseUnit } from "@/components/adsense-unit";
+import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { normalizedAdsenseClientId } from "@/lib/adsense-client-id";
 import { isRtlLocale, routing } from "@/i18n/routing";
@@ -114,6 +115,7 @@ export default async function LocaleLayout({ children, params }: Props) {
               {children}
               {adsenseDisplayUnit ? <AdSenseUnit /> : null}
             </main>
+            <SiteFooter />
           </Providers>
         </NextIntlClientProvider>
       </body>

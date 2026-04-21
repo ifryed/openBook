@@ -3,6 +3,8 @@
 import { createBookDraftAction } from "@/app/actions/content-drafts";
 import { createBook, type BookFormState } from "@/app/actions/books";
 import { BookPrimaryLanguageSelect } from "@/components/book-primary-language-select";
+import { Link } from "@/i18n/navigation";
+import { SITE_CONTENT_LICENSE } from "@/lib/site-content-license";
 import { FigureNameField } from "@/components/figure-name-field";
 import { IntendedAudienceSelect } from "@/components/intended-audience-select";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
@@ -62,6 +64,7 @@ function NewBookDraftActions({
 export function CreateBookForm() {
   const t = useTranslations("NewBook");
   const f = useTranslations("BookForm");
+  const lic = useTranslations("ContentLicense");
   const formRef = useRef<HTMLFormElement>(null);
   const [state, formAction] = useActionState(createBook, initial);
   const [figureOk, setFigureOk] = useState(false);
@@ -92,6 +95,28 @@ export function CreateBookForm() {
       action={formAction as unknown as (formData: FormData) => void}
       className="max-w-xl space-y-4"
     >
+      <p className="text-xs leading-relaxed text-muted">
+        {lic.rich("newBookHint", {
+          licenseLink: (chunks) => (
+            <a
+              href={SITE_CONTENT_LICENSE.deedUrl}
+              className="font-medium text-accent underline-offset-2 hover:underline"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              {chunks}
+            </a>
+          ),
+          termsLink: (chunks) => (
+            <Link
+              href="/terms"
+              className="font-medium text-accent no-underline hover:underline"
+            >
+              {chunks}
+            </Link>
+          ),
+        })}
+      </p>
       <label className="block text-sm font-medium">
         {f("bookTitle")}
         <input

@@ -160,7 +160,12 @@
     "invalidCredentials": "Invalid email or password.",
     "orDivider": "or",
     "signInWithEmail": "Sign in with email",
-    "passwordHint": "Password (min 8 characters)"
+    "passwordHint": "Password (min 8 characters)",
+    "signUpBlurbGoogle": "Sign up with Google or email and password. You can create books and edit with full revision history.",
+    "signUpBlurbEmail": "Anyone can sign up with email and password to create books and edit with full revision history.",
+    "signupGoogleTermsReminder": "If you use Google, you will be asked to accept the Terms and Privacy Policy on your first visit to a protected page (for example creating a book).",
+    "registerCheckboxLabel": "I agree to the <termsLink>Terms of Service</termsLink> and <privacyLink>Privacy Policy</privacyLink>.",
+    "signInLegalNote": "By signing in you agree to our <termsLink>Terms of Service</termsLink> and <privacyLink>Privacy Policy</privacyLink>."
   },
   "Tier": {
     "newcomer": "Newcomer",
@@ -535,7 +540,8 @@
     "deleteDraftTitleMismatch": "The title you typed does not match this draft. Enter the exact title from your drafts list to confirm deletion.",
     "invalidChapterJson": "Chapters JSON must be a JSON array of objects with title, body, and optional slug.",
     "bookDraftImportInvalidJson": "The JSON could not be parsed.",
-    "bookDraftImportInvalidPayload": "This file is not a valid book draft (version 1)."
+    "bookDraftImportInvalidPayload": "This file is not a valid book draft (version 1).",
+    "acceptTermsRequired": "You must accept the Terms of Service and Privacy Policy to continue."
   },
   "Drafts": {
     "title": "Your drafts",
@@ -800,6 +806,160 @@
         "title": "Trusted resolver",
         "short": "10 reports",
         "description": "Resolved ten or more community reports."
+      }
+    }
+  },
+  "SiteFooter": {
+    "navAria": "Legal and license",
+    "terms": "Terms of Service",
+    "privacy": "Privacy Policy",
+    "licenseDeed": "{license} (deed)",
+    "disclaimer": "Content is user-generated and provided for informational purposes only. OpenBook does not provide legal, professional, or factual guarantees. Please review our <termsLink>Terms of Service</termsLink> and <privacyLink>Privacy Policy</privacyLink> for full details."
+  },
+  "AcceptTerms": {
+    "metaTitle": "Accept terms",
+    "metaDescription": "Accept the OpenBook Terms of Service and Privacy Policy to continue.",
+    "title": "Before you continue",
+    "subtitle": "Please confirm you agree to our policies.",
+    "intro": "To create or edit books on OpenBook, you need to accept the current Terms of Service and Privacy Policy. Summaries are not substitutes for the full documents.",
+    "bulletTerms": "Terms of Service — rules for using the site, your responsibilities, and how contributions are licensed.",
+    "bulletPrivacy": "Privacy Policy — what we collect (for example account and session data) and how we use it.",
+    "bulletLicense": "Contributions you publish are offered to the public under CC0 1.0 Universal (public domain dedication) as described in the Terms.",
+    "checkboxLabel": "I have read and agree to the <termsLink>Terms of Service</termsLink> and <privacyLink>Privacy Policy</privacyLink>.",
+    "submit": "Continue",
+    "submitting": "Saving…"
+  },
+  "ContentLicense": {
+    "bookNoticePrefix": "Text in this book is contributed by users and offered to the public under",
+    "bookNoticeLicenseLink": "{label}",
+    "bookNoticeMid": "; see the",
+    "bookNoticeTermsLink": "Terms of Service",
+    "bookNoticeSuffix": " for details and disclaimers.",
+    "newBookHint": "By creating a book you confirm you have the right to share this material and that your contributions will be offered to the public under <licenseLink>CC0 1.0 Universal</licenseLink>. Read the <termsLink>Terms of Service</termsLink> for the full grant, representations, and disclaimers."
+  },
+  "LegalTerms": {
+    "metaTitle": "Terms of Service",
+    "metaDescription": "Terms governing use of OpenBook, user responsibilities, CC0 licensing of contributions, and disclaimers.",
+    "title": "Terms of Service",
+    "subtitle": "Last Updated: April 21, 2026",
+    "backHome": "← Back to browse",
+    "sections": {
+      "importantNotice": {
+        "heading": "Important Notice",
+        "body": "These Terms of Service (\"Terms\") govern your access to and use of OpenBook (the \"Service\"). By using the Service, creating an account, or submitting content, you agree to be bound by these Terms and our Privacy Policy.\n\nIf you do not agree to these Terms, you must not access or use the Service.\n\nThese Terms are intended to establish legal expectations between users and the operators of OpenBook. They do not constitute legal advice. Laws vary by jurisdiction, and users should consult qualified legal counsel regarding copyright, privacy, liability, or other legal matters relevant to their use of the Service.\n\nUnless otherwise stated on a specific page, user-contributed text on OpenBook is made available to the public under the Creative Commons CC0 1.0 Universal Public Domain Dedication (\"CC0 1.0\"). The full legal text is available at: https://creativecommons.org/publicdomain/zero/1.0/"
+      },
+      "definitions": {
+        "heading": "1. Definitions",
+        "body": "For purposes of these Terms:\n\n* \"OpenBook,\" \"Service,\" \"we,\" \"us,\" and \"our\" refer to the operators, maintainers, and infrastructure supporting this OpenBook instance.\n* \"You\" and \"your\" refer to the individual or entity accessing or using the Service.\n* \"Content\" means all text, titles, metadata, and other materials submitted to, displayed on, or made available through the Service.\n* \"User Contributions\" means Content that you submit, edit, upload, publish, or otherwise make available through the Service."
+      },
+      "changes": {
+        "heading": "2. Changes to These Terms",
+        "body": "We may update these Terms from time to time. Material changes will be indicated by updating the \"Last Updated\" date above.\n\nYour continued use of the Service after any such updates constitutes your acceptance of the revised Terms to the fullest extent permitted by applicable law."
+      },
+      "userContent": {
+        "heading": "3. User-Generated Content and Responsibility",
+        "body": "OpenBook hosts user-generated biographical, educational, and reference material. We do not guarantee the accuracy, completeness, legality, reliability, or suitability of any Content.\n\nYou acknowledge and agree that:\n\n* all Content is used at your own risk;\n* you are solely responsible for your User Contributions;\n* you must comply with all applicable laws, including those relating to copyright, defamation, privacy, export controls, and intellectual property rights;\n* you must not upload malware, spam, malicious code, deceptive material, or content you do not have the legal right to share."
+      },
+      "licenseGrant": {
+        "heading": "4. License to the Public (CC0 1.0)",
+        "body": "To ensure that OpenBook remains maximally reusable and openly accessible, you agree that each User Contribution you submit is dedicated to the public under the Creative Commons CC0 1.0 Universal Public Domain Dedication (\"CC0 1.0\").\n\nBy submitting User Contributions, you:\n\n* waive, to the fullest extent permitted by law, all copyright and related rights you hold in that contribution; and\n* agree that the contribution may be used, copied, modified, distributed, displayed, and performed by anyone for any purpose, without additional conditions, as described in the CC0 legal text.\n\nBecause CC0 may not fully apply to every right in every jurisdiction (including certain moral rights), to the extent any rights remain, you grant to us and to all users a perpetual, irrevocable, worldwide, non-exclusive, royalty-free, sublicensable license to use, reproduce, modify, distribute, publicly display, and publicly perform such Content for any purpose consistent with the goals of OpenBook.\n\nYou understand and agree that others may reuse your contributions without attribution, although the Service may retain revision history or usernames for operational, moderation, or transparency purposes."
+      },
+      "representations": {
+        "heading": "5. Your Representations and Warranties",
+        "body": "You represent and warrant that:\n\n* you have all rights, permissions, and legal authority necessary to submit your User Contributions under these Terms and under CC0 1.0;\n* your contributions do not infringe or violate the rights of any third party, including copyright, privacy, publicity, trademark, or contractual rights;\n* your contributions do not contain unlawful, defamatory, fraudulent, or harmful material.\n\nIf you cannot make these representations for specific material (for example, lengthy quotations from copyrighted works), you must not submit that material unless you have permission or another clear legal basis to do so."
+      },
+      "acceptableUse": {
+        "heading": "6. Acceptable Use",
+        "body": "You agree not to:\n\n* harass, threaten, abuse, or intimidate other users;\n* attempt to interfere with, disrupt, damage, or gain unauthorized access to the Service;\n* scrape, automate, or access the Service in a manner that harms performance, availability, or security;\n* use the Service for unlawful, fraudulent, or abusive purposes;\n* impersonate others or misrepresent your affiliation with any person or entity.\n\nWe reserve the right to suspend, restrict, or terminate access for violations of these Terms."
+      },
+      "moderation": {
+        "heading": "7. Moderation and Removal",
+        "body": "We may, but are not obligated to, review, remove, restrict, edit, or disable access to Content, accounts, or features for any reason, including to:\n\n* protect users;\n* comply with legal obligations;\n* enforce these Terms;\n* preserve the functionality and integrity of the Service.\n\nWe are not obligated to host, preserve, or restore any particular Content.\n\nCommunity reporting tools may be provided for moderation purposes. Any moderation decision is administrative only and does not constitute a legal determination."
+      },
+      "disclaimers": {
+        "heading": "8. Disclaimer of Warranties",
+        "body": "TO THE FULLEST EXTENT PERMITTED BY LAW, THE SERVICE AND ALL CONTENT ARE PROVIDED ON AN \"AS IS\" AND \"AS AVAILABLE\" BASIS, WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS, IMPLIED, STATUTORY, OR OTHERWISE.\n\nTHIS INCLUDES, WITHOUT LIMITATION, IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE, ACCURACY, QUIET ENJOYMENT, AND NON-INFRINGEMENT.\n\nWE DO NOT WARRANT THAT THE SERVICE WILL BE UNINTERRUPTED, SECURE, ERROR-FREE, OR FREE OF HARMFUL COMPONENTS."
+      },
+      "limitation": {
+        "heading": "9. Limitation of Liability",
+        "body": "TO THE FULLEST EXTENT PERMITTED BY LAW, WE SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, EXEMPLARY, OR PUNITIVE DAMAGES, OR FOR ANY LOSS OF PROFITS, REVENUE, DATA, GOODWILL, BUSINESS OPPORTUNITY, OR OTHER INTANGIBLE LOSSES, ARISING OUT OF OR RELATED TO YOUR USE OF OR INABILITY TO USE THE SERVICE OR CONTENT.\n\nOUR TOTAL AGGREGATE LIABILITY FOR ANY CLAIM ARISING OUT OF OR RELATING TO THESE TERMS OR THE SERVICE SHALL NOT EXCEED THE GREATER OF:\n\n(a) the total amount you paid to us, if any, for use of the Service during the twelve (12) months preceding the claim; or\n\n(b) fifty United States dollars (US $50), if you have not paid us any amount.\n\nSome jurisdictions do not allow certain limitations of liability, so some of the above limitations may not apply to you."
+      },
+      "indemnification": {
+        "heading": "10. Indemnification",
+        "body": "You agree to defend, indemnify, and hold harmless OpenBook, its operators, maintainers, contributors, and affiliates from and against any claims, liabilities, damages, losses, and expenses, including reasonable attorneys' fees, arising out of or relating to:\n\n* your use of the Service;\n* your User Contributions;\n* your violation of these Terms;\n* your violation of any law or third-party rights."
+      },
+      "governingLaw": {
+        "heading": "11. Governing Law",
+        "body": "These Terms shall be governed by and construed in accordance with the laws applicable to the operator's jurisdiction, without regard to conflict-of-law principles, except where mandatory consumer protection laws in your country of residence require otherwise."
+      },
+      "severability": {
+        "heading": "12. Severability",
+        "body": "If any provision of these Terms is found to be unlawful, void, or unenforceable, that provision shall be enforced to the maximum extent permitted by law, and the remaining provisions shall remain in full force and effect."
+      },
+      "contact": {
+        "heading": "13. Contact",
+        "body": "For abuse reports, legal notices, copyright concerns, or general inquiries, please use the contact channels published on this website or its associated repository, where applicable."
+      }
+    }
+  },
+  "LegalPrivacy": {
+    "metaTitle": "Privacy Policy",
+    "metaDescription": "How OpenBook collects, uses, stores, and shares information when you use the Service.",
+    "title": "Privacy Policy",
+    "subtitle": "Last Updated: April 21, 2026",
+    "backHome": "← Back to browse",
+    "sections": {
+      "importantNotice": {
+        "heading": "Important Notice",
+        "body": "This Privacy Policy (\"Policy\") explains how OpenBook (the \"Service\") collects, uses, stores, and shares information when you access or use the Service.\n\nThis Policy is intended to describe our privacy practices and your rights regarding your personal information. It is not legal advice. Privacy laws vary by jurisdiction, and this Policy should be reviewed and adapted based on your actual operations, hosting providers, and applicable laws, including but not limited to the General Data Protection Regulation (GDPR) where applicable.\n\nIf any part of this Policy conflicts with a feature-specific privacy notice, the more specific notice will control.\n\nBy using the Service, you acknowledge the practices described in this Policy."
+      },
+      "whoWeAre": {
+        "heading": "1. Who We Are",
+        "body": "OpenBook is a collaborative reading, editing, and publishing platform.\n\nDepending on how the Service is deployed, the \"operator,\" \"we,\" \"us,\" and \"our\" may refer to an individual maintainer, a development team, or an organization responsible for operating this specific OpenBook instance.\n\nContact details for the operator are typically available in the site footer, repository, or other published contact channels."
+      },
+      "informationWeCollect": {
+        "heading": "2. Information We Collect",
+        "body": "We may collect the following categories of information:\n\nAccount Information\n\nWhen you register for an account using email login, we may collect and store:\n\n* your email address;\n* an optional display name;\n* a securely stored password hash (we do not store plaintext passwords).\n\nOAuth and Third-Party Login Information\n\nIf you sign in using a third-party authentication provider such as Google, we may receive:\n\n* your account identifier from that provider;\n* your name;\n* your email address;\n* your profile image URL; and\n* other profile information that you authorize the provider to share.\n\nThe exact information received depends on your provider settings and permissions.\n\nContent and Activity Data\n\nWe store Content and activity you submit through the Service, including:\n\n* books, pages, sections, and revisions;\n* comments, reports, and moderation submissions;\n* timestamps of edits and submissions;\n* revision history;\n* technical metadata necessary to operate and maintain the Service.\n\nBecause OpenBook functions similarly to a collaborative wiki, much of this Content may be public by design.\n\nTechnical and Log Data\n\nLike most websites, we may automatically collect technical information such as:\n\n* IP addresses;\n* browser type and version;\n* operating system information;\n* device identifiers where applicable;\n* request paths and timestamps;\n* referring pages and usage patterns;\n* authentication and security logs.\n\nThis information helps us maintain security, diagnose issues, and improve reliability."
+      },
+      "howWeUse": {
+        "heading": "3. How We Use Information",
+        "body": "We use collected information for legitimate operational purposes, including:\n\nAuthentication and Account Security\n\nWe use account and session data to:\n\n* authenticate users;\n* maintain login sessions;\n* prevent unauthorized access;\n* protect accounts and platform security.\n\nService Operation and Improvement\n\nWe use submitted Content and usage information to:\n\n* display and maintain public and private pages;\n* support collaboration and revision history;\n* generate exports and backups;\n* provide notifications where enabled;\n* improve usability, reliability, and performance.\n\nCommunications\n\nIf enabled, we may use your email address to send:\n\n* account verification messages;\n* password reset links;\n* important service notices;\n* transactional notifications related to your account or content.\n\nWe do not use transactional email channels for unrelated marketing without appropriate consent where required by law.\n\nSecurity, Abuse Prevention, and Analytics\n\nWe may use technical logs and activity records to:\n\n* detect abuse, spam, fraud, or malicious activity;\n* investigate violations of our Terms of Service;\n* debug errors and service outages;\n* measure aggregate traffic and usage trends."
+      },
+      "cookies": {
+        "heading": "4. Cookies and Local Storage",
+        "body": "We use cookies, local storage, and similar technologies necessary for authentication, security, and core Service functionality.\n\nExamples include:\n\n* session cookies for login authentication;\n* security tokens;\n* preference storage for user settings.\n\nIf you disable essential cookies, some parts of the Service may not function properly.\n\nWe do not rely on non-essential tracking technologies unless disclosed separately where required by applicable law."
+      },
+      "advertising": {
+        "heading": "5. Advertising",
+        "body": "Some deployments of OpenBook may display third-party advertising, including services such as Google AdSense.\n\nIf third-party ads are enabled:\n\n* advertising providers may use cookies or similar technologies under their own privacy policies;\n* those providers may collect data independently as controllers or processors under their own legal obligations.\n\nYou should review the privacy policies, consent tools, and opt-out settings provided by those advertising partners.\n\nWe do not sell your personal information as a commodity. Where ad partners are used, they process data according to their own policies and applicable law."
+      },
+      "sharing": {
+        "heading": "6. Sharing of Information",
+        "body": "We may share information in the following circumstances:\n\nPublic Content\n\nMuch of the Content you contribute is intended to be publicly visible, including revisions and collaborative contributions.\n\nPlease do not submit private information you do not want publicly disclosed.\n\nService Providers\n\nWe may share information with trusted infrastructure providers necessary to operate the Service, such as:\n\n* hosting providers;\n* database services;\n* authentication providers;\n* email delivery providers;\n* backup and monitoring services.\n\nThese providers process information subject to their own contractual and legal obligations.\n\nLegal and Safety Requirements\n\nWe may disclose information where reasonably necessary to:\n\n* comply with legal obligations;\n* respond to lawful requests from authorities;\n* protect the rights, property, or safety of users, operators, or the public;\n* prevent fraud, abuse, or security threats;\n* enforce our Terms of Service."
+      },
+      "retention": {
+        "heading": "7. Data Retention",
+        "body": "We retain account information and submitted Content for as long as necessary to operate the Service, comply with legal obligations, resolve disputes, and maintain security.\n\nThis may include:\n\n* account records while your account remains active;\n* archived backups;\n* audit and moderation logs;\n* revision history of collaborative pages.\n\nEven after edits or account changes, historical revisions may remain preserved for transparency, moderation, abuse prevention, and platform integrity."
+      },
+      "rights": {
+        "heading": "8. Your Rights and Choices",
+        "body": "Depending on your location and applicable law, you may have rights regarding your personal information, including the right to:\n\n* access your personal data;\n* correct inaccurate information;\n* request deletion of personal data;\n* request export of your data;\n* object to or restrict certain processing;\n* withdraw consent where processing is based on consent.\n\nTo exercise these rights, use the published contact method for the operator.\n\nSome requests may be limited where retention is necessary for legitimate interests, legal compliance, fraud prevention, moderation history, or preservation of collaborative records."
+      },
+      "children": {
+        "heading": "9. Children's Privacy",
+        "body": "The Service is not directed to children under the age at which parental consent is required under applicable law in their country of residence.\n\nWe do not knowingly collect personal information from children in violation of applicable law.\n\nIf you believe that a child has provided personal data improperly, please contact us so appropriate steps can be taken."
+      },
+      "international": {
+        "heading": "10. International Users",
+        "body": "If you access the Service from outside the operator's country, your information may be processed and stored in jurisdictions with different data protection laws.\n\nBy using the Service, you acknowledge that your information may be transferred and processed in accordance with this Policy and applicable law."
+      },
+      "changes": {
+        "heading": "11. Changes to This Policy",
+        "body": "We may update this Privacy Policy from time to time.\n\nWhen changes are made, we will update the \"Last Updated\" date at the top of this page.\n\nYour continued use of the Service after such updates constitutes acknowledgment of the revised Policy to the extent permitted by law."
+      },
+      "contact": {
+        "heading": "12. Contact",
+        "body": "For privacy questions, data requests, abuse reports, or legal notices, please use the contact method published on this deployment, such as a maintainer email address, repository contact channel, or issue tracker where appropriate."
       }
     }
   }

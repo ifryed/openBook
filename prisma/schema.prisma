@@ -65,6 +65,8 @@ model User {
   emailVerified    DateTime? @map("email_verified")
   image            String?
   passwordHash     String?   @map("password_hash")
+  /** Set when the user accepts the current Terms (signup, accept-terms flow, or migration backfill). */
+  termsAcceptedAt  DateTime? @map("terms_accepted_at")
   /** Site moderators may remove books and use other admin-only tools. */
   isAdmin          Boolean   @default(false) @map("is_admin")
   reputationPoints Int       @default(0) @map("reputation_points")

@@ -19,10 +19,11 @@ export default async function SignupPage({ params }: Props) {
       <div>
         <h1 className="text-2xl font-semibold">{t("signUpTitle")}</h1>
         <p className="mt-1 text-sm text-muted">
-          {google
-            ? "Sign up with Google or email and password. You can create books and edit with full revision history."
-            : "Anyone can sign up with email and password to create books and edit with full revision history."}
+          {google ? t("signUpBlurbGoogle") : t("signUpBlurbEmail")}
         </p>
+        {google ? (
+          <p className="text-xs leading-relaxed text-muted">{t("signupGoogleTermsReminder")}</p>
+        ) : null}
       </div>
       <RegisterForm showGoogle={google} callbackUrl={callbackUrl} />
       <p className="text-center text-sm text-muted">

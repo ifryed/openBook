@@ -22,6 +22,9 @@ export async function registerUser(
   if (password.length < 8) {
     return { error: t("passwordLength") };
   }
+  if (formData.get("acceptTerms") !== "on") {
+    return { error: t("acceptTermsRequired") };
+  }
 
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) {
@@ -34,6 +37,7 @@ export async function registerUser(
       email,
       name,
       passwordHash,
+      termsAcceptedAt: new Date(),
     },
   });
 

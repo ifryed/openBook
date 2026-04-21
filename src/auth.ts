@@ -21,17 +21,29 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: PrismaAdapter(prisma),
   callbacks: {
     ...authConfig.callbacks,
-    async jwt({ token, user, ...rest }) {
+    async jwt({ token, user, trigger, ...rest }) {
       let t = token;
       if (authConfig.callbacks?.jwt) {
-        t = await authConfig.callbacks.jwt({ token: t, user, ...rest });
+        t = await authConfig.callbacks.jwt({
+          token: t,
+          user,
+          trigger,
+          ...rest,
+        });
       }
-      if (user?.id) {
+      const uid = user?.id ?? t.sub;
+      const shouldSyncProfile =
+        Boolean(uid) &&
+        (Boolean(user?.id) ||
+          trigger === "update" ||
+          t.termsAccepted === undefined);
+      if (shouldSyncProfile && uid) {
         const row = await prisma.user.findUnique({
-          where: { id: user.id },
-          select: { isAdmin: true },
+          where: { id: uid },
+          select: { isAdmin: true, termsAcceptedAt: true },
         });
         t.isAdmin = row?.isAdmin ?? false;
+        t.termsAccepted = row?.termsAcceptedAt != null;
       }
       return t;
     },
@@ -46,6 +58,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
       if (s.user) {
         s.user.isAdmin = Boolean(token.isAdmin);
+        s.user.termsAccepted = Boolean(token.termsAccepted);
       }
       return s;
     },

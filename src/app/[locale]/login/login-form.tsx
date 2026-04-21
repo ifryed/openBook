@@ -1,7 +1,7 @@
 "use client";
 
 import { GoogleSignInButton } from "@/components/google-sign-in-button";
-import { useRouter } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import { signIn } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
@@ -98,6 +98,20 @@ export function LoginForm({
               : t("signInButton")}
         </button>
       </form>
+      <p className="text-center text-xs leading-relaxed text-muted">
+        {t.rich("signInLegalNote", {
+          termsLink: (chunks) => (
+            <Link href="/terms" className="text-accent no-underline hover:underline">
+              {chunks}
+            </Link>
+          ),
+          privacyLink: (chunks) => (
+            <Link href="/privacy" className="text-accent no-underline hover:underline">
+              {chunks}
+            </Link>
+          ),
+        })}
+      </p>
     </div>
   );
 }

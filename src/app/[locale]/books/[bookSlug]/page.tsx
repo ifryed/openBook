@@ -24,6 +24,7 @@ import {
 } from "@/lib/section-localization";
 import { resolveBookTitle } from "@/lib/book-title-localization";
 import { SharePageButton } from "@/components/share-page-button";
+import { SITE_CONTENT_LICENSE } from "@/lib/site-content-license";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 type Props = {
@@ -37,6 +38,7 @@ export default async function BookPage({ params, searchParams }: Props) {
   const { lang } = await searchParams;
   const session = await auth();
   const tBookLog = await getTranslations("BookReportLog");
+  const tLicense = await getTranslations("ContentLicense");
   const showCalibreFormats = isCalibreExportEnabled();
 
   const book = await prisma.book.findUnique({
@@ -139,6 +141,24 @@ export default async function BookPage({ params, searchParams }: Props) {
         {book.summary ? (
           <p className="mt-4 text-foreground">{book.summary}</p>
         ) : null}
+        <p className="mt-3 text-xs leading-relaxed text-muted">
+          {tLicense("bookNoticePrefix")}{" "}
+          <a
+            href={SITE_CONTENT_LICENSE.deedUrl}
+            className="text-accent underline-offset-2 hover:underline"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            {tLicense("bookNoticeLicenseLink", {
+              label: SITE_CONTENT_LICENSE.shortLabel,
+            })}
+          </a>
+          {tLicense("bookNoticeMid")}{" "}
+          <Link href="/terms" className="text-accent underline-offset-2 hover:underline">
+            {tLicense("bookNoticeTermsLink")}
+          </Link>
+          {tLicense("bookNoticeSuffix")}
+        </p>
         <p className="mt-4 text-sm text-muted">
           Started by{" "}
           <Link
