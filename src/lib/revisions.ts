@@ -31,6 +31,8 @@ export async function createRevision(
     body: string;
     summaryComment?: string | null;
     parentRevisionId?: string | null;
+    labelDiffBefore?: string | null;
+    labelDiffAfter?: string | null;
   },
   db: Db = prisma,
 ) {
@@ -42,6 +44,8 @@ export async function createRevision(
       body: input.body,
       summaryComment: input.summaryComment ?? null,
       parentRevisionId: input.parentRevisionId ?? null,
+      labelDiffBefore: input.labelDiffBefore ?? null,
+      labelDiffAfter: input.labelDiffAfter ?? null,
     },
   });
 }

@@ -352,6 +352,107 @@ function userMayEditDraftBook(
   return isAdmin || userId === book.createdById;
 }
 
+const META_SUMMARY_MAX = 400;
+
+function truncateForMetaSummary(s: string, max = META_SUMMARY_MAX): string {
+  const t = s.trim();
+  if (t.length <= max) return t;
+  return `${t.slice(0, max - 1)}…`;
+}
+
+const LABEL_DIFF_MAX = 8000;
+
+function truncateLabelDiffBlock(s: string, max = LABEL_DIFF_MAX): string {
+  const t = s.trimEnd();
+  if (t.length <= max) return t;
+  return `${t.slice(0, max - 1)}…`;
+}
+
+function tocOrderLines(
+  sections: Array<{
+    id: string;
+    slug: string;
+    localizations: { locale: string; title: string }[];
+  }>,
+  orderedIds: string[],
+  defaultLocale: string,
+): string {
+  return orderedIds
+    .map((id, i) => {
+      const s = sections.find((x) => x.id === id);
+      if (!s) return `${i + 1}. ?`;
+      const name = resolveSectionTitle(
+        s.slug,
+        s.localizations,
+        defaultLocale,
+        defaultLocale,
+      );
+      return `${i + 1}. ${name}`;
+    })
+    .join("\n");
+}
+
+/**
+ * Adds a revision that reuses the latest body so structural edits show up in
+ * chapter history and trigger NEW_REVISION notifications (no reputation).
+ */
+async function appendStructuralEditRevisionTx(
+  tx: Prisma.TransactionClient,
+  input: {
+    bookId: string;
+    sectionId: string;
+    actorId: string;
+    revisionLocale: string;
+    defaultLocale: string;
+    summaryComment: string;
+    labelDiffBefore: string;
+    labelDiffAfter: string;
+  },
+): Promise<string[]> {
+  const latest = await getLatestRevision(
+    input.sectionId,
+    input.revisionLocale,
+    tx,
+  );
+  let body: string;
+  let parentRevisionId: string | null;
+  if (latest) {
+    body = latest.body;
+    parentRevisionId = latest.id;
+  } else {
+    const fallback = await getLatestRevision(
+      input.sectionId,
+      input.defaultLocale,
+      tx,
+    );
+    if (!fallback) {
+      return [];
+    }
+    body = fallback.body;
+    parentRevisionId = null;
+  }
+  const rev = await createRevision(
+    {
+      sectionId: input.sectionId,
+      authorId: input.actorId,
+      locale: input.revisionLocale,
+      body,
+      summaryComment: input.summaryComment,
+      parentRevisionId,
+      labelDiffBefore: truncateLabelDiffBlock(input.labelDiffBefore),
+      labelDiffAfter: truncateLabelDiffBlock(input.labelDiffAfter),
+    },
+    tx,
+  );
+  return notifyBookActivityTx(tx, {
+    bookId: input.bookId,
+    actorId: input.actorId,
+    type: "NEW_REVISION",
+    sectionId: input.sectionId,
+    revisionId: rev.id,
+  });
+}
+
 type WizardPublishChapterRow = { slug: string; title: string; body: string };
 
 async function normalizeWizardPublishChapters(items: unknown): Promise<
@@ -1037,10 +1138,17 @@ export async function updateBook(
     return { error: t("anotherSlug") };
   }
 
-  try {
-    await assertCanCreateRevision(session.user.id);
-  } catch (e) {
-    return { error: e instanceof Error ? e.message : t("rateLimited") };
+  const nameFieldsChanged =
+    newSlug !== book.slug ||
+    title !== book.title.trim() ||
+    figureName !== book.figureName.trim();
+
+  if (nameFieldsChanged) {
+    try {
+      await assertCanCreateRevision(session.user.id);
+    } catch (e) {
+      return { error: e instanceof Error ? e.message : t("rateLimited") };
+    }
   }
 
   const tags = parseTags(tagsRaw);
@@ -1052,8 +1160,9 @@ export async function updateBook(
     return { error: t("primaryLanguageFromBook") };
   }
 
+  let firstSectionSlugForRevalidate: string | null = null;
   try {
-    await prisma.$transaction(async (tx) => {
+    const metaNotifyIds = await prisma.$transaction(async (tx) => {
       await tx.book.update({
         where: { id: book.id },
         data: {
@@ -1090,7 +1199,56 @@ export async function updateBook(
           data: { bookId: book.id, tagId: tag.id },
         });
       }
+
+      if (!nameFieldsChanged) {
+        return [] as string[];
+      }
+
+      const firstSection = await tx.section.findFirst({
+        where: { bookId: book.id },
+        orderBy: { orderIndex: "asc" },
+        select: { id: true, slug: true },
+      });
+      if (!firstSection) {
+        return [] as string[];
+      }
+      firstSectionSlugForRevalidate = firstSection.slug;
+
+      const parts: string[] = [];
+      const labelBeforeLines: string[] = [];
+      const labelAfterLines: string[] = [];
+      if (newSlug !== book.slug) {
+        parts.push(`URL /books/${book.slug}/ → /books/${newSlug}/`);
+        labelBeforeLines.push(`URL: /books/${book.slug}/`);
+        labelAfterLines.push(`URL: /books/${newSlug}/`);
+      }
+      if (title !== book.title.trim()) {
+        parts.push(
+          `Title: ${truncateForMetaSummary(book.title)} → ${truncateForMetaSummary(title)}`,
+        );
+        labelBeforeLines.push(`Title: ${book.title.trim()}`);
+        labelAfterLines.push(`Title: ${title}`);
+      }
+      if (figureName !== book.figureName.trim()) {
+        parts.push(
+          `Figure: ${truncateForMetaSummary(book.figureName.trim())} → ${truncateForMetaSummary(figureName)}`,
+        );
+        labelBeforeLines.push(`Figure: ${book.figureName.trim()}`);
+        labelAfterLines.push(`Figure: ${figureName}`);
+      }
+      const summaryComment = `Book updated (${parts.join(" · ")})`;
+      return appendStructuralEditRevisionTx(tx, {
+        bookId: book.id,
+        sectionId: firstSection.id,
+        actorId: session.user.id,
+        revisionLocale: defaultLocaleRaw,
+        defaultLocale: defaultLocaleRaw,
+        summaryComment,
+        labelDiffBefore: labelBeforeLines.join("\n"),
+        labelDiffAfter: labelAfterLines.join("\n"),
+      });
     });
+    await dispatchNotificationEmails(metaNotifyIds);
   } catch (e) {
     const msg = e instanceof Error ? e.message : t("couldNotUpdateBook");
     if (msg.includes("Unique constraint")) {
@@ -1102,6 +1260,11 @@ export async function updateBook(
   revalidatePathLocalized("/");
   revalidatePathLocalized(`/books/${currentSlug}`, "layout");
   revalidatePathLocalized(`/books/${newSlug}`, "layout");
+  if (firstSectionSlugForRevalidate) {
+    revalidatePathLocalized(
+      `/books/${newSlug}/${firstSectionSlugForRevalidate}/history`,
+    );
+  }
   if (book.isDraft) {
     revalidatePathLocalized("/drafts");
   }
@@ -1303,9 +1466,17 @@ export async function reorderBookSections(
     where: { slug: bookSlug },
     select: {
       id: true,
+      defaultLocale: true,
       isDraft: true,
       createdById: true,
-      sections: { select: { id: true } },
+      sections: {
+        select: {
+          id: true,
+          orderIndex: true,
+          slug: true,
+          localizations: { select: { locale: true, title: true } },
+        },
+      },
     },
   });
   if (!book) return { error: t("bookNotFound") };
@@ -1331,17 +1502,64 @@ export async function reorderBookSections(
     seen.add(id);
   }
 
-  await prisma.$transaction(
-    orderedSectionIds.map((id, orderIndex) =>
-      prisma.section.update({
-        where: { id },
-        data: { orderIndex },
-      }),
-    ),
+  const previousOrder = [...book.sections]
+    .sort((a, b) => a.orderIndex - b.orderIndex)
+    .map((s) => s.id);
+  const orderChanged = previousOrder.some(
+    (id, i) => id !== orderedSectionIds[i],
   );
+  if (!orderChanged) {
+    return {};
+  }
+
+  try {
+    await assertCanCreateRevision(session.user.id);
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : t("rateLimited") };
+  }
+
+  const anchorSectionId = orderedSectionIds[0]!;
+  const anchorSlug =
+    book.sections.find((s) => s.id === anchorSectionId)?.slug ?? null;
+  const labelDiffBefore = tocOrderLines(
+    book.sections,
+    previousOrder,
+    book.defaultLocale,
+  );
+  const labelDiffAfter = tocOrderLines(
+    book.sections,
+    orderedSectionIds,
+    book.defaultLocale,
+  );
+  try {
+    const notifyIds = await prisma.$transaction(async (tx) => {
+      for (let i = 0; i < orderedSectionIds.length; i++) {
+        await tx.section.update({
+          where: { id: orderedSectionIds[i]! },
+          data: { orderIndex: i },
+        });
+      }
+      return appendStructuralEditRevisionTx(tx, {
+        bookId: book.id,
+        sectionId: anchorSectionId,
+        actorId: session.user.id,
+        revisionLocale: book.defaultLocale,
+        defaultLocale: book.defaultLocale,
+        summaryComment: "Chapters reordered (table of contents)",
+        labelDiffBefore,
+        labelDiffAfter,
+      });
+    });
+    await dispatchNotificationEmails(notifyIds);
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : t("couldNotUpdateBook") };
+  }
 
   revalidatePathLocalized(`/books/${bookSlug}`);
   revalidatePathLocalized(`/books/${bookSlug}/edit/contents`);
+  if (anchorSlug) {
+    revalidatePathLocalized(`/books/${bookSlug}/${anchorSlug}/history`);
+  }
   if (book.isDraft) {
     revalidatePathLocalized("/drafts");
   }
@@ -1368,6 +1586,8 @@ export async function updateBookLocalizedTitle(
     where: { slug: bookSlug },
     select: {
       id: true,
+      title: true,
+      slug: true,
       defaultLocale: true,
       isDraft: true,
       createdById: true,
@@ -1391,19 +1611,65 @@ export async function updateBookLocalizedTitle(
     return { error: t("invalidBookLanguage") };
   }
 
-  await prisma.$transaction(async (tx) => {
-    await tx.bookLocalization.upsert({
-      where: { bookId_locale: { bookId: book.id, locale } },
-      create: { bookId: book.id, locale, title },
-      update: { title },
-    });
-    if (locale === book.defaultLocale) {
-      await tx.book.update({
-        where: { id: book.id },
-        data: { title },
-      });
-    }
+  const existingLoc = await prisma.bookLocalization.findUnique({
+    where: { bookId_locale: { bookId: book.id, locale } },
+    select: { title: true },
   });
+  const previousTitle =
+    locale === book.defaultLocale
+      ? book.title.trim()
+      : (existingLoc?.title ?? "").trim();
+  if (previousTitle === title) {
+    return {};
+  }
+
+  try {
+    await assertCanCreateRevision(session.user.id);
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : t("rateLimited") };
+  }
+
+  let historySectionSlug: string | null = null;
+  try {
+    const notifyIds = await prisma.$transaction(async (tx) => {
+      await tx.bookLocalization.upsert({
+        where: { bookId_locale: { bookId: book.id, locale } },
+        create: { bookId: book.id, locale, title },
+        update: { title },
+      });
+      if (locale === book.defaultLocale) {
+        await tx.book.update({
+          where: { id: book.id },
+          data: { title },
+        });
+      }
+
+      const firstSection = await tx.section.findFirst({
+        where: { bookId: book.id },
+        orderBy: { orderIndex: "asc" },
+        select: { id: true, slug: true },
+      });
+      if (!firstSection) {
+        return [] as string[];
+      }
+      historySectionSlug = firstSection.slug;
+
+      const summaryComment = `Book title (${locale}) updated: ${truncateForMetaSummary(previousTitle)} → ${truncateForMetaSummary(title)}`;
+      return appendStructuralEditRevisionTx(tx, {
+        bookId: book.id,
+        sectionId: firstSection.id,
+        actorId: session.user.id,
+        revisionLocale: book.defaultLocale,
+        defaultLocale: book.defaultLocale,
+        summaryComment,
+        labelDiffBefore: `Book title (${locale})\n${previousTitle}`,
+        labelDiffAfter: `Book title (${locale})\n${title}`,
+      });
+    });
+    await dispatchNotificationEmails(notifyIds);
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : t("couldNotUpdateBook") };
+  }
 
   revalidatePathLocalized(`/books/${bookSlug}`);
   revalidatePathLocalized(`/books/${bookSlug}/edit`);
@@ -1412,6 +1678,9 @@ export async function updateBookLocalizedTitle(
   );
   revalidatePathLocalized(`/books/${bookSlug}/edit/contents`);
   revalidatePathLocalized(`/books/${bookSlug}`, "layout");
+  if (historySectionSlug) {
+    revalidatePathLocalized(`/books/${bookSlug}/${historySectionSlug}/history`);
+  }
   return {};
 }
 
@@ -1445,8 +1714,11 @@ export async function updateSectionTitle(
       book: { slug: bookSlug },
     },
     include: {
+      localizations: { select: { locale: true, title: true } },
       book: {
         select: {
+          id: true,
+          defaultLocale: true,
           isDraft: true,
           createdById: true,
           languages: { select: { locale: true } },
@@ -1471,13 +1743,48 @@ export async function updateSectionTitle(
     return { error: t("invalidBookLanguage") };
   }
 
-  await prisma.sectionLocalization.upsert({
-    where: {
-      sectionId_locale: { sectionId: section.id, locale },
-    },
-    create: { sectionId: section.id, locale, title },
-    update: { title },
-  });
+  const previousTitle = resolveSectionTitle(
+    section.slug,
+    section.localizations,
+    locale,
+    section.book.defaultLocale,
+  ).trim();
+  if (previousTitle === title) {
+    return {};
+  }
+
+  try {
+    await assertCanCreateRevision(session.user.id);
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : t("rateLimited") };
+  }
+
+  try {
+    const notifyIds = await prisma.$transaction(async (tx) => {
+      await tx.sectionLocalization.upsert({
+        where: {
+          sectionId_locale: { sectionId: section.id, locale },
+        },
+        create: { sectionId: section.id, locale, title },
+        update: { title },
+      });
+
+      const summaryComment = `Chapter title (${locale}) updated: ${truncateForMetaSummary(previousTitle)} → ${truncateForMetaSummary(title)}`;
+      return appendStructuralEditRevisionTx(tx, {
+        bookId: section.book.id,
+        sectionId: section.id,
+        actorId: session.user.id,
+        revisionLocale: locale,
+        defaultLocale: section.book.defaultLocale,
+        summaryComment,
+        labelDiffBefore: `Chapter title (${locale})\n${previousTitle}`,
+        labelDiffAfter: `Chapter title (${locale})\n${title}`,
+      });
+    });
+    await dispatchNotificationEmails(notifyIds);
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : t("couldNotUpdateBook") };
+  }
 
   revalidatePathLocalized(`/books/${bookSlug}`);
   revalidatePathLocalized(`/books/${bookSlug}/edit/contents`);
@@ -2073,9 +2380,17 @@ export async function deleteSectionFromBook(
     where: { slug: bookSlug },
     select: {
       id: true,
+      defaultLocale: true,
       isDraft: true,
       createdById: true,
-      sections: { select: { id: true, slug: true } },
+      sections: {
+        select: {
+          id: true,
+          slug: true,
+          orderIndex: true,
+          localizations: { select: { locale: true, title: true } },
+        },
+      },
     },
   });
   if (!book) return { error: t("bookNotFound") };
@@ -2095,12 +2410,52 @@ export async function deleteSectionFromBook(
   const target = book.sections.find((s) => s.slug === sectionSlug);
   if (!target) return { error: t("sectionNotFound") };
 
-  await prisma.section.delete({ where: { id: target.id } });
+  const sorted = [...book.sections].sort(
+    (a, b) => a.orderIndex - b.orderIndex,
+  );
+  const anchor = sorted.find((s) => s.id !== target.id);
+  if (!anchor) {
+    return { error: t("sectionNotFound") };
+  }
+
+  const deletedTitle = resolveSectionTitle(
+    target.slug,
+    target.localizations,
+    book.defaultLocale,
+    book.defaultLocale,
+  );
+
+  try {
+    await assertCanCreateRevision(session.user.id);
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : t("rateLimited") };
+  }
+
+  try {
+    const emailIds = await prisma.$transaction(async (tx) => {
+      const ids = await appendStructuralEditRevisionTx(tx, {
+        bookId: book.id,
+        sectionId: anchor.id,
+        actorId: session.user.id,
+        revisionLocale: book.defaultLocale,
+        defaultLocale: book.defaultLocale,
+        summaryComment: `Chapter removed: ${truncateForMetaSummary(deletedTitle)} (/books/${bookSlug}/${target.slug}/)`,
+        labelDiffBefore: `Chapter\n${deletedTitle}\n/books/${bookSlug}/${target.slug}/`,
+        labelDiffAfter: "(removed)",
+      });
+      await tx.section.delete({ where: { id: target.id } });
+      return ids;
+    });
+    await dispatchNotificationEmails(emailIds);
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : t("couldNotUpdateBook") };
+  }
 
   revalidatePathLocalized(`/books/${bookSlug}`);
   revalidatePathLocalized(`/books/${bookSlug}/${sectionSlug}`);
   revalidatePathLocalized(`/books/${bookSlug}/${sectionSlug}/edit`);
   revalidatePathLocalized(`/books/${bookSlug}/${sectionSlug}/history`);
+  revalidatePathLocalized(`/books/${bookSlug}/${anchor.slug}/history`);
   if (book.isDraft) {
     revalidatePathLocalized("/drafts");
   }

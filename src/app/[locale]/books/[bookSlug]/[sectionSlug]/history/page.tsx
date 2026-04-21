@@ -93,6 +93,12 @@ export default async function SectionHistoryPage({
 
   const oldText = fromRev?.body ?? "";
   const newText = toRev?.body ?? "";
+  const hasNameDiff =
+    toRev != null &&
+    toRev.labelDiffBefore != null &&
+    toRev.labelDiffAfter != null &&
+    (toRev.labelDiffBefore.length > 0 || toRev.labelDiffAfter.length > 0);
+  const hasContentDiff = oldText !== newText;
 
   const historyBase = withLangQuery(
     `/books/${section.book.slug}/${section.slug}/history`,
@@ -122,16 +128,35 @@ export default async function SectionHistoryPage({
         </p>
       </div>
 
-      {fromRev && toRev && fromRev.id !== toRev.id ? (
-        <section className="space-y-2">
-          <h2 className="text-lg font-medium">Diff</h2>
-          <p className="text-xs text-muted">
-            Comparing older → newer.{" "}
-            <Link href={historyBase} className="text-accent">
-              Reset to latest pair
-            </Link>
-          </p>
-          <DiffView oldText={oldText} newText={newText} />
+      {fromRev &&
+      toRev &&
+      fromRev.id !== toRev.id &&
+      (hasContentDiff || hasNameDiff) ? (
+        <section className="space-y-6">
+          <div>
+            <h2 className="text-lg font-medium">Diff</h2>
+            <p className="text-xs text-muted">
+              Comparing older → newer.{" "}
+              <Link href={historyBase} className="text-accent">
+                Reset to latest pair
+              </Link>
+            </p>
+          </div>
+          {hasContentDiff ? (
+            <div className="space-y-2">
+              <h3 className="text-base font-medium">Content</h3>
+              <DiffView oldText={oldText} newText={newText} />
+            </div>
+          ) : null}
+          {hasNameDiff ? (
+            <div className="space-y-2">
+              <h3 className="text-base font-medium">Names and metadata</h3>
+              <DiffView
+                oldText={toRev.labelDiffBefore!}
+                newText={toRev.labelDiffAfter!}
+              />
+            </div>
+          ) : null}
         </section>
       ) : null}
 

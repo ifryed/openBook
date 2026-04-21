@@ -214,6 +214,10 @@ model Revision {
   locale           String   @default("en") @db.VarChar(16)
   body             String   @db.Text
   summaryComment   String?  @map("summary_comment")
+  /** Plain-text “before” side for name/metadata diffs on the history page (paired with `labelDiffAfter`). */
+  labelDiffBefore  String?  @map("label_diff_before") @db.Text
+  /** Plain-text “after” side for name/metadata diffs on the history page. */
+  labelDiffAfter   String?  @map("label_diff_after") @db.Text
   parentRevisionId String?  @map("parent_revision_id")
   createdAt        DateTime @default(now()) @map("created_at")
 
