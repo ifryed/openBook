@@ -10,6 +10,7 @@ export function ChapterNavigation({
   ariaLabel,
   previous,
   next,
+  dir = "ltr",
   className,
 }: {
   tocHref: string;
@@ -19,11 +20,17 @@ export function ChapterNavigation({
   ariaLabel: string;
   previous: ChapterNavLink | null;
   next: ChapterNavLink | null;
+  /** Book reading direction (`?lang=`); controls layout and prev/next arrows in RTL. */
+  dir?: "ltr" | "rtl";
   className?: string;
 }) {
+  const prevArrow = dir === "rtl" ? "→" : "←";
+  const nextArrow = dir === "rtl" ? "←" : "→";
+
   return (
     <nav
       aria-label={ariaLabel}
+      dir={dir}
       className={[
         "rounded-lg border border-border bg-card/60 px-4 py-3 text-sm",
         className,
@@ -41,8 +48,11 @@ export function ChapterNavigation({
               <span className="block text-xs text-muted">
                 {previousChapterLabel}
               </span>
-              <span className="mt-0.5 block font-medium leading-snug group-hover:underline">
-                ← {previous.title}
+              <span className="mt-0.5 inline-flex max-w-full flex-row flex-nowrap items-baseline gap-3 font-medium leading-snug group-hover:underline">
+                <span aria-hidden className="shrink-0 select-none">
+                  {prevArrow}
+                </span>
+                <span className="min-w-0">{previous.title}</span>
               </span>
             </Link>
           ) : (
@@ -71,8 +81,11 @@ export function ChapterNavigation({
               <span className="block text-xs text-muted">
                 {nextChapterLabel}
               </span>
-              <span className="mt-0.5 block font-medium leading-snug group-hover:underline">
-                {next.title} →
+              <span className="mt-0.5 inline-flex max-w-full flex-row flex-nowrap items-baseline gap-3 font-medium leading-snug group-hover:underline">
+                <span className="min-w-0">{next.title}</span>
+                <span aria-hidden className="shrink-0 select-none">
+                  {nextArrow}
+                </span>
               </span>
             </Link>
           ) : (

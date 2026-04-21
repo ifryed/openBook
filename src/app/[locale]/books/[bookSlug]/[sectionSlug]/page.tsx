@@ -6,6 +6,7 @@ import {
   bookLocaleHtmlAttributes,
   bookLocaleLabel,
   normalizeActiveLocale,
+  textDirectionForBookLocale,
   withLangQuery,
 } from "@/lib/book-locales";
 import { prisma } from "@/lib/db";
@@ -149,6 +150,7 @@ export default async function SectionReadPage({ params, searchParams }: Props) {
         }
       : null;
 
+  const chapterNavDir = textDirectionForBookLocale(activeLocale);
   const chapterNavCommon = {
     tocHref,
     tocLabel: tChapterNav("tableOfContents"),
@@ -156,6 +158,7 @@ export default async function SectionReadPage({ params, searchParams }: Props) {
     nextChapterLabel: tChapterNav("nextChapter"),
     previous: sectionToNavLink(prevSection),
     next: sectionToNavLink(nextSection),
+    dir: chapterNavDir,
   };
 
   if (!completeForLocale) {
