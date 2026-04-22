@@ -91,6 +91,8 @@ model User {
   reports           Report[]
   resolvedReports   Report[]  @relation("ReportResolver")
   bookWatches       BookWatch[]
+  watchesOtherUsers UserWatch[] @relation("UserWatchWatcher")
+  watchedByOthers   UserWatch[] @relation("UserWatchWatched")
   notifications     Notification[]
   reputationEvents            ReputationEvent[]
   reportModerationLogEntries  ReportModerationLogEntry[]
@@ -258,6 +260,20 @@ model BookWatch {
 
   @@unique([userId, bookId])
   @@index([bookId])
+}
+
+/** Signed-in user follows another user’s public book and chapter activity. */
+model UserWatch {
+  id            String   @id @default(cuid())
+  watcherId     String   @map("watcher_id")
+  watchedUserId String   @map("watched_user_id")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  watcher     User @relation("UserWatchWatcher", fields: [watcherId], references: [id], onDelete: Cascade)
+  watchedUser User @relation("UserWatchWatched", fields: [watchedUserId], references: [id], onDelete: Cascade)
+
+  @@unique([watcherId, watchedUserId])
+  @@index([watchedUserId])
 }
 
 model Notification {

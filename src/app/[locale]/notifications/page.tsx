@@ -55,8 +55,9 @@ export default async function NotificationsPage({ params }: Props) {
         <div>
           <h1 className="text-2xl font-semibold">Notifications</h1>
           <p className="mt-1 text-sm text-muted">
-            Watching, digest, books you created, and updates on reports you
-            filed. Email delivery is optional — configure it in{" "}
+            Watching books or contributors, digest, books you created, and
+            updates on reports you filed. Email delivery is optional — configure
+            it in{" "}
             <Link href="/settings" className="text-accent no-underline hover:underline">
               settings
             </Link>
@@ -79,8 +80,9 @@ export default async function NotificationsPage({ params }: Props) {
         <h2 className="text-sm font-medium text-muted">Watching</h2>
         {watching.length === 0 ? (
           <p className="text-sm text-muted">
-            No notifications yet. Use <strong>Watch</strong> on a book page to
-            follow changes.
+            No notifications yet. Use <strong>Watch book</strong> on a book page
+            or <strong>Watch user</strong> on a contributor profile to follow
+            activity.
           </p>
         ) : (
           <ul className="space-y-2">

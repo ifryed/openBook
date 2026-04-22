@@ -11,6 +11,7 @@ import {
   publicProfileDisplayName,
 } from "@/lib/user-profile-data";
 import { loadReportProfileLabels } from "@/lib/report-profile-labels";
+import { userWatchFormAction } from "@/app/actions/user-watch";
 
 type Props = { params: Promise<{ userId: string }> };
 
@@ -35,10 +36,21 @@ export default async function PublicUserProfilePage({ params }: Props) {
   const session = await auth();
   const isOwner = session?.user?.id === userId;
 
-  const [core, sectionCounts, reportLabels] = await Promise.all([
+  const [core, sectionCounts, reportLabels, watchingUser] = await Promise.all([
     loadUserProfileCore(userId, PROFILE_PREVIEW_LIMIT, session?.user?.id),
     getProfileSectionCounts(userId, session?.user?.id),
     loadReportProfileLabels(),
+    session?.user?.id && session.user.id !== userId
+      ? prisma.userWatch.findUnique({
+          where: {
+            watcherId_watchedUserId: {
+              watcherId: session.user.id,
+              watchedUserId: userId,
+            },
+          },
+          select: { id: true },
+        })
+      : Promise.resolve(null),
   ]);
   const displayName = publicProfileDisplayName(user.name);
 
@@ -58,6 +70,17 @@ export default async function PublicUserProfilePage({ params }: Props) {
       <div>
         <h1 className="text-2xl font-semibold">{displayName}</h1>
         <p className="mt-1 text-sm text-muted">Public contributor profile</p>
+        {session?.user && !isOwner ? (
+          <form action={userWatchFormAction} className="mt-3">
+            <input type="hidden" name="watchedUserId" value={userId} />
+            <button
+              type="submit"
+              className="cursor-pointer text-sm text-accent underline-offset-2 hover:underline"
+            >
+              {watchingUser ? "Unwatch user" : "Watch user"}
+            </button>
+          </form>
+        ) : null}
       </div>
       <UserProfileContent
         variant="public"

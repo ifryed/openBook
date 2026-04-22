@@ -201,6 +201,12 @@ export type ProfileWatchRow = {
   book: { slug: string; title: string; updatedAt: Date };
 };
 
+export type ProfileUserWatchRow = {
+  id: string;
+  createdAt: Date;
+  watchedUser: { id: string; name: string | null; email: string };
+};
+
 export type ProfileFiledReportRow = {
   id: string;
   createdAt: Date;
@@ -215,6 +221,7 @@ export type ProfileFiledReportRow = {
 
 export type ProfilePrivateExtras = {
   watches: ProfileWatchRow[];
+  userWatches: ProfileUserWatchRow[];
   filedReports: ProfileFiledReportRow[];
 };
 
@@ -234,6 +241,25 @@ export async function loadProfileWatches(
     id: w.id,
     createdAt: w.createdAt,
     book: w.book,
+  }));
+}
+
+export async function loadProfileUserWatches(
+  userId: string,
+  limit: number,
+): Promise<ProfileUserWatchRow[]> {
+  const rows = await prisma.userWatch.findMany({
+    where: { watcherId: userId },
+    orderBy: { createdAt: "desc" },
+    take: limit,
+    include: {
+      watchedUser: { select: { id: true, name: true, email: true } },
+    },
+  });
+  return rows.map((w) => ({
+    id: w.id,
+    createdAt: w.createdAt,
+    watchedUser: w.watchedUser,
   }));
 }
 
@@ -289,11 +315,12 @@ export async function loadUserProfilePrivate(
   listLimit: number = PROFILE_LIST_LIMIT,
   reportsLimit: number = PROFILE_REPORTS_LIMIT,
 ): Promise<ProfilePrivateExtras> {
-  const [watches, filedReports] = await Promise.all([
+  const [watches, userWatches, filedReports] = await Promise.all([
     loadProfileWatches(userId, listLimit),
+    loadProfileUserWatches(userId, listLimit),
     loadProfileFiledReports(userId, reportsLimit),
   ]);
-  return { watches, filedReports };
+  return { watches, userWatches, filedReports };
 }
 
 export type ProfileSectionCounts = {
@@ -301,6 +328,7 @@ export type ProfileSectionCounts = {
   revisions: number;
   contributions: number;
   watches: number;
+  userWatches: number;
   reports: number;
 };
 
@@ -309,8 +337,8 @@ export async function getProfileSectionCounts(
   viewerUserId?: string | null,
 ): Promise<ProfileSectionCounts> {
   const ownerView = viewerUserId != null && viewerUserId === userId;
-  const [books, revisions, contributions, watches, reports] = await Promise.all(
-    [
+  const [books, revisions, contributions, watches, userWatches, reports] =
+    await Promise.all([
       prisma.book.count({
         where: {
           createdById: userId,
@@ -320,14 +348,15 @@ export async function getProfileSectionCounts(
       prisma.revision.count({ where: { authorId: userId } }),
       prisma.reputationEvent.count({ where: { userId } }),
       prisma.bookWatch.count({ where: { userId } }),
+      prisma.userWatch.count({ where: { watcherId: userId } }),
       prisma.report.count({ where: { userId } }),
-    ],
-  );
+    ]);
   return {
     books,
     revisions,
     contributions,
     watches,
+    userWatches,
     reports,
   };
 }

@@ -1,10 +1,12 @@
 import { Link } from "@/i18n/navigation";
 import { getTranslations } from "next-intl/server";
-import type {
-  ProfileBookRow,
-  ProfileFiledReportRow,
-  ProfileRevisionRow,
-  ProfileWatchRow,
+import {
+  publicProfileDisplayName,
+  type ProfileBookRow,
+  type ProfileFiledReportRow,
+  type ProfileRevisionRow,
+  type ProfileUserWatchRow,
+  type ProfileWatchRow,
 } from "@/lib/user-profile-data";
 import type { ReportProfileLabels } from "@/lib/report-profile-labels";
 import type { ReputationEventDisplayRow } from "@/lib/reputation-event-display";
@@ -137,6 +139,33 @@ export function ProfileWatchesList({ watches }: { watches: ProfileWatchRow[] }) 
             className="font-medium text-foreground no-underline hover:underline"
           >
             {w.book.title}
+          </Link>
+          <span className="mt-0.5 block text-xs text-muted">
+            Watching since {w.createdAt.toLocaleDateString()}
+          </span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+export function ProfileUserWatchesList({
+  userWatches,
+}: {
+  userWatches: ProfileUserWatchRow[];
+}) {
+  return (
+    <ul className="space-y-2">
+      {userWatches.map((w) => (
+        <li
+          key={w.id}
+          className="rounded-md border border-border bg-card px-3 py-2 text-sm"
+        >
+          <Link
+            href={`/users/${w.watchedUser.id}`}
+            className="font-medium text-foreground no-underline hover:underline"
+          >
+            {publicProfileDisplayName(w.watchedUser.name)}
           </Link>
           <span className="mt-0.5 block text-xs text-muted">
             Watching since {w.createdAt.toLocaleDateString()}

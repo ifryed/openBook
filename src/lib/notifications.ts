@@ -11,8 +11,9 @@ type ActivityPayload = {
 };
 
 /**
- * Notifies book watchers (excluding actor), digest users who neither watch nor own
- * the book, and the book creator when they are not the actor and not already watching.
+ * Notifies book watchers and users who watch the actor (excluding actor),
+ * digest users who neither watch the book nor the actor nor own the book,
+ * and the book creator when they are not the actor and not already notified as a book watcher.
  */
 export async function notifyBookActivityTx(
   tx: Prisma.TransactionClient,
@@ -24,21 +25,41 @@ export async function notifyBookActivityTx(
   });
   if (!book) return [];
 
-  const watches = await tx.bookWatch.findMany({
+  const bookWatches = await tx.bookWatch.findMany({
     where: { bookId: input.bookId, userId: { not: input.actorId } },
     select: { userId: true },
   });
-  const watcherSet = new Set(watches.map((w) => w.userId));
+  const bookWatcherIds = new Set(bookWatches.map((w) => w.userId));
 
-  const digestNotIn = Array.from(
-    new Set([...watcherSet, book.createdById]),
+  const authorWatches = await tx.userWatch.findMany({
+    where: { watchedUserId: input.actorId, watcherId: { not: input.actorId } },
+    select: { watcherId: true },
+  });
+  const authorWatcherIds = new Set(authorWatches.map((w) => w.watcherId));
+
+  const immediateRecipients = new Set<string>([
+    ...bookWatcherIds,
+    ...authorWatcherIds,
+  ]);
+  immediateRecipients.delete(input.actorId);
+
+  const creatorId = book.createdById;
+  const ownerGetsOwnershipRow =
+    creatorId !== input.actorId && !bookWatcherIds.has(creatorId);
+
+  if (ownerGetsOwnershipRow) {
+    immediateRecipients.delete(creatorId);
+  }
+
+  const digestExcludeList = Array.from(
+    new Set([...immediateRecipients, creatorId]),
   ).filter((id) => id !== input.actorId);
 
   const digestWhere: Prisma.UserWhereInput = {
     digestOptIn: true,
     id:
-      digestNotIn.length > 0
-        ? { not: input.actorId, notIn: digestNotIn }
+      digestExcludeList.length > 0
+        ? { not: input.actorId, notIn: digestExcludeList }
         : { not: input.actorId },
   };
 
@@ -49,7 +70,7 @@ export async function notifyBookActivityTx(
 
   const rows: Prisma.NotificationCreateManyInput[] = [];
 
-  for (const userId of watcherSet) {
+  for (const userId of immediateRecipients) {
     rows.push({
       id: randomUUID(),
       userId,
@@ -79,13 +100,10 @@ export async function notifyBookActivityTx(
     });
   }
 
-  if (
-    book.createdById !== input.actorId &&
-    !watcherSet.has(book.createdById)
-  ) {
+  if (ownerGetsOwnershipRow) {
     rows.push({
       id: randomUUID(),
-      userId: book.createdById,
+      userId: creatorId,
       type: input.type,
       viaDigest: false,
       fromBookOwnership: true,
@@ -102,33 +120,71 @@ export async function notifyBookActivityTx(
   return rows.map((r) => r.id as string);
 }
 
-/** New book: no watchers yet — notify digest subscribers only (excluding actor). */
+/**
+ * New book: notify users who watch the author (immediate), then digest subscribers
+ * who do not watch that author (excluding the actor).
+ */
 export async function notifyNewBookDigestTx(
   tx: Prisma.TransactionClient,
   bookId: string,
   actorId: string,
 ): Promise<string[]> {
+  const authorWatches = await tx.userWatch.findMany({
+    where: { watchedUserId: actorId, watcherId: { not: actorId } },
+    select: { watcherId: true },
+  });
+  const authorWatcherIds = Array.from(
+    new Set(authorWatches.map((w) => w.watcherId)),
+  );
+
+  const digestWhere: Prisma.UserWhereInput = {
+    digestOptIn: true,
+    id:
+      authorWatcherIds.length > 0
+        ? { not: actorId, notIn: authorWatcherIds }
+        : { not: actorId },
+  };
+
   const digestUsers = await tx.user.findMany({
-    where: { digestOptIn: true, id: { not: actorId } },
+    where: digestWhere,
     select: { id: true },
   });
-  if (digestUsers.length === 0) return [];
 
-  const data: Prisma.NotificationCreateManyInput[] = digestUsers.map((u) => ({
-    id: randomUUID(),
-    userId: u.id,
-    type: "NEW_BOOK" as const,
-    viaDigest: true,
-    fromBookOwnership: false,
-    bookId,
-    sectionId: null,
-    revisionId: null,
-    reportId: null,
-    actorId,
-  }));
+  const rows: Prisma.NotificationCreateManyInput[] = [];
 
-  await tx.notification.createMany({ data });
-  return data.map((d) => d.id as string);
+  for (const userId of authorWatcherIds) {
+    rows.push({
+      id: randomUUID(),
+      userId,
+      type: "NEW_BOOK" as const,
+      viaDigest: false,
+      fromBookOwnership: false,
+      bookId,
+      sectionId: null,
+      revisionId: null,
+      reportId: null,
+      actorId,
+    });
+  }
+
+  for (const { id: userId } of digestUsers) {
+    rows.push({
+      id: randomUUID(),
+      userId,
+      type: "NEW_BOOK" as const,
+      viaDigest: true,
+      fromBookOwnership: false,
+      bookId,
+      sectionId: null,
+      revisionId: null,
+      reportId: null,
+      actorId,
+    });
+  }
+
+  if (rows.length === 0) return [];
+  await tx.notification.createMany({ data: rows });
+  return rows.map((r) => r.id as string);
 }
 
 export type ReportNotificationKind =

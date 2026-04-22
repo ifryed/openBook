@@ -5,6 +5,7 @@ import {
   ProfileContributionsList,
   ProfileReportsList,
   ProfileRevisionsList,
+  ProfileUserWatchesList,
   ProfileWatchesList,
 } from "@/components/profile-list-sections";
 import {
@@ -188,21 +189,46 @@ export async function UserProfileContent({
       {isPrivate && privateExtras ? (
         <>
           <section className="space-y-3">
-            <h2 className="text-sm font-medium text-muted">Watched books</h2>
-            {privateExtras.watches.length === 0 ? (
+            <h2 className="text-sm font-medium text-muted">Watching</h2>
+            {privateExtras.watches.length === 0 &&
+            privateExtras.userWatches.length === 0 ? (
               <p className="text-sm text-muted">
-                You are not watching any books. Use <strong>Watch</strong> on a
-                book page to follow edits.
+                You are not following any books or contributors. Use{" "}
+                <strong>Watch book</strong> on a book page, or{" "}
+                <strong>Watch user</strong> on a public profile, to get
+                notifications when they change.
               </p>
             ) : (
               <>
-                <ProfileWatchesList watches={privateExtras.watches} />
-                {isPreview ? (
-                  <ViewAllLink
-                    href="/profile/watches"
-                    total={sectionCounts.watches}
-                    label="watched books"
-                  />
+                {privateExtras.watches.length > 0 ? (
+                  <div className="space-y-2">
+                    <h3 className="text-xs font-medium uppercase tracking-wide text-muted">
+                      Books
+                    </h3>
+                    <ProfileWatchesList watches={privateExtras.watches} />
+                  </div>
+                ) : null}
+                {privateExtras.userWatches.length > 0 ? (
+                  <div className="space-y-2">
+                    <h3 className="text-xs font-medium uppercase tracking-wide text-muted">
+                      Contributors
+                    </h3>
+                    <ProfileUserWatchesList
+                      userWatches={privateExtras.userWatches}
+                    />
+                  </div>
+                ) : null}
+                {isPreview &&
+                (sectionCounts.watches > PROFILE_PREVIEW_LIMIT ||
+                  sectionCounts.userWatches > PROFILE_PREVIEW_LIMIT) ? (
+                  <p className="text-sm">
+                    <Link
+                      href="/profile/watches"
+                      className="text-accent no-underline hover:underline"
+                    >
+                      View all watches
+                    </Link>
+                  </p>
                 ) : null}
               </>
             )}
