@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OpenBook offline catalog</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --fg: #1a1a1a;
+      --muted: #555;
+      --border: #e5e5e5;
+      --accent: #1d4ed8;
+      --bg: #fff;
+      --card: #fafafa;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fg: #eee;
+        --muted: #aaa;
+        --border: #333;
+        --accent: #60a5fa;
+        --bg: #111;
+        --card: #1a1a1a;
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: system-ui, sans-serif;
+      line-height: 1.5;
+      color: var(--fg);
+      background: var(--bg);
+      margin: 0;
+      padding: 1rem;
+      max-width: 52rem;
+      margin-inline: auto;
+    }
+    h1 { font-size: 1.35rem; margin: 0 0 0.75rem; }
+    h2 { font-size: 1.1rem; margin: 1.25rem 0 0.5rem; }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    label { font-size: 0.85rem; color: var(--muted); }
+    select, button {
+      font: inherit;
+      padding: 0.35rem 0.5rem;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--fg);
+    }
+    button {
+      cursor: pointer;
+      background: var(--accent);
+      color: #fff;
+      border-color: transparent;
+    }
+    button.secondary {
+      background: var(--card);
+      color: var(--fg);
+      border: 1px solid var(--border);
+    }
+    .meta { font-size: 0.9rem; color: var(--muted); margin: 0.25rem 0; }
+    .error { color: #b91c1c; font-size: 0.9rem; }
+    .prose {
+      line-height: 1.65;
+      margin-top: 1rem;
+    }
+    .prose h1, .prose h2, .prose h3 { font-weight: 600; margin-top: 1.25em; }
+    .prose pre {
+      background: var(--card);
+      padding: 1rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      border: 1px solid var(--border);
+    }
+    .prose code {
+      font-family: ui-monospace, monospace;
+      font-size: 0.9em;
+    }
+    .prose a { color: var(--accent); }
+    #chapters { min-width: 12rem; }
+  </style>
+</head>
+<body>
+  <h1>OpenBook offline catalog</h1>
+  <p class="meta">Load <code>public-catalog.json</code> from the site (see README in the parent folder).</p>
+
+  <div class="toolbar">
+    <button type="button" class="secondary" id="pickFile">Load catalog…</button>
+    <input type="file" id="file" accept=".json,application/json" hidden />
+    <span id="fileLabel" class="meta"></span>
+  </div>
+  <p id="err" class="error" hidden></p>
+
+  <div id="app" hidden>
+    <div class="toolbar">
+      <label>Book
+        <select id="books"></select>
+      </label>
+      <label>Language
+        <select id="locales"></select>
+      </label>
+      <label>Chapter
+        <select id="chapters"></select>
+      </label>
+    </div>
+    <div id="bookMeta"></div>
+    <article id="article" class="prose"></article>
+  </div>
+
+  <script type="module">
+    const $ = (id) => document.getElementById(id);
+    const errEl = $("err");
+    const appEl = $("app");
+
+    let catalog = null;
+    let markedFn = null;
+
+    async function loadMarked() {
+      if (markedFn) return markedFn;
+      try {
+        const mod = await import("https://esm.sh/marked@12.0.2");
+        const marked = mod.marked;
+        marked.setOptions({ gfm: true, breaks: true });
+        markedFn = (md) => marked.parse(md);
+        return markedFn;
+      } catch {
+        return null;
+      }
+    }
+
+    function showErr(msg) {
+      errEl.textContent = msg;
+      errEl.hidden = !msg;
+    }
+
+    function currentBook() {
+      const i = Number($("books").value);
+      return catalog?.books?.[i] ?? null;
+    }
+
+    function currentLocale() {
+      return $("locales").value;
+    }
+
+    function sectionTitle(sec, loc) {
+      const t = sec.titlesByLocale?.[loc]?.trim();
+      if (t) return t;
+      const d = currentBook()?.defaultLocale;
+      const t2 = d && sec.titlesByLocale?.[d]?.trim();
+      return t2 || sec.slug;
+    }
+
+    function renderBookMeta(book, loc) {
+      const title = book.titlesByLocale?.[loc] || book.slug;
+      const tags = (book.tags || []).map((t) => t.name).join(" · ");
+      $("bookMeta").innerHTML = `
+        <h2>${escapeHtml(title)}</h2>
+        <p class="meta">${escapeHtml(book.figureName)}</p>
+        ${book.intendedAges?.trim() ? `<p class="meta">Age / audience: ${escapeHtml(book.intendedAges)}</p>` : ""}
+        ${book.country?.trim() ? `<p class="meta">Country / region: ${escapeHtml(book.country)}</p>` : ""}
+        ${book.summary?.trim() ? `<p class="meta">${escapeHtml(book.summary)}</p>` : ""}
+        ${tags ? `<p class="meta">${escapeHtml(tags)}</p>` : ""}
+      `;
+    }
+
+    function escapeHtml(s) {
+      return String(s)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function fillLocales(book) {
+      const sel = $("locales");
+      sel.innerHTML = "";
+      for (const loc of book.locales || []) {
+        const o = document.createElement("option");
+        o.value = loc;
+        o.textContent = loc;
+        sel.appendChild(o);
+      }
+    }
+
+    function fillChapters(book, loc) {
+      const sel = $("chapters");
+      sel.innerHTML = "";
+      const list = (book.sections || []).filter((s) => s.bodiesByLocale?.[loc]);
+      list.forEach((sec, i) => {
+        const o = document.createElement("option");
+        o.value = String(i);
+        o.textContent = sectionTitle(sec, loc);
+        sel.appendChild(o);
+      });
+    }
+
+    function sectionByChapterIndex(book, loc) {
+      const sel = $("chapters");
+      const idx = Number(sel.value);
+      const withBody = (book.sections || []).filter((s) => s.bodiesByLocale?.[loc]);
+      return withBody[idx] ?? null;
+    }
+
+    async function renderArticle() {
+      const book = currentBook();
+      const loc = currentLocale();
+      const sec = sectionByChapterIndex(book, loc);
+      const article = $("article");
+      if (!book || !sec) {
+        article.innerHTML = "";
+        return;
+      }
+      const md = sec.bodiesByLocale[loc] || "";
+      const render = await loadMarked();
+      if (render) {
+        article.innerHTML = render(md);
+      } else {
+        article.innerHTML = `<pre>${escapeHtml(md)}</pre>`;
+      }
+    }
+
+    function onBookChange() {
+      const book = currentBook();
+      if (!book) return;
+      fillLocales(book);
+      fillChapters(book, currentLocale());
+      renderBookMeta(book, currentLocale());
+      void renderArticle();
+    }
+
+    function onLocaleChange() {
+      const book = currentBook();
+      if (!book) return;
+      fillChapters(book, currentLocale());
+      renderBookMeta(book, currentLocale());
+      void renderArticle();
+    }
+
+    $("books").addEventListener("change", onBookChange);
+    $("locales").addEventListener("change", onLocaleChange);
+    $("chapters").addEventListener("change", () => void renderArticle());
+
+    $("pickFile").addEventListener("click", () => $("file").click());
+
+    $("file").addEventListener("change", async (ev) => {
+      const f = ev.target.files?.[0];
+      showErr("");
+      if (!f) return;
+      $("fileLabel").textContent = f.name;
+      try {
+        const text = await f.text();
+        const data = JSON.parse(text);
+        if (data.v !== 1 || !Array.isArray(data.books)) {
+          showErr("Unsupported file: expected catalog v1 with a books array.");
+          appEl.hidden = true;
+          return;
+        }
+        catalog = data;
+        const sel = $("books");
+        sel.innerHTML = "";
+        data.books.forEach((b, i) => {
+          const o = document.createElement("option");
+          o.value = String(i);
+          const label = b.titlesByLocale?.[b.defaultLocale] || b.slug;
+          o.textContent = label;
+          sel.appendChild(o);
+        });
+        appEl.hidden = false;
+        onBookChange();
+      } catch (e) {
+        showErr("Could not read JSON: " + (e instanceof Error ? e.message : String(e)));
+        appEl.hidden = true;
+      }
+    });
+  </script>
+</body>
+</html>
