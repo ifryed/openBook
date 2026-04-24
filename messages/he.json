@@ -35,7 +35,7 @@
     "no": "לא",
     "share": "שיתוף",
     "linkCopied": "הקישור הועתק",
-    "bookDownloadCount": "{count, plural, =0 {0 downloads} one {1 download} other {# downloads}}"
+    "bookDownloadCount": "{count, plural, =0 {אין הורדות} one {הורדה אחת} other {# הורדות}}"
   },
   "ShareDialog": {
     "hoverSharePage": "שתף עמוד",
@@ -45,7 +45,7 @@
     "pageTitle": "הוספת ספר",
     "autoGenLink": "יצירת קישור אוטומטית",
     "autoGenDescription": "תוכן עניינים מלא ורשימות פרקים בזרם עבודה מובנה (WebGPU).",
-    "importJsonLink": "הכנס גרסת ראשונה של ספר (JSON)",
+    "importJsonLink": "ייבוא טיוטת ספר (JSON)",
     "importJsonDescription": "מהכלי המקומי openbook-bookbuilder. נפתח כטיוטה — אמתו את הדמות, ואז פרסמו מרשימת הטיוטות.",
     "figureFocusBlurb": "ספר אחד מתמקד באיש היסטורי אחד. הוסף מקטעים מהדף של הספר או חלוק תוכן עם הכותרות של Markdown לרגע זה.",
     "backBrowse": "← חזרה לצפייה",
@@ -65,8 +65,8 @@
     "brand": "OpenBook",
     "contentReportLog": "יומן דיווחי תוכן",
     "browse": "עיון",
-    "offlineCatalog": "Offline catalog",
-    "mission": "מ使命נו",
+    "offlineCatalog": "קטלוג לא מקוון",
+    "mission": "מטרותינו",
     "contribute": "הצטרף לכתוב קוד",
     "addBook": "הוספת ספר",
     "signUp": "הרשמה",
@@ -91,29 +91,29 @@
   },
   "Contribute": {
     "metaTitle": "השתתפות",
-    "metaDescription": "מטרות OpenBook ואיך לעזור לשמור על הפרויקט: GitHub, פיתוח מקומי, Linting ותרגומים של ממשק משתמש.",
+    "metaDescription": "מטרות OpenBook ואיך לעזור לשמור על הפרויקט: GitHub, פיתוח מקומי, בדיקות קוד (לינט) ותרגומי ממשק משתמש.",
     "title": "השתתף ב-OpenBook",
     "subtitle": "למפתחים ולמתחזקי הפרויקט שרוצים לשפר את האפליקציה ואת התיעוד.",
     "missionHeading": "מטרות",
     "missionP1": "OpenBook הוא ספרייה בסגנון ויקיפדיה לביוגרפיות: כל ספר עוסק באדם היסטורי אחד, עם פרקים, היסטוריה מלאה של תיקונים, והשתתפות דומה לוויקיפדיה.",
-    "missionP2": "קוראים ועורכים משתמשים באתר על תוכן; עמוד זה נוגע לשמירה על בריאות הבסיס קוד - תיקון באגים, תכונות, גישה, ביצוע ותרגומים של ממשק המשתמש.",
-    "helpHeading": "איך תרם",
-    "helpIntro": "מקור הקוד פתוח. הנה דרכים מעשיות לתמוך במניעה:",
-    "helpBulletGithub": "פתיחת בעיות לביצוע באגים או רעיונות, דיון בשינויים והגשת בקשות משיכה על GitHub.",
-    "helpBulletLocal": "כלא את הרכזית, רן npm install, העתק .env.example ל-.env (הגדר DATABASE_URL ו-AUTH_SECRET), יישום היגרות (לדוגמה npm run db:migrate), ואז npm run dev. ראה את קובץ ה-README של הארכיון לפרטים נוספים.",
-    "helpBulletLint": "הרץ npm run lint לפני פתיחת בקשה משיכה כך שהבדיקות בסגנון CI יישארו ירוקות.",
-    "helpBulletTranslations": "טקסט UI מצוי ב-messages/en.json. לאחר הוספת או שינוי מפתחות, הרן npm run messages:sync כדי שהקובצים של תכונת השפה האחרת יהיו תקפים (ראה README).",
+    "missionP2": "קוראים ועורכים משתמשים באתר לתוכן; עמוד זה עוסק בשמירה על בריאות קוד המקור — תיקון באגים, תכונות, נגישות, ביצועים ותרגומי ממשק המשתמש.",
+    "helpHeading": "איך אפשר לעזור",
+    "helpIntro": "מקור הקוד פתוח. הנה דרכים מעשיות לתמוך בתחזוקה:",
+    "helpBulletGithub": "פתיחת דיווחי תקלות או רעיונות, דיון בשינויים והגשת בקשות משיכה ב-GitHub.",
+    "helpBulletLocal": "שכפלו את המאגר, הריצו npm install, העתיקו .env.example ל-.env (הגדירו DATABASE_URL ו-AUTH_SECRET), יישמו היגרות (למשל npm run db:migrate), ואז npm run dev. ראו את קובץ ה-README של המאגר לפרטים נוספים.",
+    "helpBulletLint": "הריצו npm run lint לפני פתיחת בקשת משיכה כדי שהבדיקות בסגנון CI יישארו ירוקות.",
+    "helpBulletTranslations": "טקסט הממשק נמצא ב-messages/en.json. לאחר הוספת או שינוי מפתחות, הריצו npm run messages:sync כדי שקבצי השפות האחרים יישארו תקינים (ראו README).",
     "githubLinkLabel": "מאגר: github.com/ifryed/openBook",
     "backHome": "← חזור לעיין",
-    "missionPersonalCta": "קרא את הסיפור האישי מאחורי הפרויקט – מטרותינו."
+    "missionPersonalCta": "קראו את הסיפור האישי מאחורי הפרויקט – מטרותינו."
   },
   "Mission": {
     "metaTitle": "מטרותינו",
-    "metaDescription": "הסיפור מאחורי OpenBook: מביקור ספרייה עם ילד בן חמש לביבליית協בורת של ביוגרפיות בשפות רבות. ",
+    "metaDescription": "הסיפור מאחורי OpenBook: מביקור בספרייה עם ילד בן חמש לביבליוטקה שיתופית של ביוגרפיות בשפות רבות.",
     "title": "מטרותינו",
     "subtitle": "הסיפור מאחורי OpenBook – והעולם שאנחנו מקווים לעזור לבנות.",
-    "p1": "ביום אחד, לקחתי את בני לספרייה, Hoping to find a nice storybook for my kids.",
-    "p2": "בני שלי, שהיה בן חמש באותה עת, ביקש ספר על בן ג' Franklin, אותו למד לאחרונה בבית הספר. הייתי בטוח שלא נמצא – אבל במקום זאת היו רבים: מרוצים פשוטים לילדים בני ארבע וחמש לשנים לבּוקים עמוקים יותר עבור נוער צעיר.",
+    "p1": "ביום אחד לקחתי את בני לספרייה, בתקווה למצוא ספר סיפורים נחמד לילדים שלי.",
+    "p2": "בני, שהיה בן חמש באותה עת, ביקש ספר על בנג׳מין פרנקלין, שלמד עליו לאחרונה בבית הספר. הייתי בטוח שלא נמצא – אבל מצאתי רבים: קומיקסים פשוטים לילדים בני ארבע וחמש ועד לספרים מעמיקים יותר לנוער צעיר.",
     "p3": "הייתי מופתע מהקושי המועט שקיים באותה רמת עומק בשפת האם שלי, וכיצד רבים מהדמויות ההיסטוריות שהן חשובות ביותר לנו נעדרות לחלוטין.",
     "p4": "התחלתי לדמיין אתר ברוח ויקיפדיה – שם אנשים יכולים לכתוב ולערוך זה בזה – כך נוכל לבנות ספרייה משותפת של סיפורים על אלו שאפנו את ההיסטוריה שלנו. ",
     "p5": "הרעיון הזה הפך להיות OpenBook: פרויקט ליצירת אוסף עשיר של ביוגרפיות על אנשים חשובים, ככל שיותר שפות.",
@@ -123,31 +123,31 @@
     "contributeStoriesText": "הרשם, התחל ספר על דמות היסטורית שחשובה לך, ערוך חלקים עם אחרים, או הוסף תרגומים וגרסאות שפה מקבילות. כל תרומה מדוקדקת הופכת את הספרייה ליותר עשירה עבור קוראים כמוכם.",
     "contributeStoriesCtaSignUp": "הרשם כדי לתרום",
     "contributeStoriesCtaAddBook": "התחל ספר",
-    "contributeCodeHeading": "Contribute to the code",
-    "contributeCodeText": "Developers and designers can help keep OpenBook healthy: fix bugs, add features, improve accessibility and performance, and translate the site interface into more languages.",
-    "contributeCodeCta": "How to contribute to the codebase",
-    "backHome": "← Back to browse"
+    "contributeCodeHeading": "תרומה לקוד",
+    "contributeCodeText": "מפתחים ומעצבים יכולים לעזור לשמור על OpenBook: תיקון באגים, תכונות, נגישות וביצועים, ותרגום ממשק האתר לשפות נוספות.",
+    "contributeCodeCta": "איך לתרום לקוד המקור",
+    "backHome": "← חזרה לעיון"
   },
   "OfflineCatalog": {
-    "metaTitle": "Offline catalog",
-    "metaDescription": "Download public book data as JSON and browse it locally with the offline viewer.",
-    "title": "Offline catalog",
-    "intro": "You can download a single JSON file with every published book: titles, tags, languages, summaries, and the latest chapter text for each language where that chapter is complete. Draft books, revision history, and account data are not included.",
-    "whatYouGetHeading": "What is in the file",
-    "whatYouGetP1": "The snapshot is meant for reading, backup, or research on your own device. It matches what visitors can already see on the public catalog and chapter pages—not the full database.",
-    "whatYouGetP2": "Content stays under the site’s content license (see the footer on the main site).",
-    "downloadHeading": "Download",
-    "downloadHint": "Save the file or open it in a new tab. The URL does not include a language prefix.",
+    "metaTitle": "קטלוג לא מקוון",
+    "metaDescription": "הורדת נתוני ספרים ציבוריים כקובץ JSON וצפייה מקומית באמצעות הצופה הלא מקוון.",
+    "title": "קטלוג לא מקוון",
+    "intro": "ניתן להוריד קובץ JSON יחיד עם כל הספרים שפורסמו: כותרות, תגיות, שפות, תקצירים וטקסט הפרק העדכני בכל שפה שבה הפרק שלם. טיוטות, היסטוריית גרסאות ונתוני חשבון אינם כלולים.",
+    "whatYouGetHeading": "מה יש בקובץ",
+    "whatYouGetP1": "הצילום מיועד לקריאה, גיבוי או מחקר במכשיר שלכם. הוא תואם למה שמבקרים רואים בקטלוג ובדפי הפרקים הציבוריים — לא למסד הנתונים המלא.",
+    "whatYouGetP2": "התוכן נשאר תחת רישיון התוכן של האתר (ראו כותרת תחתית באתר הראשי).",
+    "downloadHeading": "הורדה",
+    "downloadHint": "שמרו את הקובץ או פתחו בלשונית חדשה. בכתובת אין קידומת שפה.",
     "downloadLink": "public-catalog.json",
-    "viewerHeading": "Browse locally",
-    "viewerP1": "In this repository, open tools/openbook-offline-catalog/viewer/index.html in a desktop browser, use “Load catalog…”, and pick the JSON file you downloaded.",
-    "viewerP2": "Step-by-step instructions, curl examples, and air-gap notes are in tools/openbook-offline-catalog/README.md. To run the full OpenBook web app with a database on your machine, follow the main repository README instead.",
-    "backHome": "← Back to browse"
+    "viewerHeading": "צפייה מקומית",
+    "viewerP1": "במאגר זה, פתחו את tools/openbook-offline-catalog/viewer/index.html בדפדפן שולחני, השתמשו ב״טעינת קטלוג…״ ובחרו את קובץ ה-JSON שהורדתם.",
+    "viewerP2": "הוראות שלב־אחר־שלב, דוגמאות curl והערות לסביבה מנותקת נמצאות ב-tools/openbook-offline-catalog/README.md. להרצת אפליקציית OpenBook המלאה עם מסד נתונים במחשב שלכם, עקבו אחר README הראשי של המאגר.",
+    "backHome": "← חזרה לעיון"
   },
   "Home": {
     "title": "ספרים על דמויות היסטוריות",
     "intro": "OpenBook הוא אוסף בסגנון ויקיפדיה: כל אחד יכול להירשם, להתחיל ספר על דמות היסטורית ולעבוד על תיקונים והיסטוריה כמו בפרויקט ויקיפדיה, אך ממוקד בביוגרפיות.",
-    "missionCta": "Our mission — why OpenBook exists",
+    "missionCta": "מטרותינו — למה OpenBook קיים",
     "searchPlaceholder": "חיפוש לפי דמות, כותרת, תגיות או כתובת…",
     "filterHint": "מדינה ושפה מגיעים מהספרים בספרייה. גיל/קהל משתמשים ברשימה הסטנדרטית של כל ספר.",
     "activeFiltersFigure": "דמות:",
@@ -178,11 +178,11 @@
     "orDivider": "או",
     "signInWithEmail": "התחברות עם דוא״ל",
     "passwordHint": "סיסמה (לפחות 8 תווים)",
-    "signUpBlurbGoogle": "Sign up with Google or email and password. You can create books and edit with full revision history.",
-    "signUpBlurbEmail": "Anyone can sign up with email and password to create books and edit with full revision history.",
-    "signupGoogleTermsReminder": "If you use Google, you will be asked to accept the Terms and Privacy Policy on your first visit to a protected page (for example creating a book).",
-    "registerCheckboxLabel": "I agree to the <termsLink>Terms of Service</termsLink> and <privacyLink>Privacy Policy</privacyLink>.",
-    "signInLegalNote": "By signing in you agree to our <termsLink>Terms of Service</termsLink> and <privacyLink>Privacy Policy</privacyLink>."
+    "signUpBlurbGoogle": "הירשמו עם Google או עם דוא״ל וסיסמה. ניתן ליצור ספרים ולערוך עם היסטוריית גרסאות מלאה.",
+    "signUpBlurbEmail": "כל אחד יכול להירשם עם דוא״ל וסיסמה כדי ליצור ספרים ולערוך עם היסטוריית גרסאות מלאה.",
+    "signupGoogleTermsReminder": "אם תשתמשו ב-Google, תתבקשו לקבל את תנאי השימוש ומדיניות הפרטיות בביקור הראשון בעמוד מוגן (למשל בעת יצירת ספר).",
+    "registerCheckboxLabel": "אני מסכים/ה ל<termsLink>תנאי השימוש</termsLink> ול<privacyLink>מדיניות הפרטיות</privacyLink>.",
+    "signInLegalNote": "בכניסה אתם מסכימים ל<termsLink>תנאי השימוש</termsLink> ול<privacyLink>מדיניות הפרטיות</privacyLink> שלנו."
   },
   "Tier": {
     "newcomer": "חדש",
@@ -248,28 +248,28 @@
     "blurb": "יצירת ספר ביוגרפיה שיתופית. אחרי השמירה אפשר להוסיף פרקים וגרסאות."
   },
   "BookForm": {
-    "bookTitle": "Book title",
-    "bookTitlePlaceholder": "e.g. The Life of Hypatia",
-    "figureLabel": "Historical figure (canonical name)",
-    "figurePlaceholder": "e.g. Hypatia of Alexandria",
-    "intendedAges": "Intended ages / audience",
-    "intendedAgesHint": "Used for browsing filters and for local AI (reading level and tone).",
-    "primaryLanguage": "Primary language",
-    "primaryLanguageHintCreate": "You can add more languages after the book is created (book settings).",
-    "primaryLanguageHintEdit": "לשימושים במקרים של חוסר ולתקצירים חדשים. הוסף או תרגם שפות נוספות ברשימה מעל הטופס.",
+    "bookTitle": "כותרת הספר",
+    "bookTitlePlaceholder": "למשל: חיי היפאטיה",
+    "figureLabel": "דמות היסטורית (שם קנוני)",
+    "figurePlaceholder": "למשל: היפאטיה מאלכסנדריה",
+    "intendedAges": "גילאי יעד / קהל",
+    "intendedAgesHint": "משמש למסנני עיון ולבינה מלאכותית מקומית (רמת קריאה וטון).",
+    "primaryLanguage": "שפת מקור",
+    "primaryLanguageHintCreate": "ניתן להוסיף שפות נוספות לאחר יצירת הספר (הגדרות הספר).",
+    "primaryLanguageHintEdit": "לשימושים במקרים של חוסר ולתקצירים חדשים. הוסיפו או תרגמו שפות נוספות ברשימה מעל הטופס.",
     "country": "מדינה / אזור (לא חובה)",
     "countryPlaceholder": "למשל: הודו, צרפת, ארצות הברית",
-    "countryHintCreate": "שמומש בקטגוריות סינון בדף הבית.",
+    "countryHintCreate": "משמש בקטגוריות הסינון בדף הבית.",
     "countryHintEdit": "נראה בדף הספר ומושתמש בקטגוריות סינון במסך הבית.",
     "slugCreate": "סוג URL (לא חובה - שם קטע קצר + כותרת אם ריק)",
     "slugEdit": "סוג URL",
     "slugPlaceholder": "היפטיה",
-    "slugEditWarning": "שינוי זה יעביר את הספר לכתובת URL חדשה; קישורים המשתמשים בכתובת הישנה przעמי停止 לעבוד.",
+    "slugEditWarning": "שינוי זה יעביר את הספר לכתובת URL חדשה; קישורים שמשתמשים בכתובת הישנה עלולים להפסיק לעבוד.",
     "summary": "סיכום קצר (לא חובה)",
     "tags": "תגיות (לא חובה, נפרדות בפסיק)",
     "tagsPlaceholderCreate": "פילוסופיה, יוון העתיקה, מתמטיקה",
     "tagsPlaceholderEdit": "פילוסופיה, יוון העתיקה",
-    "figureEditHint": "שמירה מושבת עד ש-✓ מופיע ליד שם התמונה או שהשם נשאר ללא שינוי מהפעולה בה נפתח הדף זה."
+    "figureEditHint": "שמירה מושבתת עד ש-✓ מופיע ליד שם הדמות או שהשם נשאר ללא שינוי מהמצב בפתיחת העמוד."
   },
   "IntendedAudience": {
     "any": "כל גיל",
@@ -280,7 +280,7 @@
     "age5_9": "5–9",
     "age6_10": "6–10",
     "age8_12": "8–12",
-    "ageTeens": "Teenagers",
+    "ageTeens": "בני נוער",
     "ageYoungAdults": "בוגרים צעירים",
     "ageAdults": "מבוגרים"
   },
@@ -305,23 +305,23 @@
     "emailIntro": "אופציונלי. מוגדר כבוי ברירת מחדל.",
     "emailModeNone": "ללא",
     "emailModeAll": "כולם",
-    "emailModeCustom": "מדי Custom",
+    "emailModeCustom": "מותאם אישית",
     "emailSourcesHeading": "מקורות",
-    "emailSourceWatch": "Watched books & people",
-    "emailSourceWatchHint": "Books you watch on book pages and contributors you watch on profiles.",
+    "emailSourceWatch": "ספרים ואנשים במעקב",
+    "emailSourceWatchHint": "ספרים שאתם עוקבים אחריהם בדפי ספר ותורמים שאתם עוקבים אחריהם בפרופילים.",
     "emailSourceDigest": "סיכום",
-    "emailSourceDigestHint": "Digest-style items.",
-    "emailSourceOwned": "My books",
-    "emailSourceOwnedHint": "Books you created.",
-    "emailSourceReports": "My reports",
-    "emailSourceReportsHint": "Reports you filed.",
-    "emailTypesHeading": "Types",
-    "emailTypeNewRevision": "Edits",
-    "emailTypeNewBook": "New books",
-    "emailTypeNewSection": "New sections",
-    "emailTypeRevert": "Reverts",
-    "emailTypeReportPublicComment": "Report comments",
-    "emailTypeReportResolved": "Report resolved"
+    "emailSourceDigestHint": "פריטים בסגנון סיכום.",
+    "emailSourceOwned": "הספרים שלי",
+    "emailSourceOwnedHint": "ספרים שיצרתם.",
+    "emailSourceReports": "הדיווחים שלי",
+    "emailSourceReportsHint": "דיווחים ששלחתם.",
+    "emailTypesHeading": "סוגים",
+    "emailTypeNewRevision": "עריכות",
+    "emailTypeNewBook": "ספרים חדשים",
+    "emailTypeNewSection": "פרקים חדשים",
+    "emailTypeRevert": "שחזורים",
+    "emailTypeReportPublicComment": "הערות לדיווח",
+    "emailTypeReportResolved": "דיווח נסגר"
   },
   "Profile": {
     "title": "הפרופיל שלך",
@@ -486,7 +486,7 @@
     "referenceLookupFailed": "חיפוש המקורות נכשל. נסו שוב.",
     "signInForReferences": "יש להתחבר כדי למשוך מקורות.",
     "signInToWatch": "התחברו כדי לעקוב אחר ספרים.",
-    "signInToWatchUser": "Sign in to watch contributors.",
+    "signInToWatchUser": "התחברו כדי לעקוב אחר תורמים.",
     "cannotWatchSelf": "לא ניתן לצפות בתקצירך עצמך.",
     "userNotFound": "משתמש לא נמצא.",
     "signInToReport": "התחברו כדי לדווח על תוכן.",
@@ -558,10 +558,10 @@
     "couldNotUpdateBook": "לא ניתן לעדכן את הספר.",
     "draftNotFound": "הטיוטה לא נמצאה.",
     "deleteDraftTitleMismatch": "הכותרת שהקלדתם אינה תואמת לטיוטה. הזינו את הכותרת המדויקת מרשימת הטיוטות לאישור המחיקה.",
-    "invalidChapterJson": "JSON הפרקים חייב להיות מערך של אובייקטים עם title, body ו־slug אופציונלי.",
+    "invalidChapterJson": "JSON הפרקים חייב להיות מערך של אובייקטים; לכל פרק נדרשים השדות title ו-body, ואופציונלית slug.",
     "bookDraftImportInvalidJson": "לא ניתן לנתח את ה-JSON.",
     "bookDraftImportInvalidPayload": "הקובץ אינו טיוטת ספר תקינה (גרסה 1).",
-    "acceptTermsRequired": "You must accept the Terms of Service and Privacy Policy to continue."
+    "acceptTermsRequired": "יש לקבל את תנאי השימוש ומדיניות הפרטיות כדי להמשיך."
   },
   "Drafts": {
     "title": "הטיוטות שלך",
@@ -668,7 +668,7 @@
     "bookLinkLabel": "ספר:",
     "rawTocTitle": "תגובות גולמיות של מודל תוכן העניינים",
     "step1": "שלב 1 — אירועי חיים",
-    "step2": "שלב 2 — NDJSON",
+    "step2": "שלב 2 — JSON שורתי",
     "parsedToc": "תוכן עניינים מפורש",
     "notSavedUntilPublish": "לא נשמר עד שתפרסמו את הספר למטה.",
     "chaptersTitle": "פרקים",
@@ -798,13 +798,13 @@
         "description": "שחזר תוכן לפחות חמש פעמים לשיפור האיכות."
       },
       "book_title_editor": {
-        "title": "Book namer",
-        "short": "Book title",
-        "description": "Updated a book's title (any language or default settings)."
+        "title": "עורך כותרת ספר",
+        "short": "כותרת ספר",
+        "description": "עדכנו את כותרת הספר (בכל שפה או בהגדרות ברירת המחדל)."
       },
       "chapter_title_editor": {
-        "title": "Chapter namer",
-        "short": "Chapter title",
+        "title": "עורך כותרת פרק",
+        "short": "כותרת פרק",
         "description": "עדכנו את שם הפרק בשפה או בשפות לפחות אחת."
       },
       "contributor_tier": {
@@ -832,154 +832,154 @@
   "SiteFooter": {
     "navAria": "חוקים ורישיונות",
     "terms": "תנאי השימוש",
-    "privacy": "נהלים לפרטיות",
+    "privacy": "מדיניות הפרטיות",
     "licenseDeed": "{license} (הסכם רישיון)",
-    "disclaimer": "Content is user-generated and provided for informational purposes only. OpenBook does not provide legal, professional, or factual guarantees. Please review our <termsLink>Terms of Service</termsLink> and <privacyLink>Privacy Policy</privacyLink> for full details."
+    "disclaimer": "התוכן נוצר על ידי משתמשים ומוצג למטרות מידע בלבד. OpenBook אינו מספק ערבויות משפטיות, מקצועיות או עובדתיות. עיינו ב<termsLink>תנאי השימוש</termsLink> וב<privacyLink>מדיניות הפרטיות</privacyLink> לפרטים מלאים."
   },
   "AcceptTerms": {
-    "metaTitle": "قبول התנאים",
-    "metaDescription": "קבל את תנאי השימוש והנהלים לפרטיות של OpenBook כדי להמשיך.",
+    "metaTitle": "קבלת התנאים",
+    "metaDescription": "קבלו את תנאי השימוש ומדיניות הפרטיות של OpenBook כדי להמשיך.",
     "title": "לפני ההמשך",
-    "subtitle": "אנא הבהיר כי אתה מסכים לנוהלים שלנו.",
-    "intro": "כדי ליצור או לערוך ספרים ב-OpenBook, עליך לקבל את תנאי השימוש והנהלים לפרטיות הנוכחיים. סיכומים אינם תחליף לכתבי הקובץ המלאים.",
-    "bulletTerms": "תנאי השימוש — כללים לשימוש באתר, אחריותך ודרך licensing של התרומות.",
-    "bulletPrivacy": "נהלים לפרטיות — מה שאנחנו אוספים (לדוגמה נתוני חשבון ותיקיה) ואיך אנחנו משתמשים בו.",
-    "bulletLicense": "התרומות שאתה Publishes מוצעות לציבור תחת CC0 1.0 Universal (הוקרה ציבורית) כמתואר בתנאים.",
-    "checkboxLabel": "קראתי ומתחייב לתנאי השימוש <termsLink>של OpenBook</termsLink> ו <privacyLink>נהלים לפרטיות של OpenBook</privacyLink>.",
+    "subtitle": "אנא אשרו שאתם מסכימים למדיניות שלנו.",
+    "intro": "כדי ליצור או לערוך ספרים ב-OpenBook, עליכם לקבל את תנאי השימוש ומדיניות הפרטיות העדכניים. סיכומים אינם מחליפים את המסמכים המלאים.",
+    "bulletTerms": "תנאי השימוש — כללי שימוש באתר, אחריותכם ואופן רישוי התרומות.",
+    "bulletPrivacy": "מדיניות הפרטיות — מה שאנו אוספים (למשל נתוני חשבון והפעלה) וכיצד אנו משתמשים בהם.",
+    "bulletLicense": "תרומות שאתם מפרסמים מוצעות לציבור תחת CC0 1.0 Universal (הקדשה לנחלת הכלל) כמתואר בתנאים.",
+    "checkboxLabel": "קראתי ואני מסכים/ה ל<termsLink>תנאי השימוש של OpenBook</termsLink> ול<privacyLink>מדיניות הפרטיות של OpenBook</privacyLink>.",
     "submit": "המשך",
     "submitting": "שמירה…"
   },
   "ContentLicense": {
     "bookNoticePrefix": "הטקסט בספר זה נתרם על ידי משתמשים ומוצע לציבור תחת",
     "bookNoticeLicenseLink": "{label}",
-    "bookNoticeMid": "; see the",
-    "bookNoticeTermsLink": "Terms of Service",
-    "bookNoticeSuffix": " for details and disclaimers.",
-    "newBookHint": "By creating a book you confirm you have the right to share this material and that your contributions will be offered to the public under <licenseLink>CC0 1.0 Universal</licenseLink>. Read the <termsLink>Terms of Service</termsLink> for the full grant, representations, and disclaimers."
+    "bookNoticeMid": "; ראו את",
+    "bookNoticeTermsLink": "תנאי השימוש",
+    "bookNoticeSuffix": " לפרטים ולסייגים.",
+    "newBookHint": "ביצירת ספר אתם מאשרים שיש לכם את הזכות לשתף חומר זה ושתרומותיכם יוצעו לציבור תחת <licenseLink>CC0 1.0 Universal</licenseLink>. קראו את <termsLink>תנאי השימוש</termsLink> לנוסח המלא של ההקניה, ההצהרות והסייגים."
   },
   "LegalTerms": {
-    "metaTitle": "Terms of Service",
-    "metaDescription": "Terms governing use of OpenBook, user responsibilities, CC0 licensing of contributions, and disclaimers.",
-    "title": "Terms of Service",
-    "subtitle": "Last Updated: April 21, 2026",
-    "backHome": "← Back to browse",
+    "metaTitle": "תנאי השימוש",
+    "metaDescription": "תנאים המסדירים את השימוש ב-OpenBook, אחריות המשתמשים, רישוי תרומות ב-CC0 וסייגים.",
+    "title": "תנאי השימוש",
+    "subtitle": "עודכן לאחרונה: 21 באפריל 2026",
+    "backHome": "← חזרה לעיון",
     "sections": {
       "importantNotice": {
-        "heading": "Important Notice",
-        "body": "These Terms of Service (\"Terms\") govern your access to and use of OpenBook (the \"Service\"). By using the Service, creating an account, or submitting content, you agree to be bound by these Terms and our Privacy Policy.\n\nIf you do not agree to these Terms, you must not access or use the Service.\n\nThese Terms are intended to establish legal expectations between users and the operators of OpenBook. They do not constitute legal advice. Laws vary by jurisdiction, and users should consult qualified legal counsel regarding copyright, privacy, liability, or other legal matters relevant to their use of the Service.\n\nUnless otherwise stated on a specific page, user-contributed text on OpenBook is made available to the public under the Creative Commons CC0 1.0 Universal Public Domain Dedication (\"CC0 1.0\"). The full legal text is available at: https://creativecommons.org/publicdomain/zero/1.0/"
+        "heading": "הודעה חשובה",
+        "body": "תנאי השימוש (\"התנאים\") מסדירים את הגישה שלכם לשירות OpenBook ואת השימוש בו (\"השירות\"). בשימוש בשירות, בפתיחת חשבון או בהגשת תוכן אתם מסכימים להיות כפופים לתנאים אלה ולמדיניות הפרטיות שלנו.\n\nאם אינכם מסכימים לתנאים אלה, אין להשתמש בשירות.\n\nהתנאים נועדו לקבוע ציפיות משפטיות בין משתמשים למפעילי OpenBook. הם אינם מהווים ייעוץ משפטי. החוקים משתנים בין סמכויות שיפוט, ומומלץ להתייעץ עם עורך דין מוסמך בנושאי זכויות יוצרים, פרטיות, אחריות או עניינים משפטיים אחרים הרלוונטיים לשימושכם בשירות.\n\nאלא אם צוין אחרת בעמוד מסוים, טקסט שנתרם על ידי משתמשים ב-OpenBook מוצג לציבור תחת Creative Commons CC0 1.0 Universal Public Domain Dedication (\"CC0 1.0\"). הטקסט המשפטי המלא זמין בכתובת: https://creativecommons.org/publicdomain/zero/1.0/"
       },
       "definitions": {
-        "heading": "1. Definitions",
-        "body": "For purposes of these Terms:\n\n* \"OpenBook,\" \"Service,\" \"we,\" \"us,\" and \"our\" refer to the operators, maintainers, and infrastructure supporting this OpenBook instance.\n* \"You\" and \"your\" refer to the individual or entity accessing or using the Service.\n* \"Content\" means all text, titles, metadata, and other materials submitted to, displayed on, or made available through the Service.\n* \"User Contributions\" means Content that you submit, edit, upload, publish, or otherwise make available through the Service."
+        "heading": "1. הגדרות",
+        "body": "לצורך תנאים אלה:\n\n* \"OpenBook\", \"השירות\", \"אנחנו\", \"לנו\" ו\"שלנו\" — מפעילים, מתחזקים ותשתית התומכים במופע OpenBook זה.\n* \"אתם\" ו\"שלכם\" — האדם או הגוף הניגשים לשירות או משתמשים בו.\n* \"תוכן\" — כל טקסט, כותרות, מטא־נתונים וחומרים אחרים שהוגשו לשירות, מוצגים בו או זמינים דרכו.\n* \"תרומות משתמשים\" — תוכן שאתם מגישים, עורכים, מעלים, מפרסמים או מציעים בדרך אחרת דרך השירות."
       },
       "changes": {
-        "heading": "2. Changes to These Terms",
-        "body": "We may update these Terms from time to time. Material changes will be indicated by updating the \"Last Updated\" date above.\n\nYour continued use of the Service after any such updates constitutes your acceptance of the revised Terms to the fullest extent permitted by applicable law."
+        "heading": "2. שינויים בתנאים",
+        "body": "אנו עשויים לעדכן את התנאים מעת לעת. שינויים מהותיים יסומנו בעדכון תאריך \"עודכן לאחרונה\" לעיל.\n\nהמשך שימושכם בשירות לאחר עדכונים כאלה מהווה הסכמה לתנאים המתוקנים, בכפוף למגבלות החוק החל."
       },
       "userContent": {
-        "heading": "3. User-Generated Content and Responsibility",
-        "body": "OpenBook hosts user-generated biographical, educational, and reference material. We do not guarantee the accuracy, completeness, legality, reliability, or suitability of any Content.\n\nYou acknowledge and agree that:\n\n* all Content is used at your own risk;\n* you are solely responsible for your User Contributions;\n* you must comply with all applicable laws, including those relating to copyright, defamation, privacy, export controls, and intellectual property rights;\n* you must not upload malware, spam, malicious code, deceptive material, or content you do not have the legal right to share."
+        "heading": "3. תוכן שנוצר על ידי משתמשים ואחריות",
+        "body": "OpenBook מארח חומר ביוגרפי, חינוכי ועיוני שנוצר על ידי משתמשים. איננו מתחייבים לדיוק, שלמות, חוקיות, מהימנות או התאמה של כל תוכן.\n\nאתם מכירים ומסכימים כי:\n\n* כל השימוש בתוכן הוא על אחריותכם בלבד;\n* אתם האחראים הבלעדיים לתרומותיכם;\n* עליכם לציית לכל החוקים החלים, לרבות בנושאי זכויות יוצרים, לשון הרע, פרטיות, בקרות ייצוא וקניין רוחני;\n* אין להעלות נוזקות, ספאם, קוד זדוני, חומר מטעה או תוכן שאין לכם זכות חוקית לשתף."
       },
       "licenseGrant": {
-        "heading": "4. License to the Public (CC0 1.0)",
-        "body": "To ensure that OpenBook remains maximally reusable and openly accessible, you agree that each User Contribution you submit is dedicated to the public under the Creative Commons CC0 1.0 Universal Public Domain Dedication (\"CC0 1.0\").\n\nBy submitting User Contributions, you:\n\n* waive, to the fullest extent permitted by law, all copyright and related rights you hold in that contribution; and\n* agree that the contribution may be used, copied, modified, distributed, displayed, and performed by anyone for any purpose, without additional conditions, as described in the CC0 legal text.\n\nBecause CC0 may not fully apply to every right in every jurisdiction (including certain moral rights), to the extent any rights remain, you grant to us and to all users a perpetual, irrevocable, worldwide, non-exclusive, royalty-free, sublicensable license to use, reproduce, modify, distribute, publicly display, and publicly perform such Content for any purpose consistent with the goals of OpenBook.\n\nYou understand and agree that others may reuse your contributions without attribution, although the Service may retain revision history or usernames for operational, moderation, or transparency purposes."
+        "heading": "4. רישיון לציבור (CC0 1.0)",
+        "body": "כדי ש-OpenBook יישאר לשימוש חוזר ונגיש ככל האפשר, אתם מסכימים שכל תרומת משתמשים שתגישו מוקדשת לציבור תחת Creative Commons CC0 1.0 Universal Public Domain Dedication (\"CC0 1.0\").\n\nבהגשת תרומות משתמשים:\n\n* אתם מוותרים, במידה המרבית שהחוק מתיר, על זכויות יוצרים וזכויות קשורות שיש לכם בתרומה; ו\n* אתם מסכימים שהתרומה עשויה לשמש, להועתק, לעבור שינוי, להופץ, להוצג ולבוצע על ידי כל אחד לכל מטרה, ללא תנאים נוספים, כמתואר בנוסח המשפטי של CC0.\n\nמכיוון ש-CC0 עשוי שלא לחול במלואו על כל זכות בכל סמכות שיפוט (לרבות זכויות מוסריות מסוימות), בכפוף לזכויות שנותרו, אתם מעניקים לנו ולכל המשתמשים רישיון בלתי מוגבל בזמן, בלתי הפיך, עולמי, לא בלעדי, ללא תמלוגים, עם זכות תת־רישוי — לשימוש, שכפול, שינוי, הפצה, הצגה פומבית וביצוע פומבי של התוכן לכל מטרה התואמת את מטרות OpenBook.\n\nאתם מבינים שאחרים עשויים לעשות שימוש חוזר בתרומותיכם ללא ייחוס, אף שהשירות עשוי לשמור היסטוריית גרסאות או שמות משתמש למטרות תפעול, ניהול תוכן או שקיפות."
       },
       "representations": {
-        "heading": "5. Your Representations and Warranties",
-        "body": "You represent and warrant that:\n\n* you have all rights, permissions, and legal authority necessary to submit your User Contributions under these Terms and under CC0 1.0;\n* your contributions do not infringe or violate the rights of any third party, including copyright, privacy, publicity, trademark, or contractual rights;\n* your contributions do not contain unlawful, defamatory, fraudulent, or harmful material.\n\nIf you cannot make these representations for specific material (for example, lengthy quotations from copyrighted works), you must not submit that material unless you have permission or another clear legal basis to do so."
+        "heading": "5. הצהרות והתחייבויות",
+        "body": "אתם מצהירים ומתחייבים כי:\n\n* יש בידיכם את כל הזכויות, ההרשאות והסמכות החוקית הנדרשות להגיש את תרומותיכם לפי תנאים אלה ולפי CC0 1.0;\n* תרומותיכם אינן פוגעות בזכויות צד שלישי, לרבות זכויות יוצרים, פרטיות, פרסום, סימני מסחר או זכויות חוזיות;\n* תרומותיכם אינן מכילות חומר בלתי חוקי, לשון הרע, הונאה או חומר מזיק.\n\nאם אינכם יכולים לעשות הצהרות אלה לגבי חומר מסוים (למשל ציטוטים ארוכים מיצירות מוגנות), אין להגיש את החומר אלא אם יש לכם הרשאה או בסיס משפטי ברור אחר."
       },
       "acceptableUse": {
-        "heading": "6. Acceptable Use",
-        "body": "You agree not to:\n\n* harass, threaten, abuse, or intimidate other users;\n* attempt to interfere with, disrupt, damage, or gain unauthorized access to the Service;\n* scrape, automate, or access the Service in a manner that harms performance, availability, or security;\n* use the Service for unlawful, fraudulent, or abusive purposes;\n* impersonate others or misrepresent your affiliation with any person or entity.\n\nWe reserve the right to suspend, restrict, or terminate access for violations of these Terms."
+        "heading": "6. שימוש מקובל",
+        "body": "אתם מסכימים שלא:\n\n* להטריד, לאיים, לפגוע או להפחיד משתמשים אחרים;\n* לנסות להפריע, לשבש, לפגוע או לקבל גישה בלתי מורשית לשירות;\n* לאסוף אוטומטית נתונים או לגשת לשירות בדרך הפוגעת בביצועים, זמינות או אבטחה;\n* להשתמש בשירות למטרות בלתי חוקיות, הונאה או התעללות;\n* להתחזות לאחרים או לטעות בנוגע לשיוך לגורם כלשהו.\n\nאנו שומרים לעצמנו את הזכות להשעות, להגביל או לסיים גישה בהפרת תנאים אלה."
       },
       "moderation": {
-        "heading": "7. Moderation and Removal",
-        "body": "We may, but are not obligated to, review, remove, restrict, edit, or disable access to Content, accounts, or features for any reason, including to:\n\n* protect users;\n* comply with legal obligations;\n* enforce these Terms;\n* preserve the functionality and integrity of the Service.\n\nWe are not obligated to host, preserve, or restore any particular Content.\n\nCommunity reporting tools may be provided for moderation purposes. Any moderation decision is administrative only and does not constitute a legal determination."
+        "heading": "7. ניהול תוכן והסרה",
+        "body": "אנו רשאים, אך איננו חייבים, לסקור, להסיר, להגביל, לערוך או לנטרל גישה לתוכן, חשבונות או תכונות מכל סיבה, לרבות כדי:\n\n* להגן על משתמשים;\n* לציית לחובות חוקיות;\n* לאכוף את התנאים;\n* לשמר את תפקוד השירות ויושרתו.\n\nאיננו חייבים לארח, לשמר או לשחזר תוכן מסוים.\n\nייתכנו כלי דיווח קהילתיים לצורכי ניהול תוכן. כל החלטת ניהול תוכן היא מנהלית בלבד ואינה מהווה קביעה משפטית."
       },
       "disclaimers": {
-        "heading": "8. Disclaimer of Warranties",
-        "body": "TO THE FULLEST EXTENT PERMITTED BY LAW, THE SERVICE AND ALL CONTENT ARE PROVIDED ON AN \"AS IS\" AND \"AS AVAILABLE\" BASIS, WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS, IMPLIED, STATUTORY, OR OTHERWISE.\n\nTHIS INCLUDES, WITHOUT LIMITATION, IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE, ACCURACY, QUIET ENJOYMENT, AND NON-INFRINGEMENT.\n\nWE DO NOT WARRANT THAT THE SERVICE WILL BE UNINTERRUPTED, SECURE, ERROR-FREE, OR FREE OF HARMFUL COMPONENTS."
+        "heading": "8. ויתור על אחריות",
+        "body": "במידה המרבית שהחוק מתיר, השירות וכל התוכן מסופקים \"כמות שהם\" ו\"כפי שזמינים\", ללא כל אחריות, מפורשת או משתמעת, חוקית או אחרת.\n\nזה כולל, בלי הגבלה, אחריות משתמעת לסחירות, התאמה למטרה מסוימת, בעלות, דיוק, נתינת חופש שימוש ואי־הפרה.\n\nאיננו מתחייבים שהשירות יהיה רציף, מאובטח, ללא שגיאות או נקי מרכיבים מזיקים."
       },
       "limitation": {
-        "heading": "9. Limitation of Liability",
-        "body": "TO THE FULLEST EXTENT PERMITTED BY LAW, WE SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, EXEMPLARY, OR PUNITIVE DAMAGES, OR FOR ANY LOSS OF PROFITS, REVENUE, DATA, GOODWILL, BUSINESS OPPORTUNITY, OR OTHER INTANGIBLE LOSSES, ARISING OUT OF OR RELATED TO YOUR USE OF OR INABILITY TO USE THE SERVICE OR CONTENT.\n\nOUR TOTAL AGGREGATE LIABILITY FOR ANY CLAIM ARISING OUT OF OR RELATING TO THESE TERMS OR THE SERVICE SHALL NOT EXCEED THE GREATER OF:\n\n(a) the total amount you paid to us, if any, for use of the Service during the twelve (12) months preceding the claim; or\n\n(b) fifty United States dollars (US $50), if you have not paid us any amount.\n\nSome jurisdictions do not allow certain limitations of liability, so some of the above limitations may not apply to you."
+        "heading": "9. הגבלת אחריות",
+        "body": "במידה המרבית שהחוק מתיר, לא נהיה אחראים לנזקים עקיפים, מקריים, מיוחדים, תוצאתיים, לדוגמה או עונשיים, או לאובדן רווחים, הכנסות, נתונים, מוניטין, הזדמנויות עסקיות או הפסדים בלתי מוחשים אחרים הנובעים מהשימוש או מחוסר היכולת להשתמש בשירות או בתוכן.\n\nסך האחריות המצטברת שלנו לכל תביעה הנובעת מהתנאים או מהשירות לא יעלה על הגבוה מבין:\n\n(א) הסכום הכולל ששילמתם לנו, אם בכלל, עבור השימוש בשירות במהלך שנים עשר (12) החודשים שלפני התביעה; או\n\n(ב) חמישים דולר ארצות הברית (US $50), אם לא שילמתם לנו דבר.\n\nבחלק מהסמכויות אינה מתאפשרת הגבלת אחריות מסוימת, ולכן ייתכן שחלק מההגבלות לעיל לא יחולו עליכם."
       },
       "indemnification": {
-        "heading": "10. Indemnification",
-        "body": "You agree to defend, indemnify, and hold harmless OpenBook, its operators, maintainers, contributors, and affiliates from and against any claims, liabilities, damages, losses, and expenses, including reasonable attorneys' fees, arising out of or relating to:\n\n* your use of the Service;\n* your User Contributions;\n* your violation of these Terms;\n* your violation of any law or third-party rights."
+        "heading": "10. שיפוי",
+        "body": "אתם מסכימים לשאת בעלות ההגנה, לשפות ולשאת חסרי נזק את OpenBook, מפעיליו, מתחזקיו, תורמיו ושותפיו מכל תביעה, חבות, נזק, הפסד והוצאה, לרבות שכר טרחת עורכי דין סביר, הנובעים מהשימוש שלכם בשירות, מתרומותיכם, מהפרת התנאים או מהפרת חוק או זכויות צד שלישי."
       },
       "governingLaw": {
-        "heading": "11. Governing Law",
-        "body": "These Terms shall be governed by and construed in accordance with the laws applicable to the operator's jurisdiction, without regard to conflict-of-law principles, except where mandatory consumer protection laws in your country of residence require otherwise."
+        "heading": "11. דין חל וסמכות שיפוט",
+        "body": "תנאים אלה יפורשו ויחולו בהתאם לחוקים החלים על סמכות השיפוט של המפעיל, ללא התייחסות לעקרונות ברירת דין, למעט כאשר חוקי הגנת הצרכן החלים במדינת מגוריכם מחייבים אחרת."
       },
       "severability": {
-        "heading": "12. Severability",
-        "body": "If any provision of these Terms is found to be unlawful, void, or unenforceable, that provision shall be enforced to the maximum extent permitted by law, and the remaining provisions shall remain in full force and effect."
+        "heading": "12. הפרדה",
+        "body": "אם הוראה כלשהי בתנאים אלה נמצאת בלתי חוקית, בטלה או בלתי נאכפת, הוראה זו תיושם במידה המרבית שהחוק מתיר, וההוראות הנותרות יישארו בתוקף מלא."
       },
       "contact": {
-        "heading": "13. Contact",
-        "body": "For abuse reports, legal notices, copyright concerns, or general inquiries, please use the contact channels published on this website or its associated repository, where applicable."
+        "heading": "13. יצירת קשר",
+        "body": "לדיווחי ניצול לרעה, הודעות משפטיות, חששות בנושא זכויות יוצרים או פניות כלליות, השתמשו בערוצי יצירת הקשר המפורסמים באתר זה או במאגר המשויך, לפי העניין."
       }
     }
   },
   "LegalPrivacy": {
-    "metaTitle": "תעודת פרטיות",
-    "metaDescription": "How OpenBook collects, uses, stores, and shares information when you use the Service.",
-    "title": "Privacy Policy",
-    "subtitle": "Last Updated: April 21, 2026",
-    "backHome": "← Back to browse",
+    "metaTitle": "מדיניות פרטיות",
+    "metaDescription": "כיצד OpenBook אוסף, משתמש, מאחסן ומשתף מידע כאשר אתם משתמשים בשירות.",
+    "title": "מדיניות פרטיות",
+    "subtitle": "עודכן לאחרונה: 21 באפריל 2026",
+    "backHome": "← חזרה לעיון",
     "sections": {
       "importantNotice": {
-        "heading": "Important Notice",
-        "body": "This Privacy Policy (\"Policy\") explains how OpenBook (the \"Service\") collects, uses, stores, and shares information when you access or use the Service.\n\nThis Policy is intended to describe our privacy practices and your rights regarding your personal information. It is not legal advice. Privacy laws vary by jurisdiction, and this Policy should be reviewed and adapted based on your actual operations, hosting providers, and applicable laws, including but not limited to the General Data Protection Regulation (GDPR) where applicable.\n\nIf any part of this Policy conflicts with a feature-specific privacy notice, the more specific notice will control.\n\nBy using the Service, you acknowledge the practices described in this Policy."
+        "heading": "הודעה חשובה",
+        "body": "מדיניות פרטיות זו (\"המדיניות\") מסבירה כיצד OpenBook (\"השירות\") אוסף, משתמש, מאחסן ומשתף מידע כאשר אתם ניגשים לשירות או משתמשים בו.\n\nהמדיניות נועדה לתאר את פרקטיקת הפרטיות שלנו ואת זכויותיכם בנוגע למידע האישי שלכם. היא אינה מהווה ייעוץ משפטי. חוקי פרטיות משתנים בין סמכויות, ויש לסקור ולהתאים מדיניות זו לפי הפעילות בפועל, ספקי האירוח והחוקים החלים, לרבות התקנה הכללית להגנת מידע (GDPR) כאשר רלוונטי.\n\nאם חלק מהמדיניות סותר הודעת פרטיות ספציפית לתכונה, ההודעה הספציפית תגבר.\n\nבשימוש בשירות אתם מכירים בפרקטיקות המתוארות במדיניות זו."
       },
       "whoWeAre": {
-        "heading": "1. Who We Are",
-        "body": "OpenBook is a collaborative reading, editing, and publishing platform.\n\nDepending on how the Service is deployed, the \"operator,\" \"we,\" \"us,\" and \"our\" may refer to an individual maintainer, a development team, or an organization responsible for operating this specific OpenBook instance.\n\nContact details for the operator are typically available in the site footer, repository, or other published contact channels."
+        "heading": "1. מי אנחנו",
+        "body": "OpenBook הוא פלטפורמה שיתופית לקריאה, עריכה ופרסום.\n\nבהתאם לאופן פריסת השירות, \"המפעיל\", \"אנחנו\", \"לנו\" ו\"שלנו\" עשויים להתייחס למתחזק יחיד, לצוות פיתוח או לארגון האחראים להפעלת מופע OpenBook זה.\n\nפרטי יצירת קשר עם המפעיל זמינים בדרך כלל בכותרת התחתית של האתר, במאגר או בערוצי קשר מפורסמים אחרים."
       },
       "informationWeCollect": {
-        "heading": "2. Information We Collect",
-        "body": "We may collect the following categories of information:\n\nAccount Information\n\nWhen you register for an account using email login, we may collect and store:\n\n* your email address;\n* an optional display name;\n* a securely stored password hash (we do not store plaintext passwords).\n\nOAuth and Third-Party Login Information\n\nIf you sign in using a third-party authentication provider such as Google, we may receive:\n\n* your account identifier from that provider;\n* your name;\n* your email address;\n* your profile image URL; and\n* other profile information that you authorize the provider to share.\n\nThe exact information received depends on your provider settings and permissions.\n\nContent and Activity Data\n\nWe store Content and activity you submit through the Service, including:\n\n* books, pages, sections, and revisions;\n* comments, reports, and moderation submissions;\n* timestamps of edits and submissions;\n* revision history;\n* technical metadata necessary to operate and maintain the Service.\n\nBecause OpenBook functions similarly to a collaborative wiki, much of this Content may be public by design.\n\nTechnical and Log Data\n\nLike most websites, we may automatically collect technical information such as:\n\n* IP addresses;\n* browser type and version;\n* operating system information;\n* device identifiers where applicable;\n* request paths and timestamps;\n* referring pages and usage patterns;\n* authentication and security logs.\n\nThis information helps us maintain security, diagnose issues, and improve reliability."
+        "heading": "2. איזה מידע אנו אוספים",
+        "body": "אנו עשויים לאסוף את קטגוריות המידע הבאות:\n\nמידע חשבון\n\nבהרשמה עם דוא״ל אנו עשויים לאסוף ולאחסן:\n\n* כתובת הדוא״ל שלכם;\n* שם תצוגה אופציונלי;\n* גיבוב סיסמה מאובטח (איננו שומרים סיסמאות בטקסט גלוי).\n\nמידע התחברות OAuth וצד שלישי\n\nאם אתם נכנסים באמצעות ספק אימות כגון Google, אנו עשויים לקבל:\n\n* מזהה חשבון אצל הספק;\n* שמכם;\n* כתובת הדוא״ל שלכם;\n* כתובת URL לתמונת פרופיל;\n* מידע פרופיל נוסף שהספק רשאי לשתף לפי ההרשאות שלכם.\n\nהמידע המדויק תלוי בהגדרות והרשאות הספק.\n\nתוכן ונתוני פעילות\n\nאנו מאחסנים תוכן ופעילות שאתם מגישים דרך השירות, לרבות:\n\n* ספרים, עמודים, פרקים וגרסאות;\n* הערות, דיווחים ופעולות ניהול תוכן;\n* חותמות זמן של עריכות והגשות;\n* היסטוריית גרסאות;\n* מטא־נתונים טכניים הנדרשים להפעלה ולתחזוקה.\n\nמכיוון ש-OpenBook דומה לוויקי שיתופי, רוב התוכן עשוי להיות ציבורי מעצם העיצוב.\n\nנתונים טכניים ויומנים\n\nכמו רוב האתרים, אנו עשויים לאסוף אוטומטית מידע כגון:\n\n* כתובות IP;\n* סוג וגרסת דפדפן;\n* מערכת הפעלה;\n* מזהי מכשירים כאשר רלוונטי;\n* נתיבי בקשות וחותמות זמן;\n* עמודי הפניה ודפוסי שימוש;\n* יומני אימות ואבטחה.\n\nמידע זה עוזר לשמור על אבטחה, לאבחן תקלות ולשפר אמינות."
       },
       "howWeUse": {
-        "heading": "3. How We Use Information",
-        "body": "We use collected information for legitimate operational purposes, including:\n\nAuthentication and Account Security\n\nWe use account and session data to:\n\n* authenticate users;\n* maintain login sessions;\n* prevent unauthorized access;\n* protect accounts and platform security.\n\nService Operation and Improvement\n\nWe use submitted Content and usage information to:\n\n* display and maintain public and private pages;\n* support collaboration and revision history;\n* generate exports and backups;\n* provide notifications where enabled;\n* improve usability, reliability, and performance.\n\nCommunications\n\nIf enabled, we may use your email address to send:\n\n* account verification messages;\n* password reset links;\n* important service notices;\n* transactional notifications related to your account or content.\n\nWe do not use transactional email channels for unrelated marketing without appropriate consent where required by law.\n\nSecurity, Abuse Prevention, and Analytics\n\nWe may use technical logs and activity records to:\n\n* detect abuse, spam, fraud, or malicious activity;\n* investigate violations of our Terms of Service;\n* debug errors and service outages;\n* measure aggregate traffic and usage trends."
+        "heading": "3. כיצד אנו משתמשים במידע",
+        "body": "אנו משתמשים במידע שנאסף למטרות תפעול לגיטימיות, לרבות:\n\nאימות ואבטחת חשבון\n\n* אימות משתמשים;\n* שמירה על הפעלות כניסה;\n* מניעת גישה בלתי מורשית;\n* הגנה על חשבונות ואבטחת הפלטפורמה.\n\nתפעול השירות ושיפור\n\n* הצגה ותחזוקה של עמודים ציבוריים ופרטיים;\n* תמיכה בשיתוף פעולה ובהיסטוריית גרסאות;\n* יצירת ייצוא וגיבויים;\n* מתן התראות כאשר הופעלו;\n* שיפור שימושיות, אמינות וביצועים.\n\nתקשורת\n\nאם הופעל, אנו עשויים להשתמש בדוא״ל שלכם לשליחת:\n\n* אימות חשבון;\n* קישורי איפוס סיסמה;\n* הודעות שירות חשובות;\n* התראות עסקיות הקשורות לחשבון או לתוכן.\n\nאיננו משתמשים בערוצי דוא״ל עסקיים לשיווק שאינו קשור ללא הסכמה היכן שהחוק מחייב.\n\nאבטחה, מניעת ניצול לרעה ואנליטיקה\n\n* זיהוי ניצול לרעה, ספאם, הונאה או פעילות זדונית;\n* חקירת הפרות של תנאי השימוש;\n* איתור שגיאות והפסקות שירות;\n* מדידת תנועה ומגמות שימוש מצטברות."
       },
       "cookies": {
-        "heading": "4. Cookies and Local Storage",
-        "body": "We use cookies, local storage, and similar technologies necessary for authentication, security, and core Service functionality.\n\nExamples include:\n\n* session cookies for login authentication;\n* security tokens;\n* preference storage for user settings.\n\nIf you disable essential cookies, some parts of the Service may not function properly.\n\nWe do not rely on non-essential tracking technologies unless disclosed separately where required by applicable law."
+        "heading": "4. עוגיות ואחסון מקומי",
+        "body": "אנו משתמשים בעוגיות, אחסון מקומי וטכנולוגיות דומות הנדרשות לאימות, אבטחה ותפקוד ליבה של השירות.\n\nדוגמאות:\n\n* עוגיות הפעלה לאימות כניסה;\n* אסימוני אבטחה;\n* שמירת העדפות הגדרות.\n\nאם תבטלו עוגיות חיוניות, חלקים מהשירות עשויים שלא לפעול כראוי.\n\nאיננו סומכים על מעקב לא חיוני אלא אם נחשף בנפרד כנדרש בחוק החל."
       },
       "advertising": {
-        "heading": "5. Advertising",
-        "body": "Some deployments of OpenBook may display third-party advertising, including services such as Google AdSense.\n\nIf third-party ads are enabled:\n\n* advertising providers may use cookies or similar technologies under their own privacy policies;\n* those providers may collect data independently as controllers or processors under their own legal obligations.\n\nYou should review the privacy policies, consent tools, and opt-out settings provided by those advertising partners.\n\nWe do not sell your personal information as a commodity. Where ad partners are used, they process data according to their own policies and applicable law."
+        "heading": "5. פרסום",
+        "body": "חלק מהפריסות של OpenBook עשויות להציג פרסום של צד שלישי, לרבות שירותים כגון Google AdSense.\n\nאם מופעל פרסום של צד שלישי:\n\n* ספקי פרסום עשויים להשתמש בעוגיות או טכנולוגיות דומות לפי מדיניות הפרטיות שלהם;\n* ספקים אלה עשויים לאסוף נתונים באופן עצמאי כבקרים או מעבדים לפי חובותיהם המשפטיות.\n\nמומלץ לעיין במדיניות הפרטיות, בכלי הסכמה ובאפשרויות הסירוב של שותפי הפרסום.\n\nאיננו מוכרים את המידע האישי שלכם כסחורה. כאשר משתמשים בשותפי פרסום, הם מעבדים נתונים לפי המדיניות שלהם והחוק החל."
       },
       "sharing": {
-        "heading": "6. Sharing of Information",
-        "body": "We may share information in the following circumstances:\n\nPublic Content\n\nMuch of the Content you contribute is intended to be publicly visible, including revisions and collaborative contributions.\n\nPlease do not submit private information you do not want publicly disclosed.\n\nService Providers\n\nWe may share information with trusted infrastructure providers necessary to operate the Service, such as:\n\n* hosting providers;\n* database services;\n* authentication providers;\n* email delivery providers;\n* backup and monitoring services.\n\nThese providers process information subject to their own contractual and legal obligations.\n\nLegal and Safety Requirements\n\nWe may disclose information where reasonably necessary to:\n\n* comply with legal obligations;\n* respond to lawful requests from authorities;\n* protect the rights, property, or safety of users, operators, or the public;\n* prevent fraud, abuse, or security threats;\n* enforce our Terms of Service."
+        "heading": "6. שיתוף מידע",
+        "body": "אנו עשויים לשתף מידע במצבים הבאים:\n\nתוכן ציבורי\n\nרוב התוכן שאתם תורמים מיועד להיות גלוי לציבור, לרבות גרסאות ותרומות שיתופיות.\n\nאל תגישו מידע פרטי שאינכם רוצים שיפורסם.\n\nספקי שירות\n\nאנו עשויים לשתף מידע עם ספקי תשתית מהימנים הנדרשים להפעלת השירות, כגון:\n\n* אירוח;\n* שירותי מסד נתונים;\n* ספקי אימות;\n* ספקי משלוח דוא״ל;\n* גיבוי וניטור.\n\nספקים אלה מעבדים מידע בכפוף לחוזים ולחוקים שלהם.\n\nדרישות חוקיות ובטיחות\n\nאנו עשויים לגלות מידע כאשר הדבר סביר לצורך:\n\n* ציות לחובות חוקיות;\n* מענה לבקשות חוקיות מרשויות;\n* הגנה על זכויות, רכוש או בטיחות משתמשים, מפעילים או הציבור;\n* מניעת הונאה, ניצול לרעה או איומי אבטחה;\n* אכיפת תנאי השימוש שלנו."
       },
       "retention": {
-        "heading": "7. Data Retention",
-        "body": "We retain account information and submitted Content for as long as necessary to operate the Service, comply with legal obligations, resolve disputes, and maintain security.\n\nThis may include:\n\n* account records while your account remains active;\n* archived backups;\n* audit and moderation logs;\n* revision history of collaborative pages.\n\nEven after edits or account changes, historical revisions may remain preserved for transparency, moderation, abuse prevention, and platform integrity."
+        "heading": "7. שמירת מידע",
+        "body": "אנו שומרים מידע חשבון ותוכן שהוגש כל עוד נדרש להפעלת השירות, ציות לחוק, יישוב סכסוכים ושמירה על אבטחה.\n\nזה עשוי לכלול:\n\n* רשומות חשבון כל עוד החשבון פעיל;\n* גיבויים בארכיון;\n* יומני ביקורת וניהול תוכן;\n* היסטוריית גרסאות של עמודים שיתופיים.\n\nגם לאחר עריכות או שינויים בחשבון, גרסאות היסטוריות עשויות להישמר לשקיפות, ניהול תוכן, מניעת ניצול לרעה ויושרת הפלטפורמה."
       },
       "rights": {
-        "heading": "8. Your Rights and Choices",
-        "body": "Depending on your location and applicable law, you may have rights regarding your personal information, including the right to:\n\n* access your personal data;\n* correct inaccurate information;\n* request deletion of personal data;\n* request export of your data;\n* object to or restrict certain processing;\n* withdraw consent where processing is based on consent.\n\nTo exercise these rights, use the published contact method for the operator.\n\nSome requests may be limited where retention is necessary for legitimate interests, legal compliance, fraud prevention, moderation history, or preservation of collaborative records."
+        "heading": "8. זכויות ובחירות שלכם",
+        "body": "בהתאם למיקומכם והחוק החל, ייתכן שיש לכם זכויות בנוגע למידע האישי שלכם, לרבות:\n\n* גישה לנתונים;\n* תיקון מידע לא מדויק;\n* בקשה למחיקת נתונים;\n* בקשה לייצוא נתונים;\n* התנגדות או הגבלה של עיבוד מסוים;\n* משיכת הסכם כאשר העיבוד מבוסס על הסכמה.\n\nכדי לממש זכויות אלה, השתמשו בערוץ יצירת הקשר המפורסם של המפעיל.\n\nחלק מהבקשות עשויות להיות מוגבלות כאשר השמירה נחוצה לאינטרסים לגיטימיים, ציות חוקי, מניעת הונאה, היסטוריית ניהול תוכן או שימור רשומות שיתופיות."
       },
       "children": {
-        "heading": "9. Children's Privacy",
-        "body": "The Service is not directed to children under the age at which parental consent is required under applicable law in their country of residence.\n\nWe do not knowingly collect personal information from children in violation of applicable law.\n\nIf you believe that a child has provided personal data improperly, please contact us so appropriate steps can be taken."
+        "heading": "9. פרטיות ילדים",
+        "body": "השירות אינו מיועד לילדים מתחת לגיל שבו נדרשת הסכמת הורה לפי החוק במדינת מגוריהם.\n\nאיננו אוספים ביודעין מידע אישי מילדים בניגוד לחוק החל.\n\nאם אתם סבורים שילד מסר מידע שלא כראוי, צרו קשר כדי שנוכל לפעול."
       },
       "international": {
-        "heading": "10. International Users",
-        "body": "If you access the Service from outside the operator's country, your information may be processed and stored in jurisdictions with different data protection laws.\n\nBy using the Service, you acknowledge that your information may be transferred and processed in accordance with this Policy and applicable law."
+        "heading": "10. משתמשים בינלאומיים",
+        "body": "אם אתם ניגשים לשירות מחוץ למדינת המפעיל, המידע שלכם עשוי להיות מעובד ומאוחסן בסמכויות שיפוט עם חוקי הגנת מידע שונים.\n\nבשימוש בשירות אתם מכירים שהמידע שלכם עשוי להיות מועבר ומעובד בהתאם למדיניות זו ולחוק החל."
       },
       "changes": {
-        "heading": "11. Changes to This Policy",
-        "body": "We may update this Privacy Policy from time to time.\n\nWhen changes are made, we will update the \"Last Updated\" date at the top of this page.\n\nYour continued use of the Service after such updates constitutes acknowledgment of the revised Policy to the extent permitted by law."
+        "heading": "11. שינויים במדיניות",
+        "body": "אנו עשויים לעדכן את מדיניות הפרטיות מעת לעת.\n\nבעת שינויים נעדכן את תאריך \"עודכן לאחרונה\" בראש העמוד.\n\nהמשך שימושכם בשירות לאחר עדכונים כאלה מהווה הכרה במדיניות המתוקנת, בכפוף למגבלות החוק."
       },
       "contact": {
-        "heading": "12. Contact",
-        "body": "For privacy questions, data requests, abuse reports, or legal notices, please use the contact method published on this deployment, such as a maintainer email address, repository contact channel, or issue tracker where appropriate."
+        "heading": "12. יצירת קשר",
+        "body": "לשאלות פרטיות, בקשות נתונים, דיווחי ניצול לרעה או הודעות משפטיות, השתמשו בערוץ יצירת הקשר המפורסם בפריסה זו — למשל דוא״ל מתחזק, ערוץ במאגר או מערכת מעקב בעיות, לפי העניין."
       }
     }
   }
