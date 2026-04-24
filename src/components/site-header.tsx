@@ -68,12 +68,6 @@ export async function SiteHeader() {
             {t("browse")}
           </Link>
           <Link
-            href="/offline-catalog"
-            className="text-muted no-underline hover:underline"
-          >
-            {t("offlineCatalog")}
-          </Link>
-          <Link
             href="/mission"
             className="text-muted no-underline hover:underline"
           >

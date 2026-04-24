@@ -55,6 +55,13 @@ export function SiteHeaderAccountMenu(props: {
       >
         {t("contribute")}
       </Link>
+      <Link
+        href="/offline-catalog"
+        className="block px-3 py-2 text-foreground no-underline hover:bg-background"
+        role="menuitem"
+      >
+        {t("offlineCatalog")}
+      </Link>
       {props.canResolveReports ? (
         <>
           <div className="my-1 border-t border-border" aria-hidden />
@@ -127,6 +134,12 @@ export function SiteHeaderGuestMenu() {
         className="block px-3 py-2 text-foreground no-underline hover:bg-background"
       >
         {t("contribute")}
+      </Link>
+      <Link
+        href="/offline-catalog"
+        className="block px-3 py-2 text-foreground no-underline hover:bg-background"
+      >
+        {t("offlineCatalog")}
       </Link>
       <Link
         href="/login"
