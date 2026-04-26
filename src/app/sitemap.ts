@@ -3,6 +3,9 @@ import { prisma } from "@/lib/db";
 import { routing } from "@/i18n/routing";
 import { getPublicOrigin } from "@/lib/public-origin";
 
+export const runtime = "nodejs";
+export const revalidate = 3600;
+
 const STATIC_PATHS = ["", "/mission", "/privacy", "/terms", "/contribute", "/contact"];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -19,14 +22,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   }
 
-  const books = await prisma.book.findMany({
-    where: { isDraft: false },
-    select: {
-      slug: true,
-      updatedAt: true,
-      sections: { select: { slug: true } },
-    },
-  });
+  const books = await prisma.book
+    .findMany({
+      where: { isDraft: false },
+      select: {
+        slug: true,
+        updatedAt: true,
+        sections: { select: { slug: true } },
+      },
+    })
+    .catch(() => []);
 
   for (const book of books) {
     for (const locale of routing.locales) {
