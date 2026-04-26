@@ -1,6 +1,7 @@
 import { Link } from "@/i18n/navigation";
 import { isGoogleAuthEnabled } from "@/lib/google-auth";
 import { localizedCallbackUrl } from "@/lib/localized-callback-url";
+import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { LoginForm } from "./login-form";
 
@@ -8,6 +9,22 @@ type Props = {
   params: Promise<{ locale: string }>;
   searchParams: Promise<{ callbackUrl?: string }>;
 };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "Auth" });
+  return {
+    title: t("signInTitle"),
+    description: t("signInBlurbEmail"),
+    robots: {
+      index: false,
+      follow: false,
+    },
+    alternates: {
+      canonical: `/${locale}/login`,
+    },
+  };
+}
 
 export default async function LoginPage({ params, searchParams }: Props) {
   const { locale } = await params;

@@ -1,16 +1,24 @@
 import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 
+export const PUBLIC_CATALOG_QUALITY_WHERE: Prisma.BookWhereInput = {
+  isDraft: false,
+  sections: { some: {} },
+};
+
 export async function getBookCatalogFilterOptions() {
   const countryRows = await prisma.book.findMany({
-    where: { country: { not: "" }, isDraft: false },
+    where: {
+      ...PUBLIC_CATALOG_QUALITY_WHERE,
+      country: { not: "" },
+    },
     select: { country: true },
     distinct: ["country"],
     orderBy: { country: "asc" },
   });
 
   const langRows = await prisma.bookLanguage.findMany({
-    where: { book: { isDraft: false } },
+    where: { book: PUBLIC_CATALOG_QUALITY_WHERE },
     select: { locale: true },
     distinct: ["locale"],
     orderBy: { locale: "asc" },
@@ -57,7 +65,7 @@ export function buildBookCatalogWhere(input: {
       }
     : null;
 
-  const filters: Prisma.BookWhereInput[] = [{ isDraft: false }];
+  const filters: Prisma.BookWhereInput[] = [PUBLIC_CATALOG_QUALITY_WHERE];
   if (figureF) {
     filters.push({ figureName: { equals: figureF, mode: "insensitive" } });
   }

@@ -9,6 +9,9 @@ export async function SiteFooter() {
     <footer className="mt-auto border-t border-border bg-card">
       <div className="mx-auto flex max-w-4xl flex-col gap-2 px-4 py-6 text-sm text-muted sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:gap-4">
         <nav className="flex flex-wrap items-center gap-x-4 gap-y-2" aria-label={t("navAria")}>
+          <Link href="/contact" className="text-accent no-underline hover:underline">
+            {t("contact")}
+          </Link>
           <Link href="/terms" className="text-accent no-underline hover:underline">
             {t("terms")}
           </Link>

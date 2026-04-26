@@ -107,6 +107,16 @@
     "backHome": "← 返回浏览",
     "missionPersonalCta": "阅读该项目的个人故事 - 我们的使命。"
   },
+  "Contact": {
+    "metaTitle": "联系我们",
+    "metaDescription": "如何联系 OpenBook 保养人员寻求支持、举报滥用行为以及法律/隐私请求。",
+    "title": "联系我们",
+    "intro": "对于支持问题、举报滥用行为、隐私/法律请求或错误报告，请使用以下公共项目频道。",
+    "channelHeading": "主要联系渠道",
+    "channelBody": "在项目存储库中打开一个问题，并尽可能包含详细信息。对于敏感的报告，请提及需要私下跟进。",
+    "issuesLinkLabel": "OpenBook 问题跟踪器",
+    "backHome": "← 返回浏览"
+  },
   "Mission": {
     "metaTitle": "我们的使命",
     "metaDescription": "开放书籍背后的故事：从带五岁孩子去图书馆的经历，到一个拥有许多语言传记协作图书馆。",
@@ -831,6 +841,7 @@
   },
   "SiteFooter": {
     "navAria": "法律和许可证",
+    "contact": "联系",
     "terms": "服务条款",
     "privacy": "隐私政策",
     "licenseDeed": "{license}（契约）",

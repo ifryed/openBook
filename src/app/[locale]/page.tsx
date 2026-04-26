@@ -18,6 +18,7 @@ import {
 import { prisma } from "@/lib/db";
 import { Link } from "@/i18n/navigation";
 import { isRtlLocale } from "@/i18n/routing";
+import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 type Props = {
@@ -30,6 +31,18 @@ type Props = {
     lang?: string;
   }>;
 };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "Home" });
+  return {
+    title: t("title"),
+    description: t("intro"),
+    alternates: {
+      canonical: `/${locale}`,
+    },
+  };
+}
 
 export default async function HomePage({ params, searchParams }: Props) {
   const { locale } = await params;

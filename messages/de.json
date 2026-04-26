@@ -107,6 +107,16 @@
     "backHome": "← Zurück zum Browsen",
     "missionPersonalCta": "Lesen Sie die persönliche Geschichte hinter dem Projekt—unsere Mission."
   },
+  "Contact": {
+    "metaTitle": "Kontakt",
+    "metaDescription": "So kontaktieren Sie die OpenBook-Wartenden für Support, Missbrauchsberichte und rechtliche/datenschutzrechtliche Anliegen.",
+    "title": "Kontakt",
+    "intro": "Für Supportfragen, Missbrauchsanzeigen, Datenschutz-/Rechtsanfragen oder Bug-Reports nutzen Sie bitte den öffentlichen Projektkahnnel unten.",
+    "channelHeading": "Primärer Kontaktkanal",
+    "channelBody": "Öffnen Sie einen Issue im Projektarchiv und fügen Sie so viele Details wie möglich hinzu. Für sensible Berichte erwähnen Sie bitte, dass ein privater Nachtrag erforderlich ist.",
+    "issuesLinkLabel": "OpenBook-Issue-Tracker",
+    "backHome": "← Zurück zum Browsen"
+  },
   "Mission": {
     "metaTitle": "Unsere Mission",
     "metaDescription": "Die Geschichte hinter OpenBook: Von einem Bibliotheksbesuch mit einem Fünfjährigen zu einer kollaborativen Bibliothek von Biografien in vielen Sprachen.",
@@ -831,6 +841,7 @@
   },
   "SiteFooter": {
     "navAria": "Rechtliches und Lizenz",
+    "contact": "Kontakt",
     "terms": "Nutzungsbedingungen",
     "privacy": "Datenschutzerklärung",
     "licenseDeed": "{license} (Urkunde)",

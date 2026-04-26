@@ -1,10 +1,27 @@
 import { Link } from "@/i18n/navigation";
 import { isGoogleAuthEnabled } from "@/lib/google-auth";
 import { localizedCallbackUrl } from "@/lib/localized-callback-url";
+import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { RegisterForm } from "./register-form";
 
 type Props = { params: Promise<{ locale: string }> };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "Auth" });
+  return {
+    title: t("signUpTitle"),
+    description: t("signUpBlurbEmail"),
+    robots: {
+      index: false,
+      follow: false,
+    },
+    alternates: {
+      canonical: `/${locale}/signup`,
+    },
+  };
+}
 
 export default async function SignupPage({ params }: Props) {
   const { locale } = await params;

@@ -107,6 +107,16 @@
     "backHome": "← Voltar ao navegador",
     "missionPersonalCta": "Leia a história pessoal por trás do projeto—nossa missão."
   },
+  "Contact": {
+    "metaTitle": "Contato",
+    "metaDescription": "Como entrar em contato com os mantenedores do OpenBook para suporte, relatórios de abuso e solicitações legais/de privacidade.",
+    "title": "Contato",
+    "intro": "Para perguntas de suporte, relatórios de abuso, solicitações de privacidade/legislação ou relatórios de bugs, use o canal público do projeto abaixo.",
+    "channelHeading": "Canal de contato principal",
+    "channelBody": "Abra um problema no repositório do projeto e inclua o máximo de detalhes possível. Para relatórios confidenciais, mencione que é necessário um acompanhamento privado.",
+    "issuesLinkLabel": "Rastreador de problemas do OpenBook",
+    "backHome": "← Voltar para navegar"
+  },
   "Mission": {
     "metaTitle": "Nossa missão",
     "metaDescription": "A história por trás do OpenBook: de uma visita a uma biblioteca com um menino de cinco anos para uma biblioteca colaborativa de biografias em muitas línguas.",
@@ -831,6 +841,7 @@
   },
   "SiteFooter": {
     "navAria": "Legal e licença",
+    "contact": "Contato",
     "terms": "Termos de Serviço",
     "privacy": "Política de Privacidade",
     "licenseDeed": "{license} (escrito)",

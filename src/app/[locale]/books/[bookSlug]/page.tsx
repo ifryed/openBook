@@ -25,12 +25,48 @@ import {
 import { resolveBookTitle } from "@/lib/book-title-localization";
 import { SharePageButton } from "@/components/share-page-button";
 import { SITE_CONTENT_LICENSE } from "@/lib/site-content-license";
+import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 type Props = {
   params: Promise<{ locale: string; bookSlug: string }>;
   searchParams: Promise<{ lang?: string }>;
 };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale, bookSlug } = await params;
+  const book = await prisma.book.findFirst({
+    where: { slug: bookSlug, isDraft: false },
+    select: {
+      title: true,
+      titleLocales: { select: { locale: true, title: true } },
+      defaultLocale: true,
+      figureName: true,
+      summary: true,
+    },
+  });
+
+  if (!book) {
+    return {
+      alternates: { canonical: `/${locale}/books/${bookSlug}` },
+    };
+  }
+
+  const localizedTitle = resolveBookTitle(
+    book.title,
+    book.titleLocales,
+    locale,
+    book.defaultLocale,
+  );
+
+  return {
+    title: localizedTitle,
+    description: book.summary?.trim() || `Biography of ${book.figureName}`,
+    alternates: {
+      canonical: `/${locale}/books/${bookSlug}`,
+    },
+  };
+}
 
 export default async function BookPage({ params, searchParams }: Props) {
   const { locale, bookSlug } = await params;

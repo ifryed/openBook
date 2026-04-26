@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import { resolveBookTitle } from "@/lib/book-title-localization";
 import { isSectionCompleteForLocale } from "@/lib/section-localization";
+import { PUBLIC_CATALOG_QUALITY_WHERE } from "@/lib/catalog-search";
 
 export const PUBLIC_CATALOG_EXPORT_VERSION = 1 as const;
 
@@ -49,7 +50,7 @@ async function latestRevisionBody(
  */
 export async function buildPublicCatalogSnapshot(): Promise<PublicCatalogSnapshotV1> {
   const books = await prisma.book.findMany({
-    where: { isDraft: false },
+    where: PUBLIC_CATALOG_QUALITY_WHERE,
     orderBy: { updatedAt: "desc" },
     include: {
       languages: { select: { locale: true } },
@@ -112,6 +113,10 @@ export async function buildPublicCatalogSnapshot(): Promise<PublicCatalogSnapsho
         titlesByLocale: sectionTitles,
         bodiesByLocale,
       });
+    }
+
+    if (sectionsOut.length === 0) {
+      continue;
     }
 
     outBooks.push({

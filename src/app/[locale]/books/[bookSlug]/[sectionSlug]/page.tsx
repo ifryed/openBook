@@ -22,12 +22,62 @@ import { MarkdownBody } from "@/components/markdown-body";
 import { ReportForm } from "@/components/report-form";
 import { SharePageButton } from "@/components/share-page-button";
 import { latestRevisionBodiesForLocale } from "@/lib/section-locale-body";
+import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 
 type Props = {
   params: Promise<{ locale: string; bookSlug: string; sectionSlug: string }>;
   searchParams: Promise<{ lang?: string }>;
 };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale, bookSlug, sectionSlug } = await params;
+  const section = await prisma.section.findFirst({
+    where: {
+      slug: sectionSlug,
+      book: { slug: bookSlug, isDraft: false },
+    },
+    select: {
+      slug: true,
+      localizations: { select: { locale: true, title: true } },
+      book: {
+        select: {
+          title: true,
+          titleLocales: { select: { locale: true, title: true } },
+          defaultLocale: true,
+          figureName: true,
+        },
+      },
+    },
+  });
+
+  if (!section) {
+    return {
+      alternates: { canonical: `/${locale}/books/${bookSlug}/${sectionSlug}` },
+    };
+  }
+
+  const bookTitle = resolveBookTitle(
+    section.book.title,
+    section.book.titleLocales,
+    locale,
+    section.book.defaultLocale,
+  );
+  const sectionTitle = resolveSectionTitle(
+    section.slug,
+    section.localizations,
+    locale,
+    section.book.defaultLocale,
+  );
+
+  return {
+    title: `${sectionTitle} · ${bookTitle}`,
+    description: `${sectionTitle} chapter in ${bookTitle} (${section.book.figureName})`,
+    alternates: {
+      canonical: `/${locale}/books/${bookSlug}/${sectionSlug}`,
+    },
+  };
+}
 
 export default async function SectionReadPage({ params, searchParams }: Props) {
   const { locale, bookSlug, sectionSlug } = await params;

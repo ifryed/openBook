@@ -107,6 +107,16 @@
     "backHome": "← Retourner à la navigation",
     "missionPersonalCta": "Lisez l'histoire personnelle derrière le projet—notre mission."
   },
+  "Contact": {
+    "metaTitle": "Contactez-nous",
+    "metaDescription": "Comment contacter les mainteneurs d'OpenBook pour le support, les signalements d'abus et les demandes juridiques/de confidentialité.",
+    "title": "Contact",
+    "intro": "Pour les questions de support, les signalements d'abus, les demandes de confidentialité/légales ou les rapports de bugs, utilisez le canal public du projet ci-dessous.",
+    "channelHeading": "Canal de contact principal",
+    "channelBody": "Ouvrez un problème dans le référentiel du projet et incluez autant de détails que possible. Pour les signalements sensibles, mentionnez qu'un suivi privé est nécessaire.",
+    "issuesLinkLabel": "Suiveur des problèmes OpenBook",
+    "backHome": "← Retourner à la navigation"
+  },
   "Mission": {
     "metaTitle": "Notre mission",
     "metaDescription": "L'histoire derrière OpenBook : d'une visite à la bibliothèque avec un enfant de cinq ans à une bibliothèque collaborative de biographies dans plusieurs langues.",
@@ -831,6 +841,7 @@
   },
   "SiteFooter": {
     "navAria": "Légal et licence",
+    "contact": "Contactez-nous",
     "terms": "Conditions d'utilisation",
     "privacy": "Politique de confidentialité",
     "licenseDeed": "{license} (acte)",
