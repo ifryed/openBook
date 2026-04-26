@@ -1,5 +1,4 @@
 import type { MetadataRoute } from "next";
-import { prisma } from "@/lib/db";
 import { routing } from "@/i18n/routing";
 import { getPublicOrigin } from "@/lib/public-origin";
 
@@ -19,32 +18,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         url: `${origin}/${locale}${path}`,
         lastModified: now,
       });
-    }
-  }
-
-  const books = await prisma.book
-    .findMany({
-      where: { isDraft: false },
-      select: {
-        slug: true,
-        updatedAt: true,
-        sections: { select: { slug: true } },
-      },
-    })
-    .catch(() => []);
-
-  for (const book of books) {
-    for (const locale of routing.locales) {
-      entries.push({
-        url: `${origin}/${locale}/books/${book.slug}`,
-        lastModified: book.updatedAt,
-      });
-      for (const section of book.sections) {
-        entries.push({
-          url: `${origin}/${locale}/books/${book.slug}/${section.slug}`,
-          lastModified: book.updatedAt,
-        });
-      }
     }
   }
 
