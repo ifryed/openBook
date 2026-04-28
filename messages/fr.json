@@ -771,6 +771,18 @@
     "sectionTitle": "Badges",
     "emptyPrivate": "Gagnez des badges en créant des livres, en modifiant des chapitres, en résolvant des rapports et en construisant une réputation.",
     "emptyPublic": "Ce contributeur n'a pas encore gagné de badges.",
+    "seeAllLink": "Voir tous les badges",
+    "catalogMetaTitle": "Badges — comment les obtenir",
+    "catalogMetaDescription": "Liste complète des badges OpenBook et des actions pour débloquer chacun d'eux.",
+    "catalogTitle": "Badges",
+    "catalogIntro": "Les badges récompensent la création de livres, les modifications de chapitres, l'aide à la modération et la réputation. Voici la liste complète et comment les débloquer.",
+    "catalogBackHome": "← Retour à l'accueil",
+    "catalogCategories": {
+      "create": "Livres et structure",
+      "edit": "Modifications et curation",
+      "community": "Communauté",
+      "trust": "Réputation"
+    },
     "ids": {
       "first_book": {
         "title": "Premier livre",

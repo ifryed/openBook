@@ -771,6 +771,18 @@
     "sectionTitle": "Badges",
     "emptyPrivate": "Earn badges by creating books, editing chapters, resolving reports, and building reputation.",
     "emptyPublic": "This contributor has not earned badges yet.",
+    "seeAllLink": "See all badges",
+    "catalogMetaTitle": "Badges — how to earn them",
+    "catalogMetaDescription": "Full list of OpenBook badges and what you need to do to earn each one.",
+    "catalogTitle": "Badges",
+    "catalogIntro": "Badges reward creating books, editing chapters, helping with moderation, and building reputation. Below is every badge and how it is unlocked.",
+    "catalogBackHome": "← Back to browse",
+    "catalogCategories": {
+      "create": "Books & structure",
+      "edit": "Edits & curation",
+      "community": "Community",
+      "trust": "Reputation"
+    },
     "ids": {
       "first_book": {
         "title": "First book",

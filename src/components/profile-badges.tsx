@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { BADGE_VISUAL, type BadgeId } from "@/lib/badges";
 
 type Props = {
@@ -16,12 +17,20 @@ export async function ProfileBadges({ earnedBadgeIds, variant }: Props) {
 
   return (
     <section className="rounded-xl border border-border bg-gradient-to-br from-card via-card to-muted/30 p-4 shadow-sm">
-      <h2 className="flex items-center gap-2 text-sm font-semibold text-foreground">
-        <span className="text-lg" aria-hidden>
-          🏅
-        </span>
-        {t("sectionTitle")}
-      </h2>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 className="flex items-center gap-2 text-sm font-semibold text-foreground">
+          <span className="text-lg" aria-hidden>
+            🏅
+          </span>
+          {t("sectionTitle")}
+        </h2>
+        <Link
+          href="/badges"
+          className="shrink-0 text-xs font-medium text-accent no-underline hover:underline"
+        >
+          {t("seeAllLink")}
+        </Link>
+      </div>
       {earnedBadgeIds.length === 0 ? (
         <p className="mt-3 flex items-start gap-2 text-sm text-muted">
           <span aria-hidden>✨</span>

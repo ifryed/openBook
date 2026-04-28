@@ -771,6 +771,18 @@
     "sectionTitle": "תגים",
     "emptyPrivate": "צברו תגים ביצירת ספרים, עריכת פרקים, טיפול בדיווחים ובניית מוניטין.",
     "emptyPublic": "לתורם זה עדיין אין תגים.",
+    "seeAllLink": "לצפות בכל התגים",
+    "catalogMetaTitle": "תגים — איך להשיגם",
+    "catalogMetaDescription": "רשימה מלאה של תגי OpenBook ומה צריך לעשות כדי להשיג כל תג.",
+    "catalogTitle": "תגים",
+    "catalogIntro": "תגים מכירים ביצירת ספרים, עריכת פרקים, עזרה בניהול ובניית מוניטין. להלן כל התגים ואיך נפתחים.",
+    "catalogBackHome": "← חזרה לעיון",
+    "catalogCategories": {
+      "create": "ספרים ומבנה",
+      "edit": "עריכה ואצירה",
+      "community": "קהילה",
+      "trust": "מוניטין"
+    },
     "ids": {
       "first_book": {
         "title": "ספר ראשון",

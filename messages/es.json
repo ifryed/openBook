@@ -771,6 +771,18 @@
     "sectionTitle": "Insignias",
     "emptyPrivate": "Obtén insignias creando libros, editando capítulos, resolviendo informes y construyendo reputación.",
     "emptyPublic": "Este colaborador aún no ha ganado ninguna insignia.",
+    "seeAllLink": "Ver todas las insignias",
+    "catalogMetaTitle": "Insignias — cómo conseguirlas",
+    "catalogMetaDescription": "Lista completa de insignias de OpenBook y lo que debes hacer para ganar cada una.",
+    "catalogTitle": "Insignias",
+    "catalogIntro": "Las insignias reconocen crear libros, editar capítulos, ayudar en la moderación y ganar reputación. Aquí están todas y cómo se desbloquean.",
+    "catalogBackHome": "← Volver al inicio",
+    "catalogCategories": {
+      "create": "Libros y estructura",
+      "edit": "Ediciones y curación",
+      "community": "Comunidad",
+      "trust": "Reputación"
+    },
     "ids": {
       "first_book": {
         "title": "Primer libro",

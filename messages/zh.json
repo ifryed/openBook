@@ -771,6 +771,18 @@
     "sectionTitle": "徽章",
     "emptyPrivate": "通过创建书籍、编辑章节、处理报告和建立声誉来获取徽章。",
     "emptyPublic": "此贡献者尚未获得徽章。",
+    "seeAllLink": "查看所有徽章",
+    "catalogMetaTitle": "徽章 — 如何获得",
+    "catalogMetaDescription": "OpenBook 全部徽章及解锁条件说明。",
+    "catalogTitle": "徽章",
+    "catalogIntro": "徽章表彰创建书籍、编辑章节、参与社区治理以及积累声望等行为。以下是全部徽章及解锁方式。",
+    "catalogBackHome": "← 返回浏览",
+    "catalogCategories": {
+      "create": "书籍与结构",
+      "edit": "编辑与策展",
+      "community": "社区",
+      "trust": "声望"
+    },
     "ids": {
       "first_book": {
         "title": "第一本书",

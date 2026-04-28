@@ -771,6 +771,18 @@
     "sectionTitle": "Abzeichen",
     "emptyPrivate": "Sammle Abzeichen, indem du Bücher erstellst, Kapitel bearbeitest, Berichte löschst und deinen Ruf aufbaust.",
     "emptyPublic": "Dieser Mitwirkende hat noch keine Abzeichen verdient.",
+    "seeAllLink": "Alle Abzeichen ansehen",
+    "catalogMetaTitle": "Abzeichen — so erhält man sie",
+    "catalogMetaDescription": "Vollständige Liste der OpenBook-Abzeichen und was Sie tun müssen, um jedes zu verdienen.",
+    "catalogTitle": "Abzeichen",
+    "catalogIntro": "Abzeichen würdigen das Erstellen von Büchern, das Bearbeiten von Kapiteln, Hilfe bei der Moderation und den Aufbau von Ansehen. Hier sind alle Abzeichen und wie sie freigeschaltet werden.",
+    "catalogBackHome": "← Zurück zur Übersicht",
+    "catalogCategories": {
+      "create": "Bücher & Struktur",
+      "edit": "Bearbeitungen & Kuratierung",
+      "community": "Community",
+      "trust": "Ansehen"
+    },
     "ids": {
       "first_book": {
         "title": "Erstes Buch",
