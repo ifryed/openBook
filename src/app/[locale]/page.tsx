@@ -4,7 +4,6 @@ import { isCalibreExportEnabled } from "@/lib/book-export";
 import { IntendedAudienceSelect } from "@/components/intended-audience-select";
 import {
   buildBookCatalogWhere,
-  buildCatalogUrl,
   catalogClearFiltersHref,
   getBookCatalogFilterOptions,
 } from "@/lib/catalog-search";
@@ -233,7 +232,7 @@ export default async function HomePage({ params, searchParams }: Props) {
           ) : null}
           {" · "}
           <Link
-            href={catalogClearFiltersHref(locale, query)}
+            href={catalogClearFiltersHref(query)}
             className="text-accent no-underline hover:underline"
           >
             {c("clearFilters")}
@@ -241,7 +240,7 @@ export default async function HomePage({ params, searchParams }: Props) {
           {query ? (
             <>
               {" · "}
-              <Link href={`/${locale}`} className="text-accent no-underline hover:underline">
+              <Link href="/" className="text-accent no-underline hover:underline">
                 {c("clearSearch")}
               </Link>
             </>
@@ -307,7 +306,7 @@ export default async function HomePage({ params, searchParams }: Props) {
                 <p className="text-sm text-muted">
                   {c("figure")}{" "}
                   <Link
-                    href={`/${locale}?figure=${encodeURIComponent(book.figureName)}`}
+                    href={`/?figure=${encodeURIComponent(book.figureName)}`}
                     className="text-accent no-underline hover:underline"
                     {...bookLocaleHtmlAttributes(catalogLocale)}
                   >
@@ -321,7 +320,7 @@ export default async function HomePage({ params, searchParams }: Props) {
                     {c("countryRegion")}
                     {": "}
                     <Link
-                      href={`/${locale}?country=${encodeURIComponent(book.country.trim())}`}
+                      href={`/?country=${encodeURIComponent(book.country.trim())}`}
                       className="text-accent no-underline hover:underline"
                     >
                       {book.country.trim()}
@@ -332,7 +331,7 @@ export default async function HomePage({ params, searchParams }: Props) {
                   <p className="mt-1 text-xs text-muted">
                     {t("ageAudienceLabel")}{" "}
                     <Link
-                      href={`/${locale}?age=${encodeURIComponent(book.intendedAges.trim())}`}
+                      href={`/?age=${encodeURIComponent(book.intendedAges.trim())}`}
                       className="text-accent no-underline hover:underline"
                     >
                       {book.intendedAges.trim()}
@@ -342,21 +341,22 @@ export default async function HomePage({ params, searchParams }: Props) {
                 {book.languages.length > 0 ? (
                   <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted">
                     <span>{c("languages")}:</span>
-                    {book.languages.map(({ locale: loc }) => (
-                      <Link
-                        key={loc}
-                        href={buildCatalogUrl(locale, {
-                          q: query,
-                          figure: figureFilter,
-                          age: ageFilter,
-                          country: countryFilter,
-                          lang: loc,
-                        })}
-                        className="text-accent no-underline hover:underline"
-                      >
-                        {bookLocaleLabel(loc)}
-                      </Link>
-                    ))}
+                    {book.languages.map(({ locale: loc }) => {
+                      const langHref =
+                        loc !== landingLocale
+                          ? withLangQuery(`/books/${book.slug}`, loc)
+                          : `/books/${book.slug}`;
+                      return (
+                        <Link
+                          key={loc}
+                          href={langHref}
+                          className="text-accent no-underline hover:underline"
+                          {...bookLocaleHtmlAttributes(loc)}
+                        >
+                          {bookLocaleLabel(loc)}
+                        </Link>
+                      );
+                    })}
                   </p>
                 ) : null}
                 {book.summary ? (

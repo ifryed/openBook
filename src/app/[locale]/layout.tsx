@@ -4,7 +4,6 @@ import {
   getTranslations,
   setRequestLocale,
 } from "next-intl/server";
-import { IBM_Plex_Mono, Inter } from "next/font/google";
 import { hasLocale } from "next-intl";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -12,19 +11,8 @@ import { AdSenseUnit } from "@/components/adsense-unit";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { normalizedAdsenseClientId } from "@/lib/adsense-client-id";
-import { isRtlLocale, routing } from "@/i18n/routing";
+import { routing } from "@/i18n/routing";
 import { Providers } from "./providers";
-
-const inter = Inter({
-  subsets: ["latin", "latin-ext"],
-  variable: "--font-geist-sans",
-});
-
-const plexMono = IBM_Plex_Mono({
-  weight: ["400", "500"],
-  subsets: ["latin"],
-  variable: "--font-geist-mono",
-});
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -86,39 +74,21 @@ export default async function LocaleLayout({ children, params }: Props) {
 
   setRequestLocale(locale);
   const messages = await getMessages();
-  const dir = isRtlLocale(locale) ? "rtl" : "ltr";
   const adsenseClientId = normalizedAdsenseClientId();
   const adsenseSlotId = process.env.NEXT_PUBLIC_ADSENSE_SLOT_ID?.trim();
-  // Head script: Google’s onboarding snippet (publisher id only; must be ca-pub-…).
-  const adsenseHeadScript = Boolean(adsenseClientId);
   // Visible unit: needs a display ad unit id from AdSense → Ads → By ad unit.
   const adsenseDisplayUnit = Boolean(adsenseClientId && adsenseSlotId);
 
   return (
-    <html lang={locale} dir={dir} suppressHydrationWarning>
-      <head>
-        {adsenseHeadScript ? (
-          <script
-            async
-            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseClientId}`}
-            crossOrigin="anonymous"
-          />
-        ) : null}
-      </head>
-      <body
-        className={`${inter.variable} ${plexMono.variable} min-h-screen flex flex-col antialiased`}
-      >
-        <NextIntlClientProvider messages={messages}>
-          <Providers>
-            <SiteHeader />
-            <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-8">
-              {children}
-              {adsenseDisplayUnit ? <AdSenseUnit /> : null}
-            </main>
-            <SiteFooter />
-          </Providers>
-        </NextIntlClientProvider>
-      </body>
-    </html>
+    <NextIntlClientProvider messages={messages}>
+      <Providers>
+        <SiteHeader />
+        <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-8">
+          {children}
+          {adsenseDisplayUnit ? <AdSenseUnit /> : null}
+        </main>
+        <SiteFooter />
+      </Providers>
+    </NextIntlClientProvider>
   );
 }
