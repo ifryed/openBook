@@ -76,12 +76,21 @@ function localeFromPathname(pathname: string): string {
 }
 
 export default async function middleware(request: NextRequest) {
+  const pathname = request.nextUrl.pathname;
+  // Root crawler / verification files must not get a locale prefix (e.g. /en/ads.txt), which breaks AdSense and SEO tools.
+  if (
+    pathname === "/ads.txt" ||
+    pathname === "/robots.txt" ||
+    pathname === "/sitemap.xml"
+  ) {
+    return NextResponse.next();
+  }
+
   const intlResponse = intlMiddleware(request);
   if (intlResponse.status === 307 || intlResponse.status === 308) {
     return intlResponse;
   }
 
-  const pathname = request.nextUrl.pathname;
   const pathNoLocale = stripLocalePrefix(pathname);
 
   const token = await getToken({
@@ -113,5 +122,11 @@ export default async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!api|_next|_vercel|.*\\..*).*)"],
+  matcher: [
+    // These live in `public/` with a dot in the path; the catch‑all below skips `.*\..*` so we list them explicitly and short‑circuit above.
+    "/ads.txt",
+    "/robots.txt",
+    "/sitemap.xml",
+    "/((?!api|_next|_vercel|.*\\..*).*)",
+  ],
 };
